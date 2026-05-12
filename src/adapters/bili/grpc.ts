@@ -188,7 +188,7 @@ export function BiliCommonBuilder(that: UniDMObj, options?: BiliCommonBuilderOpt
   return {
     "#text": content ?? that.content,
     "@_p": [
-      that.progress,
+      that.progress / 1000, // 当前该函数仅用于 bili xml ，故时间格式与其同步
       rMode,
       that.fontsize,
       that.color,
