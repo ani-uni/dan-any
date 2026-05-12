@@ -1,9 +1,19 @@
-import { BiliXmlAdapter, BiliXmlTransformerConfigurator } from "@/adapters/bili/xml.ts";
-import { DanuniJsonTransformerConfigurator } from "@/adapters/danuni/json.ts";
+import {
+  ArtplayerAdapter,
+  ArtplayerTransformer,
+  BiliXmlAdapter,
+  BiliXmlTransformerConfigurator,
+  DanuniJsonAdapter,
+  DanuniJsonTransformerConfigurator,
+  DanuniPbAdapter,
+  DanuniPbTransformer,
+  DdplayAdapter,
+  DdplayTransformer,
+} from "@/adapters/index.ts";
 import { initNewDb } from "@/core/db/index.ts";
-import { InitedUniDB, UniDB } from "@/core/index.ts";
+import { InitedUniDB, UniChunk, UniDB } from "@/core/index.ts";
 import { countTransformer } from "@/plugins/count.ts";
-import { describe, it, expect } from "vite-plus/test";
+import { describe, it, expect, beforeAll, afterAll } from "vite-plus/test";
 
 const xml = `<i>
 <chatserver>chat.bilibili.com</chatserver>
@@ -40,39 +50,44 @@ const xml2 = `<i>
 <d p="13.213,1,25,16777215,1686590010,0,296b35b5,1337972999512832512">test---hahaha</d>
 </i>`;
 
-const udb = await new UniDB().init();
+let udb: InitedUniDB;
+let chunk: UniChunk;
+beforeAll(async () => {
+  udb = await new UniDB().init();
+  chunk = await udb.import(BiliXmlAdapter(xml));
+  console.info(xml);
+  console.info(await chunk.export(DanuniJsonTransformerConfigurator({ minify: true })));
+});
+afterAll(async () => {
+  await udb.close();
+});
 
-describe("转化自", () => {
+describe("转化自", async () => {
   it("bili(xml)[双向]", async () => {
-    const chunk = await udb.import(BiliXmlAdapter(xml));
-    console.info(xml);
-    console.info(await chunk.export(DanuniJsonTransformerConfigurator({ minify: true })));
     console.info(await chunk.export(BiliXmlTransformerConfigurator()));
     console.info(await chunk.export(BiliXmlTransformerConfigurator({ avoidSenderIDWithAt: true })));
   });
-  // it("artplayer(json)", () => {
-  //   const json = {
-  //     danmuku: [
-  //       {
-  //         text: "artplayer测试弹幕", // 弹幕文本
-  //         time: 10, // 弹幕时间, 默认为当前播放器时间
-  //         mode: 0, // 弹幕模式: 0: 滚动(默认)，1: 顶部，2: 底部
-  //         color: "#FFFFFF", // 弹幕颜色，默认为白色
-  //         border: false, // 弹幕是否有描边, 默认为 false
-  //         style: { border: "10rem" }, // 弹幕自定义样式, 默认为空对象
-  //       },
-  //     ],
-  //   };
-  //   const pool = UniPool.fromArtplayer(json, "playerid-test", "acfun");
-  //   console.info(json);
-  //   console.info(pool);
-  //   const imp = UniPool.import(json);
-  //   expect(imp.fmt).toBe("artplayer.json");
-  //   // 该适配器ctime始终为now，无法双向测试
-  //   // expect(imp.pool).toEqual(pool)
-  //   UniPool.import(json, undefined, "test-artplayer.json");
-  //   // expect(imp2).toEqual(imp)
-  // });
+  it("artplayer(json)", async () => {
+    console.info(await chunk.export(ArtplayerTransformer));
+    const json = {
+      danmuku: [
+        {
+          text: "artplayer测试弹幕", // 弹幕文本
+          time: 10, // 弹幕时间, 默认为当前播放器时间
+          mode: 0, // 弹幕模式: 0: 滚动(默认)，1: 顶部，2: 底部
+          color: "#FFFFFF", // 弹幕颜色，默认为白色
+          border: false, // 弹幕是否有描边, 默认为 false
+          style: { border: "10rem" }, // 弹幕自定义样式, 默认为空对象
+        },
+      ],
+    };
+    const chunk2 = await udb.import(ArtplayerAdapter(json, "playerid-test", "acfun"));
+    const chunk2Json = await chunk2.export(DanuniJsonTransformerConfigurator({ minify: true }));
+    const chunk2Artplayer = await chunk2.export(ArtplayerTransformer);
+    console.info(chunk2Json);
+    console.info(await chunk2.export(ArtplayerTransformer));
+    expect(chunk2Artplayer.danmuku).toEqual(json.danmuku);
+  });
   // it("ass[双向]", () => {
   //   const canvas = createCanvas(50, 50);
   //   const pool = UniPool.fromBiliXML(xml);
@@ -85,37 +100,35 @@ describe("转化自", () => {
   //   const imp2 = UniPool.import(ass, undefined, "test-common.ass");
   //   expect(imp2).toEqual(imp);
   // });
-  // it("pb[双向]", () => {
-  //   const pool = UniPool.fromBiliXML(xml);
-  //   const pb = pool.toPb();
-  //   console.info(UniPool.fromPb(pb));
-  //   const imp = UniPool.import(pb);
-  //   expect(imp.fmt).toBe("danuni.binpb");
-  //   expect(imp.pool).toEqual(pool);
-  //   const imp2 = UniPool.import(pb, undefined, "test-danuni.binpb");
-  //   expect(imp2).toEqual(imp);
-  // });
-  // it("DDPlay[双向]", () => {
-  //   const pool = UniPool.fromBiliXML(xml);
-  //   const ddplay = pool.toDDPlay();
-  //   console.info(UniPool.fromDDPlay(ddplay, "1"));
-  //   const imp = UniPool.import(ddplay);
-  //   expect(imp.fmt).toBe("ddplay.json");
-  //   // 该适配器ctime始终为now，无法双向测试
-  //   UniPool.import(ddplay, undefined, "test-ddplay.json");
-  //   // expect(imp2).toEqual(imp)
-  // });
-  // it("min[双向]", () => {
-  //   const pool = UniPool.fromBiliXML(xml);
-  //   const min = pool.minify();
-  //   console.info(min);
-  //   const imp = UniPool.import(min);
-  //   expect(imp.fmt).toBe("danuni.min.json");
-  //   // 该适配器ctime始终为now，无法双向测试
-  //   // expect(imp.pool).toEqual(pool)
-  //   UniPool.import(min, undefined, "test-danuni.min.json");
-  //   // expect(imp2).toEqual(imp)
-  // });
+  it("pb[双向]", async () => {
+    const pb = await chunk.export(DanuniPbTransformer);
+    console.info(pb);
+    const reImport = await udb.import(DanuniPbAdapter(pb));
+    expect(await reImport.export(DanuniJsonTransformerConfigurator({ minify: true }))).toEqual(
+      await chunk.export(DanuniJsonTransformerConfigurator({ minify: true })),
+    );
+  });
+  it("DDPlay[双向]", async () => {
+    const ddplay = await chunk.export(DdplayTransformer);
+    console.info(ddplay);
+    const reImport = await udb.import(DdplayAdapter(ddplay, "1"));
+    const reImportDdplay = await reImport.export(DdplayTransformer);
+    expect(reImportDdplay.comments).toEqual(ddplay.comments);
+    // expect(await reImport.export(DanuniJsonTransformerConfigurator({ minify: true }))).toEqual(
+    //   await chunk.export(DanuniJsonTransformerConfigurator({ minify: true })),
+    // );
+  });
+  it("min[双向]", async () => {
+    expect(
+      (
+        await udb.import(
+          DanuniJsonAdapter(
+            await chunk.export(DanuniJsonTransformerConfigurator({ minify: true })),
+          ),
+        )
+      ).export(DanuniJsonTransformerConfigurator()),
+    ).toEqual(chunk.export(DanuniJsonTransformerConfigurator()));
+  });
 });
 
 describe("其它", () => {
@@ -159,5 +172,6 @@ describe("其它", () => {
     const mergedResult = await merged.export(countTransformer);
     console.info(`Merged count: ${mergedResult}, Expected: 16`);
     expect(mergedResult).toBe(16);
+    await udb2.close();
   });
 });
