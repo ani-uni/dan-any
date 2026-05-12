@@ -16,10 +16,15 @@ export type Transformer<T = unknown> = (
 ) => Promisable<T>;
 export type Plugin<T = unknown> = (u: TransformerInput) => Promisable<T>;
 
-export const defineAdapter = <T extends (...args: any[]) => Promisable<AdapterStore>>(adapter: T) =>
-  adapter;
-export const defineTransformer = <T extends Transformer>(transformer: T) => transformer;
-export const definePlugin = <T extends Plugin>(plugin: T) => plugin;
+export function defineAdapter<T extends (...args: any[]) => Promisable<AdapterStore>>(adapter: T) {
+  return adapter;
+}
+export function defineTransformer<T extends Transformer>(transformer: T) {
+  return transformer;
+}
+export function definePlugin<T extends Plugin>(plugin: T) {
+  return plugin;
+}
 
 export * from "./danuni/json.ts";
 export * from "./danuni/pb.ts";

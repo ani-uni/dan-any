@@ -37,6 +37,7 @@ export async function dumpDb(s_db?: ReturnType<typeof drizzle>) {
   return dump;
 }
 
-export function closeDb() {
+export async function closeDb() {
+  await db?.$client.close();
   db = null;
 }

@@ -1,4 +1,4 @@
-import { type Plugin, type Transformer, type TransformerInput } from "@/adapters/index.ts";
+import type { Plugin, Transformer, TransformerInput } from "@/adapters/index.ts";
 import { closeDb, db, dumpDb, initDb } from "./db/index.ts";
 import { chunks as chunksTable, chunksZod, danmakus, onConflictDoUpdate } from "./db/schema.ts";
 import { eq } from "drizzle-orm";
@@ -20,9 +20,9 @@ export class UniDB {
     const dump = await dumpDb(this.$drizzle!);
     return dump;
   }
-  close() {
+  async close() {
     this.$drizzle = null;
-    closeDb();
+    await closeDb();
   }
   /**
    * 合并弹幕库
