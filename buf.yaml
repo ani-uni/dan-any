@@ -1,0 +1,12 @@
+# For details on buf.yaml configuration, visit https://buf.build/docs/configuration/v2/buf-yaml
+version: v2
+modules:
+  - path: src/utils/proto/src
+lint:
+  use:
+    - STANDARD
+  ignore:
+    - src/utils/proto/src/bilibili/community/service/dm/v1/dm.proto
+breaking:
+  use:
+    - FILE

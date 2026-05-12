@@ -1,0 +1,77 @@
+import { defineAdapter, type Transformer } from "./index.ts";
+import { danmakus, onConflictDoUpdate } from "@/core/db/schema.ts";
+
+import { DanUniConvertTipTemplate, defaultUniDM, Pools, type DanUniConvertTip } from "@/core/dm.ts";
+import { createDMID, UniID } from "@/core/id.ts";
+import { transMode } from "@/utils/transMode.ts";
+import { enumModeCodec } from "./danuni/json.ts";
+
+interface DM_JSON_Dplayer {
+  code: number;
+  /**
+   * progress,mode,color,midHash,content
+   */
+  data: [number, number, number, string, string][];
+}
+
+export const DplayerAdapter = defineAdapter(
+  (
+    json: DM_JSON_Dplayer & { danuni?: DanUniConvertTip },
+    playerID: string,
+    domain: string = "other",
+  ) => {
+    return async (udb, uchunk) => {
+      const chunk = uchunk ?? (await udb.makeChunk({ fromConverted: !!json.danuni }));
+      const SOID = UniID.fromUnknown(playerID, domain).toString();
+      const now = new Date();
+      await udb.$drizzle
+        .insert(danmakus)
+        .values(
+          json.data.map(([progress, ori_mode, color, midHash, content]) => {
+            const mode = transMode(ori_mode, "dplayer");
+            const map_d = {
+              attr: defaultUniDM.attr,
+              fontsize: defaultUniDM.fontsize,
+              ctime: now,
+              weight: defaultUniDM.weight,
+              extra: defaultUniDM.extra,
+              pool: "Def" as const,
+              progress: progress * 1000,
+              mode: enumModeCodec.decode(mode),
+              color,
+              midHash,
+              content,
+              SOID,
+              senderID: UniID.fromUnknown(midHash, domain).toString(),
+              platform: domain,
+            };
+            return {
+              chunkID: chunk.id,
+              ...map_d,
+              DMID: createDMID({ ...map_d, mode, pool: Pools.Def }),
+            };
+          }),
+        )
+        .onConflictDoUpdate(onConflictDoUpdate.danmakus);
+      return chunk;
+    };
+  },
+);
+
+export const DplayerTransformer: Transformer = (
+  udanmakus,
+): Promise<DM_JSON_Dplayer & { danuni?: DanUniConvertTip }> => {
+  return udanmakus.then((dans) => ({
+    code: 0,
+    danuni: {
+      ...DanUniConvertTipTemplate,
+      data: dans[0]?.SOID.split("@")[0],
+    },
+    data: dans.map((dan) => {
+      let mode = 0;
+      if (dan.mode === "Top") mode = 1;
+      else if (dan.mode === "Bottom") mode = 2;
+      return [dan.progress / 1000, mode, dan.color, dan.senderID, dan.content];
+    }),
+  }));
+};

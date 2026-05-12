@@ -1,0 +1,88 @@
+import {
+  Mode as DanuniPbMode,
+  Pool as DanuniPbPool,
+} from "@/utils/proto/gen/danuni/danmaku/v1/danmaku_pb.ts";
+
+import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
+import { timestampDate, timestampFromDate, timestampNow } from "@bufbuild/protobuf/wkt";
+
+import { ListDanResponseSchema } from "@/utils/proto/gen/danuni/danmaku/v1/danmaku_pb.ts";
+import { defineAdapter, type Transformer } from "../index.ts";
+import { danmakus, onConflictDoUpdate } from "@/core/db/schema.ts";
+import { z } from "zod";
+
+import { JSON } from "@/utils/bigint.ts";
+import { migrateToV2Extra } from "@/utils/migrations/v2/extra.ts";
+
+const enumModeCodec = z.codec(z.enum(DanuniPbMode), z.enum(danmakus.mode.enumValues), {
+  decode: (danuniPbMode) => danmakus.mode.enumValues[danuniPbMode] || "Normal",
+  encode: (dbMode) => {
+    const i = danmakus.mode.enumValues.indexOf(dbMode);
+    return i === -1 ? DanuniPbMode.NORMAL_UNSPECIFIED : i;
+  },
+});
+const enumPoolCodec = z.codec(z.enum(DanuniPbPool), z.enum(danmakus.pool.enumValues), {
+  decode: (danuniPbPool) => danmakus.pool.enumValues[danuniPbPool] || "Def",
+  encode: (dbPool) => {
+    const i = danmakus.pool.enumValues.indexOf(dbPool);
+    return i === -1 ? DanuniPbPool.DEF_UNSPECIFIED : i;
+  },
+});
+
+export const DanuniPbAdapter = defineAdapter((bin: Uint8Array | ArrayBuffer) => {
+  return async (udb, uchunk) => {
+    const data = fromBinary(ListDanResponseSchema, new Uint8Array(bin));
+    const chunk = uchunk ?? (await udb.makeChunk({ fromConverted: true }));
+    await udb.$drizzle
+      .insert(danmakus)
+      .values(
+        data.danmakus.map((d) => ({
+          chunkID: chunk.id,
+          ...d,
+          SOID: d.soid,
+          DMID: d.dmid,
+          // progress: d.progress,
+          mode: enumModeCodec.decode(d.mode),
+          // fontsize: d.fontsize,
+          // color: d.color,
+          senderID: d.senderId,
+          // content: d.content,
+          ctime: timestampDate(d.ctime || timestampNow()),
+          // weight: d.weight,
+          pool: enumPoolCodec.decode(d.pool),
+          attr: z.enum(danmakus.attr.enumValues).array().parse(d.attr),
+          // platform: d.platform,
+          extra: d.extra
+            ? JSON.parse(d.extra)
+            : d.extraV1
+              ? migrateToV2Extra(d.extraV1)
+              : undefined,
+        })),
+      )
+      .onConflictDoUpdate(onConflictDoUpdate.danmakus);
+    return chunk;
+  };
+});
+
+export const DanuniPbTransformer: Transformer = (udanmakus): Promise<Uint8Array> => {
+  return udanmakus.then((data) =>
+    toBinary(
+      ListDanResponseSchema,
+      create(ListDanResponseSchema, {
+        danmakus: data.map((d) => ({
+          ...d,
+          soid: d.SOID,
+          dmid: d.DMID,
+          mode: enumModeCodec.encode(d.mode),
+          senderId: d.senderID,
+          ctime: timestampFromDate(d.ctime),
+          pool: enumPoolCodec.encode(d.pool),
+          // attr: d.attr,
+          platform: d.platform ?? undefined,
+          extra: JSON.stringify(d.extra),
+          // $typeName: "danuni.danmaku.v1.Danmaku" as const,
+        })),
+      }),
+    ),
+  );
+};

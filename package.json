@@ -1,0 +1,74 @@
+{
+  "name": "@dan-uni/dan-any",
+  "version": "2.0.0",
+  "description": "A danmaku transformer lib, supporting danmaku from different platforms.",
+  "keywords": [
+    "bangumi",
+    "danmaku"
+  ],
+  "homepage": "https://github.com/ani-uni/dan-any#readme",
+  "bugs": {
+    "url": "https://github.com/ani-uni/dan-any/issues"
+  },
+  "license": "LGPL-3.0-or-later",
+  "author": "rinne",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ani-uni/dan-any.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    "./dan-any": "./dist/dan-any.mjs",
+    "./dan-any/adapters": "./dist/dan-any/adapters.mjs",
+    "./dan-any/core": "./dist/dan-any/core.mjs",
+    "./dan-any/plugins": "./dist/dan-any/plugins.mjs",
+    "./dan-any/utils": "./dist/dan-any/utils.mjs",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch",
+    "test": "vp test",
+    "check": "vp check",
+    "prepublishOnly": "vp run build",
+    "buf": "buf generate"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.12.0",
+    "@electric-sql/pglite": "^0.4.5",
+    "@electric-sql/pglite-tools": "^0.3.5",
+    "@noble/hashes": "^2.2.0",
+    "drizzle-orm": "^1.0.0-rc.2-e38a2ba",
+    "fast-xml-builder": "^1.2.0",
+    "fast-xml-parser": "^5.8.0",
+    "json-bigint": "^1.0.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@bufbuild/buf": "^1.69.0",
+    "@bufbuild/protoc-gen-es": "^2.12.0",
+    "@types/json-bigint": "^1.0.4",
+    "@types/node": "^25.7.0",
+    "@typescript/native-preview": "7.0.0-dev.20260328.1",
+    "bumpp": "^11.1.0",
+    "drizzle-kit": "^1.0.0-rc.2-e38a2ba",
+    "protobufjs": "^8.2.0",
+    "type-fest": "^5.6.0",
+    "typescript": "^6.0.3",
+    "vite-plus": "^0.1.20"
+  },
+  "overrides": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@latest",
+    "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
+  },
+  "packageManager": "bun@1.3.13",
+  "inlinedDependencies": {
+    "type-fest": "5.6.0"
+  }
+}
