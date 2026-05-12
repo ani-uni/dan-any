@@ -30,4 +30,7 @@ export default defineConfig({
     },
   },
   fmt: {},
+  test: {
+    include: ["src/**/*.test.ts", "tests/**/*.test.ts"],
+  },
 });

@@ -56,6 +56,7 @@
     "@types/json-bigint": "^1.0.4",
     "@types/node": "^25.7.0",
     "@typescript/native-preview": "7.0.0-dev.20260328.1",
+    "@vitest/ui": "^4.1.6",
     "bumpp": "^11.1.0",
     "drizzle-kit": "^1.0.0-rc.2-e38a2ba",
     "protobufjs": "^8.2.0",
