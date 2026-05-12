@@ -1,4 +1,4 @@
-import { defineAdapter, type Transformer } from "./index.ts";
+import { defineAdapter, defineTransformer } from "./index.ts";
 import { danmakus, onConflictDoUpdate } from "@/core/db/schema.ts";
 
 import {
@@ -75,26 +75,26 @@ export const ArtplayerAdapter = defineAdapter(
   },
 );
 
-export const ArtplayerTransformer: Transformer = (
-  udanmakus,
-): Promise<DM_JSON_Artplayer & { danuni?: DanUniConvertTip }> => {
-  return udanmakus.then((dans) => ({
-    danuni: {
-      ...DanUniConvertTipTemplate,
-      data: dans[0]?.SOID.split("@")[0],
-    },
-    danmuku: dans.map((d) => {
-      let mode = 0;
-      if (d.mode === "Top") mode = 1;
-      else if (d.mode === "Bottom") mode = 2;
-      return {
-        text: d.content,
-        time: d.progress / 1000,
-        mode: mode as 0 | 1 | 2,
-        color: `#${d.color.toString(16).toUpperCase() || "FFFFFF"}`,
-        border: d.extra?.artplayer?.border,
-        style: d.extra?.artplayer?.style,
-      };
-    }),
-  }));
-};
+export const ArtplayerTransformer = defineTransformer(
+  (udanmakus): Promise<DM_JSON_Artplayer & { danuni?: DanUniConvertTip }> => {
+    return udanmakus.then((dans) => ({
+      danuni: {
+        ...DanUniConvertTipTemplate,
+        data: dans[0]?.SOID.split("@")[0],
+      },
+      danmuku: dans.map((d) => {
+        let mode = 0;
+        if (d.mode === "Top") mode = 1;
+        else if (d.mode === "Bottom") mode = 2;
+        return {
+          text: d.content,
+          time: d.progress / 1000,
+          mode: mode as 0 | 1 | 2,
+          color: `#${d.color.toString(16).toUpperCase() || "FFFFFF"}`,
+          border: d.extra?.artplayer?.border,
+          style: d.extra?.artplayer?.style,
+        };
+      }),
+    }));
+  },
+);

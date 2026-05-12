@@ -1,4 +1,4 @@
-import { defineAdapter, type Transformer } from "./index.ts";
+import { defineAdapter, defineTransformer } from "./index.ts";
 import { danmakus, onConflictDoUpdate } from "@/core/db/schema.ts";
 
 import { DanUniConvertTipTemplate, defaultUniDM, Pools, type DanUniConvertTip } from "@/core/dm.ts";
@@ -58,20 +58,20 @@ export const DplayerAdapter = defineAdapter(
   },
 );
 
-export const DplayerTransformer: Transformer = (
-  udanmakus,
-): Promise<DM_JSON_Dplayer & { danuni?: DanUniConvertTip }> => {
-  return udanmakus.then((dans) => ({
-    code: 0,
-    danuni: {
-      ...DanUniConvertTipTemplate,
-      data: dans[0]?.SOID.split("@")[0],
-    },
-    data: dans.map((dan) => {
-      let mode = 0;
-      if (dan.mode === "Top") mode = 1;
-      else if (dan.mode === "Bottom") mode = 2;
-      return [dan.progress / 1000, mode, dan.color, dan.senderID, dan.content];
-    }),
-  }));
-};
+export const DplayerTransformer = defineTransformer(
+  (udanmakus): Promise<DM_JSON_Dplayer & { danuni?: DanUniConvertTip }> => {
+    return udanmakus.then((dans) => ({
+      code: 0,
+      danuni: {
+        ...DanUniConvertTipTemplate,
+        data: dans[0]?.SOID.split("@")[0],
+      },
+      data: dans.map((dan) => {
+        let mode = 0;
+        if (dan.mode === "Top") mode = 1;
+        else if (dan.mode === "Bottom") mode = 2;
+        return [dan.progress / 1000, mode, dan.color, dan.senderID, dan.content];
+      }),
+    }));
+  },
+);

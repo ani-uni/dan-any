@@ -7,7 +7,7 @@ import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
 import { timestampDate, timestampFromDate, timestampNow } from "@bufbuild/protobuf/wkt";
 
 import { ListDanResponseSchema } from "@/utils/proto/gen/danuni/danmaku/v1/danmaku_pb.ts";
-import { defineAdapter, type Transformer } from "../index.ts";
+import { defineAdapter, defineTransformer } from "../index.ts";
 import { danmakus, onConflictDoUpdate } from "@/core/db/schema.ts";
 import { z } from "zod";
 
@@ -64,7 +64,7 @@ export const DanuniPbAdapter = defineAdapter((bin: Uint8Array | ArrayBuffer) => 
   };
 });
 
-export const DanuniPbTransformer: Transformer = (udanmakus): Promise<Uint8Array> => {
+export const DanuniPbTransformer = defineTransformer((udanmakus): Promise<Uint8Array> => {
   return udanmakus.then((data) =>
     toBinary(
       ListDanResponseSchema,
@@ -85,4 +85,4 @@ export const DanuniPbTransformer: Transformer = (udanmakus): Promise<Uint8Array>
       }),
     ),
   );
-};
+});
