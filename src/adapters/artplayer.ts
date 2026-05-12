@@ -41,9 +41,9 @@ export const ArtplayerAdapter = defineAdapter(
               if (extra)
                 extra = {
                   ...extra,
-                  artplayer: { ...extra.artplayer, style: args.style },
+                  artplayer: { ...extra.artplayer, border: args.border, style: args.style },
                 };
-              else extra = { artplayer: { style: args.style } };
+              else extra = { artplayer: { border: args.border, style: args.style } };
             }
             const mode = transMode(args.mode ?? 0, "artplayer");
             const map_d = {
