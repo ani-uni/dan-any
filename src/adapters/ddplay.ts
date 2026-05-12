@@ -85,7 +85,7 @@ export const DdplayTransformer = defineTransformer(
             dan.extra?.ddplay?.cid ??
             Number.parseInt(`0x${Buffer.from(dan.DMID).toString("hex")}`) ??
             0,
-          p: `${dan.progress},${mode},${dan.color},${dan.extra?.ddplay?.uid ?? dan.senderID}`,
+          p: `${dan.progress / 1000},${mode},${dan.color},${dan.extra?.ddplay?.uid ?? dan.senderID}`,
           m: dan.content,
         };
       }),
