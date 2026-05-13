@@ -1,5 +1,6 @@
 import { DMAttrSchema, ModeSchema, PoolSchema } from "@/core/db/schema.ts";
 import { type UniDMObj } from "@/core/dm.ts";
+import type { UniChunk } from "@/core/index.ts";
 import type { z } from "zod";
 
 interface UniDMComparable extends Omit<UniDMObj, "mode" | "pool" | "attr"> {
@@ -8,11 +9,12 @@ interface UniDMComparable extends Omit<UniDMObj, "mode" | "pool" | "attr"> {
   attr: z.infer<typeof DMAttrSchema>[];
 }
 
-export function isSame(
-  that: UniDMComparable,
-  dan: UniDMComparable,
-  options?: { skipDanuniMerge?: boolean },
-): boolean {
+type Comp = Pick<
+  UniDMComparable | Awaited<UniChunk["$danmakus"]>[number],
+  "SOID" | "content" | "mode" | "pool" | "platform" | "extra"
+>;
+
+export function isSame(that: Comp, dan: Comp, options?: { skipDanuniMerge?: boolean }): boolean {
   // 引用相同直接返回
   if (that === dan) return true;
   // 不支持比较高级弹幕
@@ -44,10 +46,10 @@ export function isSame(
       JSON.stringify(that.extra?.artplayer.style) !== JSON.stringify(dan.extra?.artplayer.style))
   )
     return false;
-  const isSame = (k: keyof UniDMObj) => that[k] === dan[k];
-  const checks = (
-    ["SOID", "content", "mode", "pool", "platform"] satisfies (keyof UniDMObj)[]
-  ).every((k) => isSame(k));
+  const isSame = (k: keyof Comp) => that[k] === dan[k];
+  const checks = (["SOID", "content", "mode", "pool", "platform"] satisfies (keyof Comp)[]).every(
+    (k) => isSame(k),
+  );
   // 忽略使用了extra字段却不在mode里标记的弹幕
   return checks;
 }
