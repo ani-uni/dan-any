@@ -32,7 +32,7 @@ const enumPoolCodec = z.codec(z.enum(DanuniPbPool), z.enum(danmakus.pool.enumVal
 export const DanuniPbAdapter = defineAdapter((bin: Uint8Array | ArrayBuffer) => {
   return async (udb, uchunk) => {
     const data = fromBinary(ListDanResponseSchema, new Uint8Array(bin));
-    const chunk = uchunk ?? (await udb.makeChunk({ fromConverted: true }));
+    const chunk = uchunk ?? (await udb.makeChunk({}));
     await udb.$drizzle
       .insert(danmakus)
       .values(

@@ -72,7 +72,7 @@ interface DM_JSON_BiliUp {
 
 export const BiliUpAdapter = defineAdapter((json: DM_JSON_BiliUp) => {
   return async (udb, uchunk) => {
-    const chunk = uchunk ?? (await udb.makeChunk({ fromConverted: false }));
+    const chunk = uchunk ?? (await udb.makeChunk({}));
     await udb.$drizzle
       .insert(danmakus)
       .values(

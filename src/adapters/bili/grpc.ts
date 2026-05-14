@@ -205,7 +205,7 @@ export function BiliCommonBuilder(that: UniDMObj, options?: BiliCommonBuilderOpt
 
 export const BiliGrpcAdapter = defineAdapter((bin: Uint8Array | ArrayBuffer) => {
   return async (udb, uchunk) => {
-    const chunk = uchunk ?? (await udb.makeChunk({ fromConverted: false }));
+    const chunk = uchunk ?? (await udb.makeChunk({}));
     const data = fromBinary(DmSegMobileReplySchema, new Uint8Array(bin));
     const json = data.elems;
     await udb.$drizzle

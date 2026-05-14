@@ -9,7 +9,7 @@ import { DmWebViewReplySchema } from "@/utils/proto/gen/bilibili/community/servi
 
 export const BiliCommandGrpcAdapter = defineAdapter((bin: Uint8Array | ArrayBuffer) => {
   return async (udb, uchunk) => {
-    const chunk = uchunk ?? (await udb.makeChunk({ fromConverted: false }));
+    const chunk = uchunk ?? (await udb.makeChunk({}));
     const data = fromBinary(DmWebViewReplySchema, new Uint8Array(bin));
     const json = data.commandDms;
     await udb.$drizzle

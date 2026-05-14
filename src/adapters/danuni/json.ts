@@ -36,7 +36,7 @@ export const DanuniJsonAdapter = defineAdapter(
   (json: Partial<UniDMObj & { extraStr?: string }>[]) => {
     return async (udb, uchunk) => {
       const now = new Date();
-      const chunk = uchunk ?? (await udb.makeChunk({ fromConverted: false }));
+      const chunk = uchunk ?? (await udb.makeChunk({}));
       await udb.$drizzle
         .insert(danmakus)
         .values(
