@@ -1,14 +1,16 @@
 import { defineAdapter } from "../index.ts";
-import { danmakus, onConflictDoUpdate } from "@/core/db/schema.ts";
 
-import { DMAttr, Modes, Pools, type Extra, type ExtraBili, type UniDMObj } from "@/core/dm.ts";
+import { DMAttr, Modes, Pools, type Extra, type ExtraBili } from "@/core/dm.ts";
 import { PlatformVideoSource, type PlatformDanmakuSource } from "@/core/platform.ts";
-import { createDMID, UniID } from "@/core/id.ts";
+import { UniID, type DMIDGenerator } from "@/core/id.ts";
 import { transCtime } from "@/utils/transCtime.ts";
 import { enumModeCodec, enumPoolCodec } from "../danuni/json.ts";
 import { fromBinary } from "@bufbuild/protobuf";
 import { DmSegMobileReplySchema } from "@/utils/proto/gen/bilibili/community/service/dm/v1/dm_pb.ts";
 import { SetBin, toBits } from "@/utils/bin.ts";
+import type { UniChunk } from "@/core/index.ts";
+import type { z } from "zod";
+import type { DanmakusSelect } from "@/core/db/schema.ts";
 
 interface DMBili {
   id: bigint; // xml 7
@@ -68,7 +70,7 @@ const DMAttrUtils = {
   },
 };
 
-export function BiliCommonParser(chunkID: number, args: DMBili, cid?: bigint, recSOID?: string) {
+export function BiliCommonParser(chunk: UniChunk, args: DMBili, cid?: bigint, recSOID?: string) {
   if (args.oid && !cid) cid = args.oid;
   const SOID = recSOID || `def_${PlatformVideoSource.Bilibili}+${UniID.fromBili({ cid })}`;
   const senderID = UniID.validateString(args.midHash)
@@ -132,11 +134,15 @@ export function BiliCommonParser(chunkID: number, args: DMBili, cid?: bigint, re
     extra,
   };
   return {
-    chunkID,
+    chunkID: chunk.id,
     ...map_d,
     mode: enumModeCodec.decode(mode),
     pool: enumPoolCodec.decode(pool),
-    DMID: createDMID(map_d),
+    DMID: chunk.$UniDB.DMIDGenerator({
+      ...map_d,
+      mode: enumModeCodec.decode(mode),
+      pool: enumPoolCodec.decode(pool),
+    }),
   };
 }
 
@@ -147,17 +153,17 @@ interface BiliCommonBuilderOptions {
    */
   avoidSenderIDWithAt?: boolean;
 }
-const recMode = (mode: Modes, extra?: ExtraBili) => {
+const recMode = (mode: z.infer<typeof enumModeCodec.out>, extra?: ExtraBili) => {
   switch (mode) {
-    case Modes.Normal:
+    case "Normal":
       return 1;
-    case Modes.Bottom:
+    case "Bottom":
       return 4;
-    case Modes.Top:
+    case "Top":
       return 5;
-    case Modes.Reverse:
+    case "Reverse":
       return 6;
-    case Modes.Ext:
+    case "Ext":
       if (!extra) return 1;
       else if (extra.adv) return 7;
       else if (extra.code) return 8;
@@ -167,7 +173,11 @@ const recMode = (mode: Modes, extra?: ExtraBili) => {
       return 1;
   }
 };
-export function BiliCommonBuilder(that: UniDMObj, options?: BiliCommonBuilderOptions) {
+export function BiliCommonBuilder(
+  DMIDGenerator: DMIDGenerator,
+  that: DanmakusSelect,
+  options?: BiliCommonBuilderOptions,
+) {
   if (options?.skipBiliCommand && that.extra?.bili?.command) return null;
   const rMode = that.extra?.bili?.mode || recMode(that.mode, that.extra?.bili);
   let content;
@@ -197,7 +207,7 @@ export function BiliCommonBuilder(that: UniDMObj, options?: BiliCommonBuilderOpt
       options?.avoidSenderIDWithAt
         ? that.senderID.replaceAll(`@${PlatformVideoSource.Bilibili}`, "")
         : that.senderID,
-      that.extra?.bili?.dmid || that.DMID || createDMID(that),
+      that.extra?.bili?.dmid || that.DMID || DMIDGenerator(that),
       that.weight,
     ].join(","),
   };
@@ -208,10 +218,7 @@ export const BiliGrpcAdapter = defineAdapter((bin: Uint8Array | ArrayBuffer) => 
     const chunk = uchunk ?? (await udb.makeChunk({}));
     const data = fromBinary(DmSegMobileReplySchema, new Uint8Array(bin));
     const json = data.elems;
-    await udb.$drizzle
-      .insert(danmakus)
-      .values(json.map((d) => BiliCommonParser(chunk.id, d)))
-      .onConflictDoUpdate(onConflictDoUpdate.danmakus);
+    await chunk.insertDanmakus(json.map((d) => BiliCommonParser(chunk, d)));
     return chunk;
   };
 });

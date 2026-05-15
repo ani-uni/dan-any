@@ -1,5 +1,4 @@
 import { defineAdapter } from "../index.ts";
-import { danmakus, onConflictDoUpdate } from "@/core/db/schema.ts";
 
 import { BiliCommonParser } from "./grpc.ts";
 
@@ -73,37 +72,34 @@ interface DM_JSON_BiliUp {
 export const BiliUpAdapter = defineAdapter((json: DM_JSON_BiliUp) => {
   return async (udb, uchunk) => {
     const chunk = uchunk ?? (await udb.makeChunk({}));
-    await udb.$drizzle
-      .insert(danmakus)
-      .values(
-        json.data.result.map((d) => {
-          // 处理 attrs 字符串转换为 attr 二进制
-          // attrs 格式如 "1,13,21"，每个数字对应二进制位
-          const attrBin = d.attrs
-            ? d.attrs
-                .split(",")
-                .map(Number)
-                .reduce((bin, bitPosition) => bin | (1 << (bitPosition - 1)), 0)
-            : 0;
-          return BiliCommonParser(chunk.id, {
-            id: BigInt(d.id_str || d.id),
-            idStr: d.id_str,
-            progress: d.progress,
-            mode: d.mode,
-            fontsize: d.fontsize,
-            color: Number.parseInt(d.color, 16),
-            mid: d.mid,
-            midHash: d.mid_hash,
-            content: d.msg,
-            ctime: BigInt(d.ctime),
-            pool: d.pool,
-            // idStr: d.id_str,
-            attr: attrBin,
-            oid: BigInt(d.oid),
-          });
-        }),
-      )
-      .onConflictDoUpdate(onConflictDoUpdate.danmakus);
+    await chunk.insertDanmakus(
+      json.data.result.map((d) => {
+        // 处理 attrs 字符串转换为 attr 二进制
+        // attrs 格式如 "1,13,21"，每个数字对应二进制位
+        const attrBin = d.attrs
+          ? d.attrs
+              .split(",")
+              .map(Number)
+              .reduce((bin, bitPosition) => bin | (1 << (bitPosition - 1)), 0)
+          : 0;
+        return BiliCommonParser(chunk, {
+          id: BigInt(d.id_str || d.id),
+          idStr: d.id_str,
+          progress: d.progress,
+          mode: d.mode,
+          fontsize: d.fontsize,
+          color: Number.parseInt(d.color, 16),
+          mid: d.mid,
+          midHash: d.mid_hash,
+          content: d.msg,
+          ctime: BigInt(d.ctime),
+          pool: d.pool,
+          // idStr: d.id_str,
+          attr: attrBin,
+          oid: BigInt(d.oid),
+        });
+      }),
+    );
     return chunk;
   };
 });

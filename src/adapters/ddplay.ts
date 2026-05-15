@@ -1,7 +1,6 @@
 import { defineAdapter, defineTransformer } from "./index.ts";
-import { danmakus, onConflictDoUpdate } from "@/core/db/schema.ts";
 
-import { DanUniConvertTipTemplate, defaultUniDM, Pools, type DanUniConvertTip } from "@/core/dm.ts";
+import { DanUniConvertTipTemplate, defaultUniDM, type DanUniConvertTip } from "@/core/dm.ts";
 import { createDMID, UniID } from "@/core/id.ts";
 import { transMode } from "@/utils/transMode.ts";
 import { enumModeCodec } from "./danuni/json.ts";
@@ -29,37 +28,34 @@ export const DdplayAdapter = defineAdapter(
         domain,
       ).toString();
       const now = new Date();
-      await udb.$drizzle
-        .insert(danmakus)
-        .values(
-          json.comments.map((d) => {
-            const p_arr = d.p.split(",");
-            const uid = p_arr[3];
-            const senderID = UniID.fromUnknown(uid, domain).toString();
-            const mode = transMode(Number.parseInt(p_arr[1]), "ddplay");
-            const map_d = {
-              SOID,
-              color: Number.parseInt(p_arr[2]),
-              progress: Number.parseFloat(p_arr[0]) * 1000,
-              mode: enumModeCodec.decode(mode),
-              senderID,
-              content: d.m,
-              platform: domain,
-              extra: { ddplay: { cid: d.cid, uid } },
-              attr: defaultUniDM.attr,
-              fontsize: defaultUniDM.fontsize,
-              ctime: now,
-              weight: defaultUniDM.weight,
-              pool: "Def" as const,
-            };
-            return {
-              chunkID: chunk.id,
-              ...map_d,
-              DMID: createDMID({ ...map_d, mode, pool: Pools.Def }),
-            };
-          }),
-        )
-        .onConflictDoUpdate(onConflictDoUpdate.danmakus);
+      await chunk.insertDanmakus(
+        json.comments.map((d) => {
+          const p_arr = d.p.split(",");
+          const uid = p_arr[3];
+          const senderID = UniID.fromUnknown(uid, domain).toString();
+          const mode = transMode(Number.parseInt(p_arr[1]), "ddplay");
+          const map_d = {
+            SOID,
+            color: Number.parseInt(p_arr[2]),
+            progress: Number.parseFloat(p_arr[0]) * 1000,
+            mode: enumModeCodec.decode(mode),
+            senderID,
+            content: d.m,
+            platform: domain,
+            extra: { ddplay: { cid: d.cid, uid } },
+            attr: defaultUniDM.attr,
+            fontsize: defaultUniDM.fontsize,
+            ctime: now,
+            weight: defaultUniDM.weight,
+            pool: "Def" as const,
+          };
+          return {
+            chunkID: chunk.id,
+            ...map_d,
+            DMID: createDMID(map_d),
+          };
+        }),
+      );
       return chunk;
     };
   },

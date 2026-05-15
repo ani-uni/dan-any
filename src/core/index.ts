@@ -1,6 +1,12 @@
 import type { Plugin, Transformer, TransformerInput } from "@/adapters/index.ts";
 import { closeDb, db, dumpDb, initDb } from "./db/index.ts";
-import { chunks as chunksTable, chunksZod, danmakus, onConflictDoUpdate } from "./db/schema.ts";
+import {
+  chunks as chunksTable,
+  chunksZod,
+  danmakus,
+  onConflictDoUpdate,
+  type DanmakusInsert,
+} from "./db/schema.ts";
 import { eq } from "drizzle-orm";
 import type { Asyncify, Promisable } from "type-fest";
 import { createDMID, type DMIDGenerator } from "./id.ts";
@@ -11,7 +17,7 @@ export type AdapterStore = (udb: InitedUniDB, uchunk?: UniChunk) => Promisable<U
 export class UniDB {
   constructor(
     public $drizzle = db,
-    private DMIDGenerator: DMIDGenerator = createDMID,
+    public DMIDGenerator: DMIDGenerator = createDMID,
   ) {}
   async init(dump?: File) {
     return new InitedUniDB(await initDb(dump), this.DMIDGenerator);
@@ -63,7 +69,7 @@ export class UniDB {
 export class InitedUniDB extends UniDB {
   constructor(
     public $drizzle: NonNullable<UniDB["$drizzle"]>,
-    DMIDGenerator: DMIDGenerator = createDMID,
+    public DMIDGenerator: DMIDGenerator = createDMID,
   ) {
     super($drizzle, DMIDGenerator);
   }
@@ -89,7 +95,7 @@ export class InitedUniDB extends UniDB {
   export<T extends Transformer>(transformer: T): ReturnType<T>;
   async export<T extends Asyncify<Transformer>>(transformer: T): Promise<ReturnType<T>>;
   export<T extends Transformer | Asyncify<Transformer>>(transformer: T): Promisable<ReturnType<T>> {
-    return <ReturnType<T>>transformer(this.$danmakus);
+    return <ReturnType<T>>transformer(this.$danmakus, { DMIDGenerator: this.DMIDGenerator });
   }
   plugin<T extends Plugin>(plugin: T): ReturnType<T>;
   async plugin<T extends Asyncify<Plugin>>(plugin: T): Promise<ReturnType<T>>;
@@ -131,6 +137,35 @@ export class UniChunk {
   get $danmakus() {
     return this.$UniDB.$drizzle.select().from(danmakus).where(eq(danmakus.chunkID, this.id));
   }
+  async insertDanmakus(
+    data: (DanmakusInsert | { DMID: string; chunkID: number })[],
+    autoSetDMID?: false,
+    autoSetChunk?: false,
+  ): Promise<void>;
+  async insertDanmakus(
+    data: (DanmakusInsert | { DMID: string })[],
+    autoSetDMID?: false,
+    autoSetChunk?: true,
+  ): Promise<void>;
+  async insertDanmakus(
+    data: (DanmakusInsert | { chunkID: number })[],
+    autoSetDMID?: true,
+    autoSetChunk?: false,
+  ): Promise<void>;
+  async insertDanmakus(
+    data: DanmakusInsert[],
+    autoSetDMID: true,
+    autoSetChunk: true,
+  ): Promise<void>;
+  async insertDanmakus(
+    data: (DanmakusInsert & { DMID?: string; chunkID?: number })[],
+    autoSetDMID = false,
+    autoSetChunk = false,
+  ) {
+    if (autoSetDMID) data = data.map((d) => ({ ...d, DMID: this.$UniDB.DMIDGenerator(d) }));
+    if (autoSetChunk) data = data.map((d) => ({ ...d, chunkID: this.id }));
+    await this.$db.insert(danmakus).values(data).onConflictDoUpdate(onConflictDoUpdate.danmakus);
+  }
   async import(adapterStore: AdapterStore) {
     const chunk = await adapterStore(this.$UniDB, this);
     this.#infoCache = undefined;
@@ -142,7 +177,10 @@ export class UniChunk {
     transformer: T,
   ): Promise<ReturnType<T>> {
     // transformer 格式转换器 不应对数据库执行任何写操作
-    return <ReturnType<T>>transformer(this.$danmakus, await this.$chunk());
+    return <ReturnType<T>>transformer(this.$danmakus, {
+      DMIDGenerator: this.$UniDB.DMIDGenerator,
+      uchunk: await this.$chunk(),
+    });
   }
   plugin<T extends Plugin>(plugin: T): ReturnType<T>;
   async plugin<T extends Asyncify<Plugin>>(plugin: T): Promise<ReturnType<T>>;

@@ -1,4 +1,4 @@
-import { UniChunk, type AdapterStore, type InitedUniDB } from "@/core/index.ts";
+import { UniChunk, type AdapterStore, type DMIDGenerator, type InitedUniDB } from "@/core/index.ts";
 import type { Promisable } from "type-fest";
 
 export type TransformerInput = InitedUniDB | UniChunk;
@@ -12,7 +12,10 @@ export type Adapter<Args extends unknown[] = unknown[]> = (
 ) => Promisable<AdapterStore>;
 export type Transformer<T = unknown> = (
   udanmakus: ReturnType<typeof transformerInput2Danmakus>,
-  uchunk?: Awaited<ReturnType<typeof UniChunk.prototype.$chunk>>,
+  ctx: {
+    uchunk?: Awaited<ReturnType<typeof UniChunk.prototype.$chunk>>;
+    DMIDGenerator: DMIDGenerator;
+  },
 ) => Promisable<T>;
 export type Plugin<T = unknown> = (u: TransformerInput) => Promisable<T>;
 

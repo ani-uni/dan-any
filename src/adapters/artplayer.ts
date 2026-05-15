@@ -1,10 +1,8 @@
 import { defineAdapter, defineTransformer } from "./index.ts";
-import { danmakus, onConflictDoUpdate } from "@/core/db/schema.ts";
 
 import {
   DanUniConvertTipTemplate,
   defaultUniDM,
-  Pools,
   type DanUniConvertTip,
   type Extra,
 } from "@/core/dm.ts";
@@ -30,46 +28,43 @@ export const ArtplayerAdapter = defineAdapter(
       const SOID = UniID.fromUnknown(playerID, domain).toString();
       const senderID = UniID.fromNull(domain).toString();
       const now = new Date();
-      await udb.$drizzle
-        .insert(danmakus)
-        .values(
-          json.danmuku.map((args) => {
-            let extra = args.border
-              ? ({ artplayer: { border: args.border, style: {} } } as Extra)
-              : null;
-            if (args.style) {
-              if (extra)
-                extra = {
-                  ...extra,
-                  artplayer: { ...extra.artplayer, border: args.border, style: args.style },
-                };
-              else extra = { artplayer: { border: args.border, style: args.style } };
-            }
-            const mode = transMode(args.mode ?? 0, "artplayer");
-            const map_d = {
-              attr: defaultUniDM.attr,
-              fontsize: defaultUniDM.fontsize,
-              ctime: now,
-              weight: defaultUniDM.weight,
-              pool: "Def" as const,
-              content: args.text,
-              progress: (args.time ?? 0) * 1000,
-              mode: enumModeCodec.decode(mode),
-              color: Number((args.color || "FFFFFF").replace("#", "0x")),
-              style: args.style,
-              SOID,
-              senderID,
-              platform: domain,
-              extra,
-            };
-            return {
-              chunkID: chunk.id,
-              ...map_d,
-              DMID: createDMID({ ...map_d, mode, pool: Pools.Def }),
-            };
-          }),
-        )
-        .onConflictDoUpdate(onConflictDoUpdate.danmakus);
+      await chunk.insertDanmakus(
+        json.danmuku.map((args) => {
+          let extra = args.border
+            ? ({ artplayer: { border: args.border, style: {} } } as Extra)
+            : null;
+          if (args.style) {
+            if (extra)
+              extra = {
+                ...extra,
+                artplayer: { ...extra.artplayer, border: args.border, style: args.style },
+              };
+            else extra = { artplayer: { border: args.border, style: args.style } };
+          }
+          const mode = transMode(args.mode ?? 0, "artplayer");
+          const map_d = {
+            attr: defaultUniDM.attr,
+            fontsize: defaultUniDM.fontsize,
+            ctime: now,
+            weight: defaultUniDM.weight,
+            pool: "Def" as const,
+            content: args.text,
+            progress: (args.time ?? 0) * 1000,
+            mode: enumModeCodec.decode(mode),
+            color: Number((args.color || "FFFFFF").replace("#", "0x")),
+            style: args.style,
+            SOID,
+            senderID,
+            platform: domain,
+            extra,
+          };
+          return {
+            chunkID: chunk.id,
+            ...map_d,
+            DMID: createDMID(map_d),
+          };
+        }),
+      );
       return chunk;
     };
   },

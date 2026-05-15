@@ -1,5 +1,4 @@
 import { defineTransformer, defineAdapter } from "../index.ts";
-import { danmakus, onConflictDoUpdate } from "@/core/db/schema.ts";
 
 import { XMLParser } from "fast-xml-parser";
 import { DanUniConvertTipTemplate, type DanUniConvertTip } from "@/core/dm.ts";
@@ -7,7 +6,6 @@ import { BiliCommonBuilder, BiliCommonParser } from "./grpc.ts";
 import { UniID } from "@/core/id.ts";
 import { PlatformVideoSource } from "@/core/platform.ts";
 import XMLBuilder from "fast-xml-builder";
-import { enumAttrsCodec, enumModeCodec, enumPoolCodec } from "../danuni/json.ts";
 
 interface DM_XML_Bili {
   i: {
@@ -59,14 +57,9 @@ export const BiliXmlAdapter = defineAdapter((xml: string) => {
     const cid = BigInt(oriData.i.chatid);
     const recSOID = fromConverted ? oriData.i.danuni?.data : undefined;
     const chunk = uchunk ?? (await udb.makeChunk({ fromConverted }));
-    await udb.$drizzle
-      .insert(danmakus)
-      .values(
-        dans.map((d) =>
-          BiliCommonParser(chunk.id, parseBiliSingle(d["@_p"], d["#text"]), cid, recSOID),
-        ),
-      )
-      .onConflictDoUpdate(onConflictDoUpdate.danmakus);
+    await chunk.insertDanmakus(
+      dans.map((d) => BiliCommonParser(chunk, parseBiliSingle(d["@_p"], d["#text"]), cid, recSOID)),
+    );
     return chunk;
   };
 });
@@ -100,23 +93,13 @@ const genCID = (id?: string, options?: BiliXmlTransformerOptions) => {
 };
 
 export const BiliXmlTransformerConfigurator = (options?: BiliXmlTransformerOptions) =>
-  defineTransformer(async (udanmakus) => {
+  defineTransformer(async (udanmakus, ctx) => {
     const dans = await udanmakus;
     if (options?.avoidSenderIDWithAt) {
       const ok = dans.every((d) => d.senderID.endsWith(`@${PlatformVideoSource.Bilibili}`));
       if (!ok) throw new Error("存在其他来源的senderID，请关闭该功能再试！");
     }
-    let ds = dans.map((dan) =>
-      BiliCommonBuilder(
-        {
-          ...dan,
-          mode: enumModeCodec.encode(dan.mode)!,
-          pool: enumPoolCodec.encode(dan.pool)!,
-          attr: enumAttrsCodec.encode(dan.attr),
-        },
-        options,
-      ),
-    );
+    let ds = dans.map((dan) => BiliCommonBuilder(ctx.DMIDGenerator, dan, options));
     if (options?.skipBiliCommand) ds = ds.filter((d) => d !== null);
     return builder.build({
       "?xml": {

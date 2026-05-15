@@ -3,6 +3,7 @@ import * as t from "drizzle-orm/pg-core";
 import type { Extra as UniDanExtra } from "@/core/dm.ts";
 import { z } from "zod";
 import { createInsertSchema } from "drizzle-orm/zod";
+import type { Simplify } from "type-fest";
 
 export const modeEnum = t.pgEnum("mode", ["Normal", "Bottom", "Top", "Reverse", "Ext"]);
 export const poolEnum = t.pgEnum("pool", ["Def", "Sub", "Adv", "Ix"]);
@@ -43,7 +44,14 @@ export const danmakus = t.pgTable(
   },
   (table) => [t.primaryKey({ columns: [table.DMID, table.chunkID] })],
 );
-
+export const danmakusInsertZod = createInsertSchema(danmakus);
+export const danmakusSelectZod = createInsertSchema(danmakus);
+export type DanmakusInsert = Simplify<
+  Omit<z.infer<typeof danmakusInsertZod>, "extra" | "chunkID"> & { extra: UniDanExtra | null }
+>;
+export type DanmakusSelect = Simplify<
+  Omit<z.infer<typeof danmakusSelectZod>, "extra" | "chunkID"> & { extra: UniDanExtra | null }
+>;
 // export const pools = t.pgTable("pools", {
 //   SOID: t.text().primaryKey(),
 // });

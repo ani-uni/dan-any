@@ -1,7 +1,6 @@
-import { danmakus, onConflictDoUpdate } from "@/core/db/schema.ts";
+import { danmakus } from "@/core/db/schema.ts";
 import { defineTransformer, defineAdapter, type Transformer } from "../index.ts";
 import { defaultUniDM, DMAttr, Modes, Pools, type UniDMObj } from "@/core/dm.ts";
-import { createDMID } from "@/core/id.ts";
 import { z } from "zod";
 import { modeExtCheck } from "@/utils/modeExtCheck.ts";
 
@@ -37,41 +36,31 @@ export const DanuniJsonAdapter = defineAdapter(
     return async (udb, uchunk) => {
       const now = new Date();
       const chunk = uchunk ?? (await udb.makeChunk({}));
-      await udb.$drizzle
-        .insert(danmakus)
-        .values(
-          json.map((d) => {
-            const map_d = {
-              SOID: d.SOID || defaultUniDM.SOID,
-              progress: d.progress ?? defaultUniDM.progress,
-              mode: enumModeCodec.decode(d.mode),
-              fontsize: d.fontsize ?? defaultUniDM.fontsize,
-              color: d.color ?? defaultUniDM.color,
-              senderID: d.senderID || defaultUniDM.senderID,
-              content: d.content ?? defaultUniDM.content,
-              ctime: d.ctime ?? now,
-              weight: d.weight ?? defaultUniDM.weight,
-              pool: enumPoolCodec.decode(d.pool),
-              attr: d.attr ? enumAttrsCodec.decode(d.attr) : defaultUniDM.attr,
-              platform: d.platform ?? defaultUniDM.platform,
-              extra: d.extra ?? (d.extraStr ? migrateToV2Extra(d.extraStr) : defaultUniDM.extra),
-            };
-            modeExtCheck(map_d);
-            return {
-              chunkID: chunk.id,
-              ...map_d,
-              DMID:
-                d.DMID ||
-                createDMID({
-                  ...map_d,
-                  // 以下两个的类型partial由zod的default导致，但实际上以确保存在
-                  mode: enumModeCodec.encode(map_d.mode)!,
-                  pool: enumPoolCodec.encode(map_d.pool)!,
-                }),
-            };
-          }),
-        )
-        .onConflictDoUpdate(onConflictDoUpdate.danmakus);
+      await chunk.insertDanmakus(
+        json.map((d) => {
+          const map_d = {
+            SOID: d.SOID || defaultUniDM.SOID,
+            progress: d.progress ?? defaultUniDM.progress,
+            mode: enumModeCodec.decode(d.mode),
+            fontsize: d.fontsize ?? defaultUniDM.fontsize,
+            color: d.color ?? defaultUniDM.color,
+            senderID: d.senderID || defaultUniDM.senderID,
+            content: d.content ?? defaultUniDM.content,
+            ctime: d.ctime ?? now,
+            weight: d.weight ?? defaultUniDM.weight,
+            pool: enumPoolCodec.decode(d.pool),
+            attr: d.attr ? enumAttrsCodec.decode(d.attr) : defaultUniDM.attr,
+            platform: d.platform ?? defaultUniDM.platform,
+            extra: d.extra ?? (d.extraStr ? migrateToV2Extra(d.extraStr) : defaultUniDM.extra),
+          };
+          modeExtCheck(map_d);
+          return {
+            chunkID: chunk.id,
+            ...map_d,
+            DMID: d.DMID || chunk.$UniDB.DMIDGenerator(map_d),
+          };
+        }),
+      );
       return chunk;
     };
   },

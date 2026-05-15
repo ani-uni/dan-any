@@ -1,7 +1,6 @@
 import { defineAdapter, defineTransformer } from "./index.ts";
-import { danmakus, onConflictDoUpdate } from "@/core/db/schema.ts";
 
-import { DanUniConvertTipTemplate, defaultUniDM, Pools, type DanUniConvertTip } from "@/core/dm.ts";
+import { DanUniConvertTipTemplate, defaultUniDM, type DanUniConvertTip } from "@/core/dm.ts";
 import { createDMID, UniID } from "@/core/id.ts";
 import { transMode } from "@/utils/transMode.ts";
 import { enumModeCodec } from "./danuni/json.ts";
@@ -24,35 +23,32 @@ export const DplayerAdapter = defineAdapter(
       const chunk = uchunk ?? (await udb.makeChunk({ fromConverted: !!json.danuni }));
       const SOID = UniID.fromUnknown(playerID, domain).toString();
       const now = new Date();
-      await udb.$drizzle
-        .insert(danmakus)
-        .values(
-          json.data.map(([progress, ori_mode, color, midHash, content]) => {
-            const mode = transMode(ori_mode, "dplayer");
-            const map_d = {
-              attr: defaultUniDM.attr,
-              fontsize: defaultUniDM.fontsize,
-              ctime: now,
-              weight: defaultUniDM.weight,
-              extra: defaultUniDM.extra,
-              pool: "Def" as const,
-              progress: progress * 1000,
-              mode: enumModeCodec.decode(mode),
-              color,
-              midHash,
-              content,
-              SOID,
-              senderID: UniID.fromUnknown(midHash, domain).toString(),
-              platform: domain,
-            };
-            return {
-              chunkID: chunk.id,
-              ...map_d,
-              DMID: createDMID({ ...map_d, mode, pool: Pools.Def }),
-            };
-          }),
-        )
-        .onConflictDoUpdate(onConflictDoUpdate.danmakus);
+      await chunk.insertDanmakus(
+        json.data.map(([progress, ori_mode, color, midHash, content]) => {
+          const mode = transMode(ori_mode, "dplayer");
+          const map_d = {
+            attr: defaultUniDM.attr,
+            fontsize: defaultUniDM.fontsize,
+            ctime: now,
+            weight: defaultUniDM.weight,
+            extra: defaultUniDM.extra,
+            pool: "Def" as const,
+            progress: progress * 1000,
+            mode: enumModeCodec.decode(mode),
+            color,
+            midHash,
+            content,
+            SOID,
+            senderID: UniID.fromUnknown(midHash, domain).toString(),
+            platform: domain,
+          };
+          return {
+            chunkID: chunk.id,
+            ...map_d,
+            DMID: createDMID(map_d),
+          };
+        }),
+      );
       return chunk;
     };
   },
