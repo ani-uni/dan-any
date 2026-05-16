@@ -1,5 +1,5 @@
 import { BiliXmlAdapter } from "@/adapters/index.ts";
-import { createDMID, defaultUniDM, UniDB, type InitedUniDB, type UniChunk } from "@/core/index.ts";
+import { defaultUniDM, UniDB, type InitedUniDB, type UniChunk } from "@/core/index.ts";
 import { isSame } from "@/utils/index.ts";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -74,7 +74,7 @@ describe("其它", () => {
     ] satisfies Omit<Awaited<UniChunk["$danmakus"]>[number], "chunkID">[];
     let counter = 0;
     for (const pool of pool2) {
-      pool.DMID = createDMID({ ...pool, mode: 0, pool: 0 });
+      pool.DMID = chunk.$UniDB.DMIDGenerator({ ...pool });
       console.info(pool.extra);
       console.info(isSame(pool, pool2[0]));
       if (counter <= 2) expect(pool2[0].extra).toBe(null);
