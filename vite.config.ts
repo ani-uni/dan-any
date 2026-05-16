@@ -12,11 +12,12 @@ export default defineConfig({
   },
   pack: {
     entry: {
-      "dan-any": "./src/index.ts",
-      "dan-any/core": "./src/core/index.ts",
-      "dan-any/adapters": "./src/adapters/index.ts",
-      "dan-any/plugins": "./src/plugins/index.ts",
-      "dan-any/utils": "./src/utils/index.ts",
+      index: "./src/index.ts",
+      core: "./src/core/index.ts",
+      "core/db-schema": "./src/core/db/schema.ts",
+      adapters: "./src/adapters/index.ts",
+      plugins: "./src/plugins/index.ts",
+      utils: "./src/utils/index.ts",
     },
     dts: {
       tsgo: true,

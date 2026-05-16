@@ -21,11 +21,12 @@
   ],
   "type": "module",
   "exports": {
-    "./dan-any": "./dist/dan-any.mjs",
-    "./dan-any/adapters": "./dist/dan-any/adapters.mjs",
-    "./dan-any/core": "./dist/dan-any/core.mjs",
-    "./dan-any/plugins": "./dist/dan-any/plugins.mjs",
-    "./dan-any/utils": "./dist/dan-any/utils.mjs",
+    ".": "./dist/index.mjs",
+    "./adapters": "./dist/adapters.mjs",
+    "./core": "./dist/core.mjs",
+    "./core/db-schema": "./dist/core/db-schema.mjs",
+    "./plugins": "./dist/plugins.mjs",
+    "./utils": "./dist/utils.mjs",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -54,22 +55,25 @@
     "@bufbuild/buf": "^1.69.0",
     "@bufbuild/protoc-gen-es": "^2.12.0",
     "@types/json-bigint": "^1.0.4",
-    "@types/node": "^25.7.0",
+    "@types/node": "^25.8.0",
     "@typescript/native-preview": "7.0.0-dev.20260328.1",
     "@vitest/ui": "^4.1.6",
     "bumpp": "^11.1.0",
     "drizzle-kit": "^1.0.0-rc.2-e38a2ba",
-    "protobufjs": "^8.2.0",
+    "protobufjs": "^8.3.0",
     "type-fest": "^5.6.0",
     "typescript": "^6.0.3",
-    "vite-plus": "^0.1.20"
+    "vite-plus": "^0.1.21"
   },
   "overrides": {
     "vite": "npm:@voidzero-dev/vite-plus-core@latest",
     "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
   },
-  "packageManager": "bun@1.3.13",
+  "packageManager": "bun@1.3.14",
   "inlinedDependencies": {
     "type-fest": "5.6.0"
-  }
+  },
+  "trustedDependencies": [
+    "protobufjs"
+  ]
 }
