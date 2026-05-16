@@ -1,7 +1,5 @@
 import { definePlugin } from "@/adapters/index.ts";
-import { danmakus } from "@/core/db/schema.ts";
-import { DMAttr, Modes, Pools, type Extra } from "@/core/dm.ts";
-import { createDMID } from "@/core/id.ts";
+import { DMAttr, type Extra } from "@/core/dm.ts";
 import { UniChunk } from "@/core/index.ts";
 import { isSame } from "@/utils/isSame.ts";
 
@@ -10,16 +8,14 @@ import { isSame } from "@/utils/isSame.ts";
  * @param lifetime 查重时间区段，单位秒 (默认为 0，表示不查重)
  */
 export const mergePluginConfigurator = (lifetime = 0) =>
-  definePlugin(async (u) => {
-    const chunk = await UniChunk.makeChunk(u, {});
-    const sourceDanmakus = [...(await u.$danmakus)].sort(
+  definePlugin(async (uchunk) => {
+    const chunk = await UniChunk.makeChunk(uchunk, {});
+    const sourceDanmakus = [...(await uchunk.$danmakus)].sort(
       (a, b) => a.progress - b.progress || a.ctime.getTime() - b.ctime.getTime(),
     );
 
     if (lifetime <= 0) {
-      await chunk.$db
-        .insert(danmakus)
-        .values(sourceDanmakus.map((d) => ({ ...d, chunkID: chunk.id })));
+      await chunk.upsertDanmakus(sourceDanmakus, false, true);
       return chunk;
     }
 
@@ -74,7 +70,7 @@ export const mergePluginConfigurator = (lifetime = 0) =>
       orderedGroups.push(nextGroup);
     }
 
-    await chunk.$db.insert(danmakus).values(
+    await chunk.upsertDanmakus(
       orderedGroups.map((group) => {
         if (group.members.length === 1) {
           return { ...group.base, chunkID: chunk.id };
@@ -126,10 +122,10 @@ export const mergePluginConfigurator = (lifetime = 0) =>
           senderID,
           attr,
           extra,
-          DMID: createDMID({
+          DMID: chunk.$UniDB.DMIDGenerator({
             content: group.base.content,
-            mode: Modes[group.base.mode],
-            pool: Pools[group.base.pool],
+            mode: group.base.mode,
+            pool: group.base.pool,
             platform: group.base.platform,
             extra: extra && Object.keys(extra).length > 0 ? extra : null,
             senderID,

@@ -1,5 +1,4 @@
 import { definePlugin } from "@/adapters/index.ts";
-import { danmakus } from "@/core/db/schema.ts";
 import type { Extra } from "@/core/dm.ts";
 import { UniChunk } from "@/core/index.ts";
 
@@ -14,13 +13,13 @@ export const downgradeAdvancedPluginConfigurator = ({
   include?: (keyof Extra)[];
   exclude?: (keyof Extra)[];
 } = {}) =>
-  definePlugin(async (u) => {
+  definePlugin(async (uchunk) => {
     if (!include) include = [];
     if (!exclude) exclude = [];
     const check = (k: keyof Extra) => include?.includes(k) || !exclude?.includes(k);
-    const chunk = await UniChunk.makeChunk(u, {});
-    await chunk.$db.insert(danmakus).values(
-      (await u.$danmakus).map((d) => {
+    const chunk = await UniChunk.makeChunk(uchunk, {});
+    await chunk.upsertDanmakus(
+      (await uchunk.$danmakus).map((d) => {
         if (!d.extra) return d;
         let newDan = {
           ...d,
@@ -45,7 +44,7 @@ export const downgradeAdvancedPluginConfigurator = ({
           }
         }
         newDan.attr.push("Compatible");
-        return newDan;
+        return { ...newDan, DMID: chunk.$UniDB.DMIDGenerator(newDan) };
       }),
     );
     return chunk;

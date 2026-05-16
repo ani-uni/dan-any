@@ -17,7 +17,7 @@ export type Transformer<T = unknown> = (
     DMIDGenerator: DMIDGenerator;
   },
 ) => Promisable<T>;
-export type Plugin<T = unknown> = (u: TransformerInput) => Promisable<T>;
+export type Plugin<T = unknown> = (uchunk: UniChunk) => Promisable<T>;
 
 export function defineAdapter<T extends (...args: any[]) => Promisable<AdapterStore>>(adapter: T) {
   return adapter;
