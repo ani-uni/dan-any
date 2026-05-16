@@ -6,7 +6,7 @@ import {
   type DanUniConvertTip,
   type Extra,
 } from "@/core/dm.ts";
-import { createDMID, UniID } from "@/core/id.ts";
+import { UniID } from "@/core/id.ts";
 import { transMode } from "@/utils/transMode.ts";
 import { enumModeCodec } from "./danuni/json.ts";
 
@@ -61,7 +61,7 @@ export const ArtplayerAdapter = defineAdapter(
           return {
             chunkID: chunk.id,
             ...map_d,
-            DMID: createDMID(map_d),
+            DMID: chunk.$UniDB.DMIDGenerator(map_d),
           };
         }),
       );

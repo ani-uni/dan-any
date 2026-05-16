@@ -1,7 +1,7 @@
 import { defineAdapter, defineTransformer } from "./index.ts";
 
 import { DanUniConvertTipTemplate, defaultUniDM, type DanUniConvertTip } from "@/core/dm.ts";
-import { createDMID, UniID } from "@/core/id.ts";
+import { UniID } from "@/core/id.ts";
 import { transMode } from "@/utils/transMode.ts";
 import { enumModeCodec } from "./danuni/json.ts";
 import { PlatformDanmakuOnlySource } from "@/core/platform.ts";
@@ -52,7 +52,7 @@ export const DdplayAdapter = defineAdapter(
           return {
             chunkID: chunk.id,
             ...map_d,
-            DMID: createDMID(map_d),
+            DMID: chunk.$UniDB.DMIDGenerator(map_d),
           };
         }),
       );
