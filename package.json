@@ -24,7 +24,8 @@
     ".": "./dist/index.mjs",
     "./adapters": "./dist/adapters.mjs",
     "./core": "./dist/core.mjs",
-    "./core/db-schema": "./dist/core/db-schema.mjs",
+    "./core/db/schema": "./dist/core/db/schema.mjs",
+    "./core/db/utils": "./dist/core/db/utils.mjs",
     "./plugins": "./dist/plugins.mjs",
     "./utils": "./dist/utils.mjs",
     "./package.json": "./package.json"
