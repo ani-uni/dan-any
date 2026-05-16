@@ -1,7 +1,7 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "65562ce3-7794-4e73-bbbd-b92b688094c9",
+  "id": "c8975fc2-50c1-4e34-8035-0568e842596a",
   "prevIds": [
     "00000000-0000-0000-0000-000000000000"
   ],
@@ -46,6 +46,12 @@
     },
     {
       "isRlsEnabled": false,
+      "name": "chunk_danmakus",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
       "name": "chunks",
       "entityType": "tables",
       "schema": "public"
@@ -55,6 +61,45 @@
       "name": "danmakus",
       "entityType": "tables",
       "schema": "public"
+    },
+    {
+      "type": "bigserial",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "chunk_danmakus"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "chunkID",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "chunk_danmakus"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "DMID",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "chunk_danmakus"
     },
     {
       "type": "serial",
@@ -91,19 +136,6 @@
       "generated": null,
       "identity": null,
       "name": "SOID",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "danmakus"
-    },
-    {
-      "type": "serial",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "chunkID",
       "entityType": "columns",
       "schema": "public",
       "table": "danmakus"
@@ -289,21 +321,37 @@
       ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
-      "name": "danmakus_chunkID_chunks_id_fkey",
+      "name": "chunk_danmakus_chunkID_chunks_id_fkey",
       "entityType": "fks",
       "schema": "public",
-      "table": "danmakus"
+      "table": "chunk_danmakus"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "DMID"
+      ],
+      "schemaTo": "public",
+      "tableTo": "danmakus",
+      "columnsTo": [
+        "DMID"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "chunk_danmakus_DMID_danmakus_DMID_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "chunk_danmakus"
     },
     {
       "columns": [
-        "DMID",
-        "chunkID"
+        "id"
       ],
       "nameExplicit": false,
-      "name": "danmakus_pkey",
-      "entityType": "pks",
+      "name": "chunk_danmakus_pkey",
       "schema": "public",
-      "table": "danmakus"
+      "table": "chunk_danmakus",
+      "entityType": "pks"
     },
     {
       "columns": [
@@ -313,6 +361,16 @@
       "name": "chunks_pkey",
       "schema": "public",
       "table": "chunks",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "DMID"
+      ],
+      "nameExplicit": false,
+      "name": "danmakus_pkey",
+      "schema": "public",
+      "table": "danmakus",
       "entityType": "pks"
     }
   ],
