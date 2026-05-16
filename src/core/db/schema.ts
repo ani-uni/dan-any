@@ -19,31 +19,23 @@ export const dmAttrEnum = t.pgEnum("dm_attr", [
 ]);
 
 // bsnapshot的弹幕不设置默认值，尽量遵循上传组的原始数据(保证所有重要值均有确定)
-export const danmakus = t.pgTable(
-  "danmakus",
-  {
-    SOID: t.text().notNull(),
-    // .references(() => pools.SOID),
-    chunkID: t
-      .serial()
-      .notNull()
-      .references(() => chunks.id),
-    DMID: t.text().notNull(), // 该值在此直接map到dan-any的DMID，为唯一值
-    progress: t.integer().notNull(), // 毫秒
-    mode: modeEnum().notNull(),
-    fontsize: t.smallint().notNull(),
-    color: t.integer().notNull(),
-    senderID: t.text().notNull(),
-    content: t.text().notNull(),
-    ctime: t.timestamp().notNull(),
-    weight: t.smallint().notNull(),
-    pool: poolEnum().notNull(),
-    attr: dmAttrEnum().array().notNull(),
-    platform: t.text(),
-    extra: t.jsonb().$type<UniDanExtra>(),
-  },
-  (table) => [t.primaryKey({ columns: [table.DMID, table.chunkID] })],
-);
+export const danmakus = t.pgTable("danmakus", {
+  SOID: t.text().notNull(),
+  // .references(() => pools.SOID),
+  DMID: t.text().primaryKey(), // 该值在此直接map到dan-any的DMID，为唯一值
+  progress: t.integer().notNull(), // 毫秒
+  mode: modeEnum().notNull(),
+  fontsize: t.smallint().notNull(),
+  color: t.integer().notNull(),
+  senderID: t.text().notNull(),
+  content: t.text().notNull(),
+  ctime: t.timestamp().notNull(),
+  weight: t.smallint().notNull(),
+  pool: poolEnum().notNull(),
+  attr: dmAttrEnum().array().notNull(),
+  platform: t.text(),
+  extra: t.jsonb().$type<UniDanExtra>(),
+});
 export const danmakusInsertZod = createInsertSchema(danmakus);
 export const danmakusSelectZod = createInsertSchema(danmakus);
 export type DanmakusInsert = Simplify<
@@ -63,7 +55,21 @@ export const chunks = t.pgTable("chunks", {
 });
 export const chunksZod = createInsertSchema(chunks);
 
-export const relations = defineRelations({ danmakus, chunks }, (r) => ({
+// many-to-many 映射表：chunk <-> danmakus
+export const chunk2danmakus = t.pgTable("chunk_danmakus", {
+  id: t.bigserial({ mode: "bigint" }).primaryKey(),
+  chunkID: t
+    .integer()
+    .references(() => chunks.id)
+    .notNull(),
+  DMID: t
+    .text()
+    .references(() => danmakus.DMID)
+    .notNull(),
+});
+export const chunk2danmakusZod = createInsertSchema(chunk2danmakus);
+
+export const relations = defineRelations({ danmakus, chunks, chunk2danmakus }, (r) => ({
   // pools: {
   //   danmakus: r.many.danmakus({
   //     from: r.pools.SOID,
@@ -72,8 +78,8 @@ export const relations = defineRelations({ danmakus, chunks }, (r) => ({
   // },
   chunks: {
     danmakus: r.many.danmakus({
-      from: r.chunks.id,
-      to: r.danmakus.chunkID,
+      from: r.chunks.id.through(r.chunk2danmakus.chunkID),
+      to: r.danmakus.DMID.through(r.chunk2danmakus.DMID),
     }),
   },
 }));
@@ -85,7 +91,7 @@ export const onConflictDoUpdateSet = {
 } as const;
 export const onConflictDoUpdate = {
   danmakus: {
-    target: [danmakus.DMID, danmakus.chunkID],
+    target: [danmakus.DMID],
     set: onConflictDoUpdateSet.danmakus,
   },
 };

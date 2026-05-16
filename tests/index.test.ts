@@ -143,7 +143,7 @@ describe("其它", () => {
     expect(result2).toBe(1);
     console.info(`Chunk1 count: ${result1}, Chunk2 count: ${result2}`);
     // 合并 chunks
-    const merged = await UniDB.assign(chunk1, [chunk2]);
+    const merged = await UniChunk.assign(chunk1, [chunk2]);
     // 验证合并结果
     expect(merged.id).toBe(chunk1.id);
     expect(merged.$UniDB).toBe(chunk1.$UniDB);
@@ -164,7 +164,7 @@ describe("其它", () => {
     expect(result2).toBe(1);
     console.info(`Chunk1 count: ${result1}, Chunk2 count: ${result2}`);
     // 合并 chunks
-    const merged = await UniDB.assign(chunk1, [chunk2]);
+    const merged = await UniChunk.assign(chunk1, [chunk2]);
     // 验证合并结果
     expect(merged.id).toBe(chunk1.id);
     expect(merged.$UniDB).toBe(chunk1.$UniDB);
