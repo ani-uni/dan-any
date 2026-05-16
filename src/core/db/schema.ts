@@ -47,10 +47,10 @@ export const danmakus = t.pgTable(
 export const danmakusInsertZod = createInsertSchema(danmakus);
 export const danmakusSelectZod = createInsertSchema(danmakus);
 export type DanmakusInsert = Simplify<
-  Omit<z.infer<typeof danmakusInsertZod>, "extra" | "chunkID"> & { extra: UniDanExtra | null }
+  Omit<z.infer<typeof danmakusInsertZod>, "extra"> & { extra: UniDanExtra | null }
 >;
 export type DanmakusSelect = Simplify<
-  Omit<z.infer<typeof danmakusSelectZod>, "extra" | "chunkID"> & { extra: UniDanExtra | null }
+  Omit<z.infer<typeof danmakusSelectZod>, "extra"> & { extra: UniDanExtra | null }
 >;
 // export const pools = t.pgTable("pools", {
 //   SOID: t.text().primaryKey(),
