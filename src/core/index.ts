@@ -8,7 +8,7 @@ import {
   type DanmakusInsert,
 } from "./db/schema.ts";
 import { eq } from "drizzle-orm";
-import type { Asyncify, Promisable } from "type-fest";
+import type { Asyncify, Promisable, Simplify } from "type-fest";
 import { createDMID, type DMIDGenerator } from "./id.ts";
 import type { z } from "zod";
 
@@ -50,11 +50,7 @@ export class UniDB {
       const srcChunkRow = await c.$chunk();
       newFromConverted = newFromConverted && !!srcChunkRow.fromConverted;
       const srcDanmakus = await c.$danmakus;
-      const toInsert = srcDanmakus.map((r) => ({ ...r, chunkID: targetId }));
-      await drizzle
-        .insert(danmakus)
-        .values(toInsert)
-        .onConflictDoUpdate(onConflictDoUpdate.danmakus);
+      await base.upsertDanmakus(srcDanmakus, false, true);
       await srcDrizzle.delete(danmakus).where(eq(danmakus.chunkID, c.id));
       await srcDrizzle.delete(chunksTable).where(eq(chunksTable.id, c.id));
     }
@@ -89,6 +85,9 @@ export class InitedUniDB extends UniDB {
   async makeChunk(data: z.infer<typeof chunksZod>) {
     return UniChunk.makeChunk(this, data);
   }
+  async upsertDanmakus(data: DanmakusInsert[]) {
+    await this.$db.insert(danmakus).values(data).onConflictDoUpdate(onConflictDoUpdate.danmakus);
+  }
   async import(adapterStore: AdapterStore) {
     return adapterStore(this);
   }
@@ -96,11 +95,6 @@ export class InitedUniDB extends UniDB {
   async export<T extends Asyncify<Transformer>>(transformer: T): Promise<ReturnType<T>>;
   export<T extends Transformer | Asyncify<Transformer>>(transformer: T): Promisable<ReturnType<T>> {
     return <ReturnType<T>>transformer(this.$danmakus, { DMIDGenerator: this.DMIDGenerator });
-  }
-  plugin<T extends Plugin>(plugin: T): ReturnType<T>;
-  async plugin<T extends Asyncify<Plugin>>(plugin: T): Promise<ReturnType<T>>;
-  plugin<T extends Plugin | Asyncify<Plugin>>(plugin: T): Promisable<ReturnType<T>> {
-    return <ReturnType<T>>plugin(this);
   }
 }
 
@@ -138,17 +132,17 @@ export class UniChunk {
     return this.$UniDB.$drizzle.select().from(danmakus).where(eq(danmakus.chunkID, this.id));
   }
   async upsertDanmakus(
-    data: (DanmakusInsert | { DMID: string; chunkID: number })[],
+    data: Simplify<DanmakusInsert & { DMID: string; chunkID: number }>[],
     autoSetDMID?: false,
     autoSetChunk?: false,
   ): Promise<void>;
   async upsertDanmakus(
-    data: (DanmakusInsert | { DMID: string })[],
+    data: Simplify<DanmakusInsert & { DMID: string }>[],
     autoSetDMID?: false,
     autoSetChunk?: true,
   ): Promise<void>;
   async upsertDanmakus(
-    data: (DanmakusInsert | { chunkID: number })[],
+    data: Simplify<DanmakusInsert & { chunkID: number }>[],
     autoSetDMID?: true,
     autoSetChunk?: false,
   ): Promise<void>;
@@ -164,7 +158,7 @@ export class UniChunk {
   ) {
     if (autoSetDMID) data = data.map((d) => ({ ...d, DMID: this.$UniDB.DMIDGenerator(d) }));
     if (autoSetChunk) data = data.map((d) => ({ ...d, chunkID: this.id }));
-    await this.$db.insert(danmakus).values(data).onConflictDoUpdate(onConflictDoUpdate.danmakus);
+    await this.$UniDB.upsertDanmakus(data);
   }
   async import(adapterStore: AdapterStore) {
     const chunk = await adapterStore(this.$UniDB, this);
