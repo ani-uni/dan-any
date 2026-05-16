@@ -42,7 +42,7 @@ export class UniID {
   toString(): UniIDStr {
     return `${this.id}@${this.domain}`;
   }
-  static fromNull(domain?: PlatformSource | "runtime" | string) {
+  static fromNull(domain?: PlatformSource | string) {
     return new UniID(domain === "runtime" ? "runtime" : "anonymous", domain || "danuni");
   }
   static fromBili({

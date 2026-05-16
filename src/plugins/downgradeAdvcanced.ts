@@ -24,7 +24,7 @@ export const downgradeAdvancedPluginConfigurator = ({
         let newDan = {
           ...d,
           mode: "Top" as const,
-          chunkID: chunk.id,
+
           senderID: "compat[bot]@dan-any",
         };
         // TODO 分别对 mode7/8/9 command artplayer等正常播放器无法绘制的弹幕做降级处理

@@ -38,7 +38,6 @@ export const BiliCommandGrpcAdapter = defineAdapter((bin: Uint8Array | ArrayBuff
           },
         };
         return {
-          chunkID: chunk.id,
           ...map_d,
           DMID: chunk.$UniDB.DMIDGenerator(map_d),
         };

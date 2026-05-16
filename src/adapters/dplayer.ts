@@ -43,7 +43,6 @@ export const DplayerAdapter = defineAdapter(
             platform: domain,
           };
           return {
-            chunkID: chunk.id,
             ...map_d,
             DMID: chunk.$UniDB.DMIDGenerator(map_d),
           };

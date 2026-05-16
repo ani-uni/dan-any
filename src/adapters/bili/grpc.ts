@@ -72,7 +72,8 @@ const DMAttrUtils = {
 
 export function BiliCommonParser(chunk: UniChunk, args: DMBili, cid?: bigint, recSOID?: string) {
   if (args.oid && !cid) cid = args.oid;
-  const SOID = recSOID || `def_${PlatformVideoSource.Bilibili}+${UniID.fromBili({ cid })}`;
+  const SOID =
+    recSOID || `def_${PlatformVideoSource.Bilibili}+${UniID.fromBili({ cid }).toString()}`;
   const senderID = UniID.validateString(args.midHash)
     ? args.midHash
     : UniID.fromBili({ midHash: args.midHash }).toString();
@@ -134,7 +135,6 @@ export function BiliCommonParser(chunk: UniChunk, args: DMBili, cid?: bigint, re
     extra,
   };
   return {
-    chunkID: chunk.id,
     ...map_d,
     mode: enumModeCodec.decode(mode),
     pool: enumPoolCodec.decode(pool),

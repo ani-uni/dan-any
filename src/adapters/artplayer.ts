@@ -59,7 +59,6 @@ export const ArtplayerAdapter = defineAdapter(
             extra,
           };
           return {
-            chunkID: chunk.id,
             ...map_d,
             DMID: chunk.$UniDB.DMIDGenerator(map_d),
           };

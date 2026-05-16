@@ -50,7 +50,6 @@ export const DdplayAdapter = defineAdapter(
             pool: "Def" as const,
           };
           return {
-            chunkID: chunk.id,
             ...map_d,
             DMID: chunk.$UniDB.DMIDGenerator(map_d),
           };

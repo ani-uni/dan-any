@@ -15,7 +15,7 @@ export const mergePluginConfigurator = (lifetime = 0) =>
     );
 
     if (lifetime <= 0) {
-      await chunk.upsertDanmakus(sourceDanmakus, false, true);
+      await chunk.upsertDanmakus(sourceDanmakus, false);
       return chunk;
     }
 
@@ -73,7 +73,7 @@ export const mergePluginConfigurator = (lifetime = 0) =>
     await chunk.upsertDanmakus(
       orderedGroups.map((group) => {
         if (group.members.length === 1) {
-          return { ...group.base, chunkID: chunk.id };
+          return group.base;
         }
 
         const merge = {
@@ -118,7 +118,6 @@ export const mergePluginConfigurator = (lifetime = 0) =>
 
         return {
           ...group.base,
-          chunkID: chunk.id,
           senderID,
           attr,
           extra,

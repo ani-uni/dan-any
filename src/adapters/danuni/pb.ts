@@ -35,7 +35,6 @@ export const DanuniPbAdapter = defineAdapter((bin: Uint8Array | ArrayBuffer) => 
     const chunk = uchunk ?? (await udb.makeChunk({}));
     await chunk.upsertDanmakus(
       data.danmakus.map((d) => ({
-        chunkID: chunk.id,
         ...d,
         SOID: d.soid,
         DMID: d.dmid,
