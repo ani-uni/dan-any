@@ -137,27 +137,27 @@ export class UniChunk {
   get $danmakus() {
     return this.$UniDB.$drizzle.select().from(danmakus).where(eq(danmakus.chunkID, this.id));
   }
-  async insertDanmakus(
+  async upsertDanmakus(
     data: (DanmakusInsert | { DMID: string; chunkID: number })[],
     autoSetDMID?: false,
     autoSetChunk?: false,
   ): Promise<void>;
-  async insertDanmakus(
+  async upsertDanmakus(
     data: (DanmakusInsert | { DMID: string })[],
     autoSetDMID?: false,
     autoSetChunk?: true,
   ): Promise<void>;
-  async insertDanmakus(
+  async upsertDanmakus(
     data: (DanmakusInsert | { chunkID: number })[],
     autoSetDMID?: true,
     autoSetChunk?: false,
   ): Promise<void>;
-  async insertDanmakus(
+  async upsertDanmakus(
     data: DanmakusInsert[],
     autoSetDMID: true,
     autoSetChunk: true,
   ): Promise<void>;
-  async insertDanmakus(
+  async upsertDanmakus(
     data: (DanmakusInsert & { DMID?: string; chunkID?: number })[],
     autoSetDMID = false,
     autoSetChunk = false,
@@ -171,8 +171,6 @@ export class UniChunk {
     this.#infoCache = undefined;
     return chunk;
   }
-  // export<T extends Transformer>(transformer: T): ReturnType<T>;
-  // export<T extends Transformer | Asyncify<Transformer>>(transformer: T): Promisable<ReturnType<T>> {
   async export<T extends Transformer | Asyncify<Transformer>>(
     transformer: T,
   ): Promise<ReturnType<T>> {

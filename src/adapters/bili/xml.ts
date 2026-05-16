@@ -57,7 +57,7 @@ export const BiliXmlAdapter = defineAdapter((xml: string) => {
     const cid = BigInt(oriData.i.chatid);
     const recSOID = fromConverted ? oriData.i.danuni?.data : undefined;
     const chunk = uchunk ?? (await udb.makeChunk({ fromConverted }));
-    await chunk.insertDanmakus(
+    await chunk.upsertDanmakus(
       dans.map((d) => BiliCommonParser(chunk, parseBiliSingle(d["@_p"], d["#text"]), cid, recSOID)),
     );
     return chunk;

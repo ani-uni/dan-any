@@ -23,7 +23,7 @@ export const DplayerAdapter = defineAdapter(
       const chunk = uchunk ?? (await udb.makeChunk({ fromConverted: !!json.danuni }));
       const SOID = UniID.fromUnknown(playerID, domain).toString();
       const now = new Date();
-      await chunk.insertDanmakus(
+      await chunk.upsertDanmakus(
         json.data.map(([progress, ori_mode, color, midHash, content]) => {
           const mode = transMode(ori_mode, "dplayer");
           const map_d = {

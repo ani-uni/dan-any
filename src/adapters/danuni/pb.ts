@@ -33,7 +33,7 @@ export const DanuniPbAdapter = defineAdapter((bin: Uint8Array | ArrayBuffer) => 
   return async (udb, uchunk) => {
     const data = fromBinary(ListDanResponseSchema, new Uint8Array(bin));
     const chunk = uchunk ?? (await udb.makeChunk({}));
-    await chunk.insertDanmakus(
+    await chunk.upsertDanmakus(
       data.danmakus.map((d) => ({
         chunkID: chunk.id,
         ...d,

@@ -218,7 +218,7 @@ export const BiliGrpcAdapter = defineAdapter((bin: Uint8Array | ArrayBuffer) => 
     const chunk = uchunk ?? (await udb.makeChunk({}));
     const data = fromBinary(DmSegMobileReplySchema, new Uint8Array(bin));
     const json = data.elems;
-    await chunk.insertDanmakus(json.map((d) => BiliCommonParser(chunk, d)));
+    await chunk.upsertDanmakus(json.map((d) => BiliCommonParser(chunk, d)));
     return chunk;
   };
 });

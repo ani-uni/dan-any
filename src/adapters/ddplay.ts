@@ -28,7 +28,7 @@ export const DdplayAdapter = defineAdapter(
         domain,
       ).toString();
       const now = new Date();
-      await chunk.insertDanmakus(
+      await chunk.upsertDanmakus(
         json.comments.map((d) => {
           const p_arr = d.p.split(",");
           const uid = p_arr[3];

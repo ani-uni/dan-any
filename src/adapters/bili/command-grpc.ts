@@ -11,7 +11,7 @@ export const BiliCommandGrpcAdapter = defineAdapter((bin: Uint8Array | ArrayBuff
     const chunk = uchunk ?? (await udb.makeChunk({}));
     const data = fromBinary(DmWebViewReplySchema, new Uint8Array(bin));
     const json = data.commandDms;
-    await chunk.insertDanmakus(
+    await chunk.upsertDanmakus(
       json.map((args) => {
         const SOID = `def_${PlatformVideoSource.Bilibili}+${UniID.fromBili({ cid: args.oid }).toString()}`;
         const senderID = UniID.fromBili({ mid: args.mid });

@@ -36,7 +36,7 @@ export const DanuniJsonAdapter = defineAdapter(
     return async (udb, uchunk) => {
       const now = new Date();
       const chunk = uchunk ?? (await udb.makeChunk({}));
-      await chunk.insertDanmakus(
+      await chunk.upsertDanmakus(
         json.map((d) => {
           const map_d = {
             SOID: d.SOID || defaultUniDM.SOID,

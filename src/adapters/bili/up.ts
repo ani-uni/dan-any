@@ -72,7 +72,7 @@ interface DM_JSON_BiliUp {
 export const BiliUpAdapter = defineAdapter((json: DM_JSON_BiliUp) => {
   return async (udb, uchunk) => {
     const chunk = uchunk ?? (await udb.makeChunk({}));
-    await chunk.insertDanmakus(
+    await chunk.upsertDanmakus(
       json.data.result.map((d) => {
         // 处理 attrs 字符串转换为 attr 二进制
         // attrs 格式如 "1,13,21"，每个数字对应二进制位

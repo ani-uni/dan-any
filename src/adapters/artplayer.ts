@@ -28,7 +28,7 @@ export const ArtplayerAdapter = defineAdapter(
       const SOID = UniID.fromUnknown(playerID, domain).toString();
       const senderID = UniID.fromNull(domain).toString();
       const now = new Date();
-      await chunk.insertDanmakus(
+      await chunk.upsertDanmakus(
         json.danmuku.map((args) => {
           let extra = args.border
             ? ({ artplayer: { border: args.border, style: {} } } as Extra)
