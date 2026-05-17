@@ -9,7 +9,8 @@
     "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     "types": [
-      "node"
+      "node",
+      "bun-types"
     ],
     "strict": true,
     "noUnusedLocals": true,

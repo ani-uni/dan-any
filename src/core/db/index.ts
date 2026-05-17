@@ -2,7 +2,8 @@ import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { relations } from "./schema.ts";
 import { pgDump } from "@electric-sql/pglite-tools";
-import { migrate } from "drizzle-orm/pglite/migrator";
+import migrations from "./migrations.json" with { type: "json" };
+import { drizzlePgLiteMigrate } from "./drizzle-pglite-migrate.ts";
 
 export let db:
   | (ReturnType<typeof drizzle> & { query: ReturnType<typeof drizzleQueryType> })
@@ -14,9 +15,7 @@ function drizzleQueryType() {
 
 export async function migrateDb(drizzleInstance: typeof db) {
   if (drizzleInstance === null) throw new Error("drizzle instance is null!");
-  await migrate(drizzleInstance, {
-    migrationsFolder: new URL(import.meta.resolve("./migrations", import.meta.url)).pathname,
-  });
+  await drizzlePgLiteMigrate(migrations, drizzleInstance.$client);
 }
 
 export async function initDb(dump?: File) {
