@@ -153,7 +153,7 @@ interface BiliCommonBuilderOptions {
    */
   avoidSenderIDWithAt?: boolean;
 }
-const recMode = (mode: z.infer<typeof enumModeCodec.out>, extra?: ExtraBili) => {
+export const BiliCommonModeRec = (mode: z.infer<typeof enumModeCodec.out>, extra?: ExtraBili) => {
   switch (mode) {
     case "Normal":
       return 1;
@@ -179,7 +179,7 @@ export function BiliCommonBuilder(
   options?: BiliCommonBuilderOptions,
 ) {
   if (options?.skipBiliCommand && that.extra?.bili?.command) return null;
-  const rMode = that.extra?.bili?.mode || recMode(that.mode, that.extra?.bili);
+  const rMode = that.extra?.bili?.mode || BiliCommonModeRec(that.mode, that.extra?.bili);
   let content;
   switch (rMode) {
     case 7:

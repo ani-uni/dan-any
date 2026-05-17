@@ -3,7 +3,6 @@ import { defineAdapter, defineTransformer } from "./index.ts";
 import { DanUniConvertTipTemplate, defaultUniDM, type DanUniConvertTip } from "@/core/dm.ts";
 import { UniID } from "@/core/id.ts";
 import { transMode } from "@/utils/transMode.ts";
-import { enumModeCodec } from "./danuni/json.ts";
 import { PlatformDanmakuOnlySource } from "@/core/platform.ts";
 
 interface DM_JSON_DDPlay {
@@ -38,7 +37,7 @@ export const DdplayAdapter = defineAdapter(
             SOID,
             color: Number.parseInt(p_arr[2]),
             progress: Number.parseFloat(p_arr[0]) * 1000,
-            mode: enumModeCodec.decode(mode),
+            mode,
             senderID,
             content: d.m,
             platform: domain,

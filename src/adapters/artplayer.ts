@@ -8,7 +8,6 @@ import {
 } from "@/core/dm.ts";
 import { UniID } from "@/core/id.ts";
 import { transMode } from "@/utils/transMode.ts";
-import { enumModeCodec } from "./danuni/json.ts";
 
 interface DM_JSON_Artplayer {
   danmuku: {
@@ -50,7 +49,7 @@ export const ArtplayerAdapter = defineAdapter(
             pool: "Def" as const,
             content: args.text,
             progress: (args.time ?? 0) * 1000,
-            mode: enumModeCodec.decode(mode),
+            mode,
             color: Number((args.color || "FFFFFF").replace("#", "0x")),
             style: args.style,
             SOID,

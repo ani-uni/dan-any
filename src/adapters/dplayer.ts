@@ -3,7 +3,6 @@ import { defineAdapter, defineTransformer } from "./index.ts";
 import { DanUniConvertTipTemplate, defaultUniDM, type DanUniConvertTip } from "@/core/dm.ts";
 import { UniID } from "@/core/id.ts";
 import { transMode } from "@/utils/transMode.ts";
-import { enumModeCodec } from "./danuni/json.ts";
 
 interface DM_JSON_Dplayer {
   code: number;
@@ -34,7 +33,7 @@ export const DplayerAdapter = defineAdapter(
             extra: defaultUniDM.extra,
             pool: "Def" as const,
             progress: progress * 1000,
-            mode: enumModeCodec.decode(mode),
+            mode,
             color,
             midHash,
             content,
