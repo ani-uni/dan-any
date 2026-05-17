@@ -1,8 +1,8 @@
 import { defineAdapter } from "../index.ts";
 
-import { DMAttr, Modes, Pools, type Extra, type ExtraBili } from "@/core/dm.ts";
+import { DMAttr, Modes, Pools } from "@/core/dm.ts";
 import { PlatformVideoSource, type PlatformDanmakuSource } from "@/core/platform.ts";
-import { UniID, type DMIDGenerator } from "@/core/id.ts";
+import { type DMIDGenerator } from "@/core/id.ts";
 import { transCtime } from "@/utils/transCtime.ts";
 import { enumModeCodec, enumPoolCodec } from "../danuni/json.ts";
 import { fromBinary } from "@bufbuild/protobuf";
@@ -11,6 +11,8 @@ import { SetBin, toBits } from "@/utils/bin.ts";
 import type { UniChunk } from "@/core/index.ts";
 import type { z } from "zod";
 import type { DanmakusSelect } from "@/core/db/schema.ts";
+import type { Extra, ExtraBili } from "@/core/dm-extra.ts";
+import { UniID } from "@/core/uni-id.ts";
 
 interface DMBili {
   id: bigint; // xml 7

@@ -1,5 +1,5 @@
 import { ModeSchema } from "@/core/db/schema.ts";
-import type { Extra, ExtraBili } from "@/core/dm.ts";
+import type { Extra, ExtraBili } from "@/core/dm-extra.ts";
 import { z } from "zod";
 
 interface ModeExtCheckDanmaku {

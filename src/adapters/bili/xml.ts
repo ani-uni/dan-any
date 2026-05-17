@@ -3,9 +3,9 @@ import { defineTransformer, defineAdapter } from "../index.ts";
 import { XMLParser } from "fast-xml-parser";
 import { DanUniConvertTipTemplate, type DanUniConvertTip } from "@/core/dm.ts";
 import { BiliCommonBuilder, BiliCommonParser } from "./grpc.ts";
-import { UniID } from "@/core/id.ts";
 import { PlatformVideoSource } from "@/core/platform.ts";
 import XMLBuilder from "fast-xml-builder";
+import { UniID } from "@/core/uni-id.ts";
 
 interface DM_XML_Bili {
   i: {

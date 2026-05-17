@@ -1,6 +1,6 @@
 import { defineRelations, sql } from "drizzle-orm";
 import * as t from "drizzle-orm/pg-core";
-import type { Extra as UniDanExtra } from "@/core/dm.ts";
+import type { Extra as UniDanExtra } from "@/core/dm-extra.ts";
 import { z } from "zod";
 import { createInsertSchema } from "drizzle-orm/zod";
 import type { Simplify } from "type-fest";

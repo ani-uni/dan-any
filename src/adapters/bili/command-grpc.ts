@@ -2,9 +2,9 @@ import { defineAdapter } from "../index.ts";
 
 import { defaultUniDM, DMAttr } from "@/core/dm.ts";
 import { PlatformVideoSource } from "@/core/platform.ts";
-import { UniID } from "@/core/id.ts";
 import { fromBinary } from "@bufbuild/protobuf";
 import { DmWebViewReplySchema } from "@/utils/proto/gen/bilibili/community/service/dm/v1/dm_pb.ts";
+import { UniID } from "@/core/uni-id.ts";
 
 export const BiliCommandGrpcAdapter = defineAdapter((bin: Uint8Array | ArrayBuffer) => {
   return async (udb, uchunk) => {

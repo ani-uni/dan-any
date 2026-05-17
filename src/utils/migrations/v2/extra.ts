@@ -4,7 +4,7 @@
  * - extra.bili.dmid extra.bili.mid : bigint -> string
  */
 
-import type { Extra, ExtraBili } from "@/core/dm.ts";
+import type { Extra, ExtraBili } from "@/core/dm-extra.ts";
 import { JSON } from "@/utils/bigint.ts";
 import type { Simplify } from "type-fest";
 

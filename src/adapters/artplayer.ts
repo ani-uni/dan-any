@@ -1,12 +1,8 @@
+import type { Extra } from "@/core/dm-extra.ts";
 import { defineAdapter, defineTransformer } from "./index.ts";
 
-import {
-  DanUniConvertTipTemplate,
-  defaultUniDM,
-  type DanUniConvertTip,
-  type Extra,
-} from "@/core/dm.ts";
-import { UniID } from "@/core/id.ts";
+import { DanUniConvertTipTemplate, defaultUniDM, type DanUniConvertTip } from "@/core/dm.ts";
+import { UniID } from "@/core/uni-id.ts";
 import { transMode } from "@/utils/transMode.ts";
 
 interface DM_JSON_Artplayer {

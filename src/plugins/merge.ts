@@ -1,5 +1,6 @@
 import { definePlugin } from "@/adapters/index.ts";
-import { DMAttr, type Extra } from "@/core/dm.ts";
+import type { Extra } from "@/core/dm-extra.ts";
+import { DMAttr } from "@/core/dm.ts";
 import { UniChunk } from "@/core/index.ts";
 import { isSame } from "@/utils/isSame.ts";
 

@@ -1,9 +1,9 @@
 import { defineAdapter, defineTransformer } from "./index.ts";
 
 import { DanUniConvertTipTemplate, defaultUniDM, type DanUniConvertTip } from "@/core/dm.ts";
-import { UniID } from "@/core/id.ts";
 import { transMode } from "@/utils/transMode.ts";
 import { PlatformDanmakuOnlySource } from "@/core/platform.ts";
+import { UniID } from "@/core/uni-id.ts";
 
 interface DM_JSON_DDPlay {
   count: number | string;

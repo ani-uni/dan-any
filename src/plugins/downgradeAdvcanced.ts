@@ -1,5 +1,5 @@
 import { definePlugin } from "@/adapters/index.ts";
-import type { Extra } from "@/core/dm.ts";
+import type { Extra } from "@/core/dm-extra.ts";
 import { UniChunk } from "@/core/index.ts";
 
 /**
