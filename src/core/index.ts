@@ -47,7 +47,13 @@ export class InitedUniDB extends UniDB {
     return this.$drizzle.select().from(chunksTable);
   }
   get $danmakus() {
-    return this.$drizzle.select().from(danmakus);
+    return this.$db.query.chunks
+      .findFirst({
+        with: {
+          danmakus: true,
+        },
+      })
+      .then((data) => data?.danmakus ?? []);
   }
   async listChunks() {
     const cs = await this.$chunks;

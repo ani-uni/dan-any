@@ -5,7 +5,8 @@ export type TransformerInput = InitedUniDB | UniChunk;
 export function transformerInput2Danmakus(input: TransformerInput) {
   return input.$danmakus;
 }
-export type TransformerOutput = ReturnType<typeof transformerInput2Danmakus>;
+
+export type UDanmaku = Awaited<ReturnType<typeof transformerInput2Danmakus>>[number];
 
 export type Adapter<Args extends unknown[] = unknown[]> = (
   ...args: Args
