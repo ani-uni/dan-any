@@ -1,6 +1,10 @@
 import { DanuniJsonAdapter, DanuniJsonTransformerConfigurator } from "@/adapters/index.ts";
 import { defaultUniDM, InitedUniDB, UniDB, type UniChunk, type UniDMObj } from "@/core/index.ts";
-import { downgradeAdvancedPluginConfigurator } from "@/plugins/downgradeAdvcanced.ts";
+import {
+  getStatsTransformerConfigurator,
+  downgradeAdvancedPluginConfigurator,
+  getStatsUtil4getMost,
+} from "@/plugins/index.ts";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const now = new Date();
@@ -49,15 +53,25 @@ afterAll(async () => {
   await udb.close();
 });
 
+it("getStats", async () => {
+  const stats = await chunk.export(getStatsTransformerConfigurator(["mode", "fontsize"]));
+  console.info(stats);
+  expect(stats.mode.get("Normal")).toBeUndefined();
+  expect(stats.fontsize.get(36)).toBeUndefined();
+  expect(stats.mode.get("Top")).toBe(2);
+  expect(stats.fontsize.get(25)).toBe(2);
+  console.info(getStatsUtil4getMost(stats.mode));
+});
+
 describe("弹幕降级", () => {
   it("danuni.merge", () => {
     const d = danuniJson[0];
     console.info(d);
-    expect(d.content).equal("test x100");
+    expect(d.content).toBe("test x100");
   });
   it("bili.adv", () => {
     const d = danuniJson[1];
     console.info(d);
-    expect(d.content).equal("[B站高级弹幕] 真棒☺");
+    expect(d.content).toBe("[B站高级弹幕] 真棒☺");
   });
 });
