@@ -36,11 +36,9 @@ export const getStatsTransformerConfigurator = <const T extends readonly (keyof 
     return statsMap;
   });
 
-export function getStatsUtil4getMost<T extends keyof StatsItem>(
-  statMap: Map<StatsItem[T], number>,
-) {
+export function getStatsUtil4getMost<T extends unknown>(statMap: Map<T, number>) {
   if (statMap.size === 0) return { val: undefined, count: 0 };
-  let mostVal: StatsItem[T] | undefined;
+  let mostVal: T | undefined = undefined;
   let maxCount = 0;
   for (const [val, count] of statMap.entries()) {
     if (count > maxCount) {
