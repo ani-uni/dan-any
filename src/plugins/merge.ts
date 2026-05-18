@@ -10,7 +10,7 @@ import { isSame } from "@/utils/isSame.ts";
  */
 export const mergePluginConfigurator = (lifetime = 0) =>
   definePlugin(async (uchunk) => {
-    const chunk = await UniChunk.makeChunk(uchunk, {});
+    const chunk = await UniChunk.makeChunk(uchunk, { tmp: true });
     const sourceDanmakus = [...(await uchunk.$danmakus)].sort(
       (a, b) => a.progress - b.progress || a.ctime.getTime() - b.ctime.getTime(),
     );

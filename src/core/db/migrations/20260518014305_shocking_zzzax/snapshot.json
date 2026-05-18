@@ -1,7 +1,7 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "c8975fc2-50c1-4e34-8035-0568e842596a",
+  "id": "57984dd3-f561-4ef5-9dce-f101387c2bfd",
   "prevIds": [
     "00000000-0000-0000-0000-000000000000"
   ],
@@ -123,6 +123,19 @@
       "generated": null,
       "identity": null,
       "name": "fromConverted",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "chunks"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "tmp",
       "entityType": "columns",
       "schema": "public",
       "table": "chunks"

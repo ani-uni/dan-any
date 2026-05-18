@@ -9,7 +9,8 @@ CREATE TABLE "chunk_danmakus" (
 --> statement-breakpoint
 CREATE TABLE "chunks" (
 	"id" serial PRIMARY KEY,
-	"fromConverted" boolean DEFAULT false NOT NULL
+	"fromConverted" boolean DEFAULT false NOT NULL,
+	"tmp" boolean DEFAULT false NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "danmakus" (

@@ -52,6 +52,7 @@ export const chunks = t.pgTable("chunks", {
   id: t.serial().primaryKey(),
   // 信息区
   fromConverted: t.boolean().notNull().default(false), // 是否包含有损转换过的弹幕，导入后不建议再次导出(应用层决定：导出按钮检测到后提示/禁用)
+  tmp: t.boolean().notNull().default(false), // 是否为临时chunk，临时chunk会在完成导出行为后自动删除/shrink时自动批量删除
 });
 export const chunksZod = createInsertSchema(chunks);
 

@@ -17,7 +17,7 @@ export const downgradeAdvancedPluginConfigurator = ({
     if (!include) include = [];
     if (!exclude) exclude = [];
     const check = (k: keyof Extra) => include?.includes(k) || !exclude?.includes(k);
-    const chunk = await UniChunk.makeChunk(uchunk, {});
+    const chunk = await UniChunk.makeChunk(uchunk, { tmp: true });
     await chunk.upsertDanmakus(
       (await uchunk.$danmakus).map((d) => {
         if (!d.extra) return d;

@@ -44,7 +44,7 @@ export class InitedUniDB extends UniDB {
     return this.$drizzle;
   }
   get $chunks() {
-    return this.$drizzle.select().from(chunksTable);
+    return this.$db.query.chunks.findMany();
   }
   get $danmakus() {
     return this.$db.query.chunks
@@ -66,9 +66,16 @@ export class InitedUniDB extends UniDB {
     await this.$db.insert(danmakus).values(data).onConflictDoUpdate(onConflictDoUpdate.danmakus);
   }
   /**
-   * 清理合并重复chunk
+   * 清理临时chunks
    */
-  async shrink() {}
+  async shrink() {
+    const uchunks = await this.$db.query.chunks.findMany({
+      where: {
+        tmp: true,
+      },
+    });
+    for (const c of uchunks) await new UniChunk(this, c.id).delete();
+  }
   async import(adapterStore: AdapterStore) {
     return adapterStore(this);
   }
@@ -80,10 +87,6 @@ export class InitedUniDB extends UniDB {
 }
 
 export class UniChunk {
-  /**
-   * @description 任何修改chunkInfo的操作后都需要重置缓存；最佳实践是是完成更改后返回new Uni
-   */
-  #infoCache?: Awaited<UniChunk["$chunks"]>[0];
   constructor(
     public $UniDB: InitedUniDB,
     public id: number,
@@ -150,11 +153,8 @@ export class UniChunk {
     return this.$db.select().from(chunksTable).where(eq(chunksTable.id, this.id));
   }
   async $chunk() {
-    if (this.#infoCache) return this.#infoCache;
     const c = await this.$chunks;
-    if (c.length === 0) throw new Error("Chunk not found");
-    this.#infoCache = c[0];
-    return this.#infoCache;
+    return c[0];
   }
   get $danmakus() {
     return this.$db.query.chunks
@@ -187,7 +187,6 @@ export class UniChunk {
   }
   async import(adapterStore: AdapterStore) {
     const chunk = await adapterStore(this.$UniDB, this);
-    this.#infoCache = undefined;
     return chunk;
   }
   async export<T extends Transformer | Asyncify<Transformer>>(
@@ -203,7 +202,6 @@ export class UniChunk {
   async plugin<T extends Asyncify<Plugin>>(plugin: T): Promise<ReturnType<T>>;
   plugin<T extends Plugin | Asyncify<Plugin>>(plugin: T): Promisable<ReturnType<T>> {
     const output = <ReturnType<T>>plugin(this);
-    this.#infoCache = undefined;
     return output;
   }
   async delete() {
