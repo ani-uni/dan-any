@@ -24,6 +24,10 @@ export default defineConfig({
       tsgo: true,
     },
     exports: true,
+    minify: true,
+    attw: {
+      profile: "esm-only",
+    },
   },
   lint: {
     options: {

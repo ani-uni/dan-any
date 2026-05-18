@@ -21,6 +21,7 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
+    "declarationMap": true,
     "paths": {
       "@/*": [
         "./src/*"
