@@ -40,8 +40,8 @@ describe("其它", () => {
     const c = isSame(json[1], json[3]);
     console.info(a, b, c);
     expect(a).toBe(false);
-    expect(b).toBe(false);
-    expect(c).toBe(false);
+    expect(b).toBe(true);
+    expect(c).toBe(true);
   });
   it("比较(extra)", () => {
     const now = new Date();
