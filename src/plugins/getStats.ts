@@ -15,7 +15,7 @@ const statsItemZod = danmakusSelectZod.pick({
 });
 type StatsItem = z.infer<typeof statsItemZod>;
 
-export const getStatsTransformerConfigurator = <const T extends readonly (keyof StatsItem)[]>(
+export const GetStatsTransformerConfigurator = <const T extends readonly (keyof StatsItem)[]>(
   items: T,
 ) =>
   defineTransformer(async function (udanmakus) {
@@ -36,7 +36,7 @@ export const getStatsTransformerConfigurator = <const T extends readonly (keyof 
     return statsMap;
   });
 
-export function getStatsUtil4getMost<T extends unknown>(statMap: Map<T, number>) {
+export function GetStatsUtil4getMost<T extends unknown>(statMap: Map<T, number>) {
   if (statMap.size === 0) return { val: undefined, count: 0 };
   let mostVal: T | undefined = undefined;
   let maxCount = 0;

@@ -8,7 +8,7 @@ import { isSame } from "@/utils/isSame.ts";
  * 合并一定时间段内的重复弹幕，防止同屏出现过多
  * @param lifetime 查重时间区段，单位秒 (默认为 0，表示不查重)
  */
-export const mergePluginConfigurator = (lifetime = 0) =>
+export const MergePluginConfigurator = (lifetime = 0) =>
   definePlugin(async (uchunk) => {
     const chunk = await UniChunk.makeChunk(uchunk, { tmp: true });
     const sourceDanmakus = [...(await uchunk.$danmakus)].sort(

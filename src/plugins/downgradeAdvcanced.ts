@@ -6,7 +6,7 @@ import { UniChunk } from "@/core/index.ts";
  * 降级转换插件：将高级弹幕转换为普通弹幕，适用于无法正确显示高级弹幕的播放器
  * @returns 转换后的弹幕Chunk，临时，导出后可自行调用delete方法删除
  */
-export const downgradeAdvancedPluginConfigurator = ({
+export const DowngradeAdvancedPluginConfigurator = ({
   include,
   exclude,
 }: {
