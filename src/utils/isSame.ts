@@ -1,4 +1,5 @@
 import { DMAttrSchema, ModeSchema, PoolSchema } from "@/core/db/schema.ts";
+import type { ExtraBili } from "@/core/dm-extra.ts";
 import { type UniDMObj } from "@/core/dm.ts";
 import type { UniChunk } from "@/core/index.ts";
 import type { z } from "zod";
@@ -14,6 +15,10 @@ type Comp = Pick<
   "SOID" | "content" | "mode" | "pool" | "platform" | "extra"
 >;
 
+function biliSp(that: ExtraBili) {
+  return that.adv || that.code || that.bas || that.command;
+}
+
 export function isSame(that: Comp, dan: Comp, options?: { skipDanuniMerge?: boolean }): boolean {
   // 引用相同直接返回
   if (that === dan) return true;
@@ -24,14 +29,18 @@ export function isSame(that: Comp, dan: Comp, options?: { skipDanuniMerge?: bool
     return false;
   // 如果是bili弹幕，则以dmid判断是否相同
   if (that.extra?.bili?.dmid && dan.extra?.bili?.dmid) {
+    // bili所有非一般类型的弹幕均直接判断为不同
+    if (biliSp(that.extra.bili) || biliSp(dan.extra.bili)) return false;
+    // 下面只会有来自 std/up 源的普通弹幕
+    // 此时可以用mid原始值是否存在判断是否为up源弹幕
     // 当来源不同(标准源/创作中心源)时，视为不同弹幕
     if (
-      (that.extra?.bili.dmid && !dan.extra?.bili.dmid) ||
-      (!that.extra?.bili.dmid && dan.extra?.bili.dmid)
+      (that.extra?.bili.mid && !dan.extra?.bili.mid) ||
+      (!that.extra?.bili.mid && dan.extra?.bili.mid)
     )
       return false;
-    if (that.extra?.bili.dmid === dan.extra?.bili.dmid) return true;
-    else return false;
+    // 不对dmid等原始值备份进行比较(若比较dmid，则必定不同，不符合比较函数使用场景)
+    // 直接跳出bili特定判断，进入后续通用比较
   }
   // 如果是artplayer弹幕，需额外比较extra项目
   if (
