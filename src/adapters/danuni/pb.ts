@@ -33,24 +33,33 @@ export const DanuniPbAdapter = defineAdapter((bin: Uint8Array | ArrayBuffer) => 
   return async (udb, uchunk) => {
     const data = fromBinary(ListDanResponseSchema, new Uint8Array(bin));
     const chunk = uchunk ?? (await udb.makeChunk({}));
+    const isV1Fmt = data.danmakus.some((d) => d.extraV1);
     await chunk.upsertDanmakus(
-      data.danmakus.map((d) => ({
-        ...d,
-        SOID: d.soid,
-        DMID: d.dmid,
-        // progress: d.progress,
-        mode: enumModeCodec.decode(d.mode),
-        // fontsize: d.fontsize,
-        // color: d.color,
-        senderID: d.senderId,
-        // content: d.content,
-        ctime: timestampDate(d.ctime || timestampNow()),
-        // weight: d.weight,
-        pool: enumPoolCodec.decode(d.pool),
-        attr: z.enum(danmakus.attr.enumValues).array().parse(d.attr),
-        // platform: d.platform,
-        extra: d.extra ? JSON.parse(d.extra) : d.extraV1 ? migrateToV2Extra(d.extraV1) : undefined,
-      })),
+      data.danmakus.map((d) => {
+        const map_d = {
+          ...d,
+          SOID: d.soid,
+          DMID: d.dmid,
+          // progress: d.progress,
+          mode: enumModeCodec.decode(d.mode),
+          // fontsize: d.fontsize,
+          // color: d.color,
+          senderID: d.senderId,
+          // content: d.content,
+          ctime: timestampDate(d.ctime || timestampNow()),
+          // weight: d.weight,
+          pool: enumPoolCodec.decode(d.pool),
+          attr: z.enum(danmakus.attr.enumValues).array().parse(d.attr),
+          // platform: d.platform,
+          extra: d.extra
+            ? JSON.parse(d.extra)
+            : d.extraV1
+              ? migrateToV2Extra(d.extraV1)
+              : undefined,
+        };
+        if (isV1Fmt) return { ...map_d, DMID: chunk.$UniDB.DMIDGenerator(map_d) };
+        else return map_d;
+      }),
     );
     return chunk;
   };

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { modeExtCheck } from "@/utils/modeExtCheck.ts";
 
 import { migrateToV2Extra } from "@/utils/migrations/v2/extra.ts";
+import { migrateToV2Progress } from "@/utils/migrations/v2/progress.ts";
 
 export const enumModeCodec = z.codec(
   z.enum(Modes).default(Modes.Normal),
@@ -31,22 +32,35 @@ export const enumAttrsCodec = z.codec(
   },
 );
 
+function isV1(
+  json: Partial<UniDMObj> & { extraStr?: string },
+): json is Partial<UniDMObj> & { extraStr: string } {
+  const progressIsV1 = !Number.isInteger(json.progress);
+  const extraIsV1 = typeof json.extraStr === "string";
+  return progressIsV1 || extraIsV1;
+}
+
 export const DanuniJsonAdapter = defineAdapter(
   (json: Partial<UniDMObj & { extraStr?: string }>[]) => {
     return async (udb, uchunk) => {
       const now = new Date();
       const chunk = uchunk ?? (await udb.makeChunk({}));
+      const isV1Fmt = json.some((d) => isV1(d));
       await chunk.upsertDanmakus(
         json.map((d) => {
           const map_d = {
             SOID: d.SOID || defaultUniDM.SOID,
-            progress: d.progress ?? defaultUniDM.progress,
+            progress: d.progress
+              ? isV1Fmt
+                ? migrateToV2Progress(d.progress)
+                : d.progress
+              : defaultUniDM.progress,
             mode: enumModeCodec.decode(d.mode),
             fontsize: d.fontsize ?? defaultUniDM.fontsize,
             color: d.color ?? defaultUniDM.color,
             senderID: d.senderID || defaultUniDM.senderID,
             content: d.content ?? defaultUniDM.content,
-            ctime: d.ctime ?? now,
+            ctime: d.ctime ? new Date(d.ctime) : now,
             weight: d.weight ?? defaultUniDM.weight,
             pool: enumPoolCodec.decode(d.pool),
             attr: d.attr ? enumAttrsCodec.decode(d.attr) : defaultUniDM.attr,
@@ -56,7 +70,7 @@ export const DanuniJsonAdapter = defineAdapter(
           modeExtCheck(map_d);
           return {
             ...map_d,
-            DMID: d.DMID || chunk.$UniDB.DMIDGenerator(map_d),
+            DMID: !isV1Fmt && d.DMID ? d.DMID : chunk.$UniDB.DMIDGenerator(map_d),
           };
         }),
       );
