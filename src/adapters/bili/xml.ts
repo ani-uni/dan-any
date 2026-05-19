@@ -36,7 +36,7 @@ function parseBiliSingle(p: string, c: string) {
   const p_arr = p.split(",");
   return {
     content: c,
-    progress: Number.parseFloat(p_arr[0]) * 1000,
+    progress: ~~(Number.parseFloat(p_arr[0]) * 1000),
     mode: Number.parseInt(p_arr[1]),
     fontsize: Number.parseInt(p_arr[2]),
     color: Number.parseInt(p_arr[3]),
