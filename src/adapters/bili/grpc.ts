@@ -96,7 +96,7 @@ export function BiliCommonParser(chunk: UniChunk, args: DMBili, cid?: bigint, re
   //重复 transMode ，但此处有关于extra的额外处理
   switch (args.mode) {
     case 4:
-      mode = Modes.Normal;
+      mode = Modes.Bottom;
       break;
     case 5:
       mode = Modes.Top;
