@@ -39,3 +39,4 @@ export * from "./bili/xml.ts";
 export * from "./artplayer.ts";
 export * from "./ddplay.ts";
 export * from "./dplayer.ts";
+export * from "./tencent.ts";
