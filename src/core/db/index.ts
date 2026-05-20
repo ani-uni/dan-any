@@ -1,6 +1,6 @@
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
-import { relations } from "./schema.ts";
+import { baseRelations, relations } from "./schema.ts";
 import { pgDump } from "@electric-sql/pglite-tools";
 import migrations from "./migrations.json" with { type: "json" };
 import { drizzlePgLiteMigrate } from "./drizzle-pglite-migrate.ts";
@@ -10,7 +10,7 @@ export let db:
   | null = null;
 
 function drizzleQueryType() {
-  return drizzle({ client: new PGlite(), relations }).query;
+  return drizzle({ client: new PGlite(), relations: { ...baseRelations, ...relations } }).query;
 }
 
 export async function migrateDb(drizzleInstance: typeof db) {
@@ -21,12 +21,12 @@ export async function migrateDb(drizzleInstance: typeof db) {
 export async function initDb(dump?: File) {
   if (db) return db;
   const client = dump ? await PGlite.create(await dump.text()) : new PGlite();
-  db = drizzle({ client, relations });
+  db = drizzle({ client, relations: { ...baseRelations, ...relations } });
   await migrateDb(db);
   return db;
 }
 export async function initNewDb() {
-  const db2 = drizzle({ relations });
+  const db2 = drizzle({ relations: { ...baseRelations, ...relations } });
   await migrateDb(db2);
   return db2;
 }

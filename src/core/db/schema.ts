@@ -1,4 +1,4 @@
-import { defineRelations, sql } from "drizzle-orm";
+import { defineRelations, defineRelationsPart, sql } from "drizzle-orm";
 import * as t from "drizzle-orm/pg-core";
 import type { Extra as UniDanExtra } from "@/core/dm-extra.ts";
 import { z } from "zod";
@@ -70,7 +70,8 @@ export const chunk2danmakus = t.pgTable("chunk_danmakus", {
 });
 export const chunk2danmakusZod = createInsertSchema(chunk2danmakus);
 
-export const relations = defineRelations({ danmakus, chunks, chunk2danmakus }, (r) => ({
+export const baseRelations = defineRelations({ danmakus, chunks, chunk2danmakus });
+export const relations = defineRelationsPart({ danmakus, chunks, chunk2danmakus }, (r) => ({
   // pools: {
   //   danmakus: r.many.danmakus({
   //     from: r.pools.SOID,
