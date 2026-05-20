@@ -18,7 +18,8 @@ export function transCtime(oriCtime: ctime, tsUnit?: "ms" | "s"): Date {
     if (isMsTs(oriCtime, tsUnit)) return new Date(Number(oriCtime));
     else return new Date(Number(oriCtime) * 1000);
   else if (typeof oriCtime === "string") {
-    if (/^\d+n$/.test(oriCtime)) return new Date(Number(oriCtime.slice(0, -1)));
-    else return new Date(oriCtime);
+    if (/^\d+n$/.test(oriCtime))
+      return transCtime(Number(oriCtime.slice(0, -1)), tsUnit); // 处理类似 "1234567890n" 的字符串，类bigint
+    else return transCtime(Number(oriCtime), tsUnit);
   } else return oriCtime;
 }
