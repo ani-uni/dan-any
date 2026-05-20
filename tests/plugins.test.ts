@@ -10,7 +10,7 @@ import {
   DowngradeAdvancedPluginConfigurator,
   GetStatsUtil4getMost,
 } from "@/plugins/index.ts";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vite-plus/test";
 
 const xml = `<i>
 <chatserver>chat.bilibili.com</chatserver>
