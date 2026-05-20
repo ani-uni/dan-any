@@ -5,10 +5,10 @@ import {
 } from "@/adapters/index.ts";
 import { defaultUniDM, InitedUniDB, UniDB, type UniChunk, type UniDMObj } from "@/core/index.ts";
 import {
-  getStatsTransformerConfigurator,
-  downgradeAdvancedPluginConfigurator,
-  getStatsUtil4getMost,
-  mergePluginConfigurator,
+  MergePluginConfigurator,
+  GetStatsTransformerConfigurator,
+  DowngradeAdvancedPluginConfigurator,
+  GetStatsUtil4getMost,
 } from "@/plugins/index.ts";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -76,7 +76,7 @@ beforeAll(async () => {
       },
     ]),
   );
-  chunk = await ori.plugin(downgradeAdvancedPluginConfigurator());
+  chunk = await ori.plugin(DowngradeAdvancedPluginConfigurator());
   danuniJson = await chunk.export(DanuniJsonTransformerConfigurator());
 });
 afterAll(async () => {
@@ -85,13 +85,13 @@ afterAll(async () => {
 });
 
 it("getStats", async () => {
-  const stats = await chunk.export(getStatsTransformerConfigurator(["mode", "fontsize"]));
+  const stats = await chunk.export(GetStatsTransformerConfigurator(["mode", "fontsize"]));
   console.info(stats);
   expect(stats.mode.get("Normal")).toBeUndefined();
   expect(stats.fontsize.get(36)).toBeUndefined();
   expect(stats.mode.get("Top")).toBe(2);
   expect(stats.fontsize.get(25)).toBe(2);
-  console.info(getStatsUtil4getMost(stats.mode));
+  console.info(GetStatsUtil4getMost(stats.mode));
 });
 
 describe("弹幕降级", () => {
@@ -109,7 +109,7 @@ describe("弹幕降级", () => {
 
 it("merge", async () => {
   const c = await udb.import(BiliXmlAdapter(xml));
-  const merged = await c.plugin(mergePluginConfigurator(10));
+  const merged = await c.plugin(MergePluginConfigurator(10));
   const dms = await merged.export(DanuniJsonTransformerConfigurator({ minify: true }));
   console.info(dms);
   expect(dms.filter((d) => d.content === "喜欢").length).toBe(1);
