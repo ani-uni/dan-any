@@ -34,13 +34,13 @@
     "access": "public"
   },
   "scripts": {
+    "buf": "buf generate",
     "db:generate": "drizzle-kit generate && bun ./scripts/compile-migrations.ts",
     "build": "vp pack",
     "dev": "vp pack --watch",
     "test": "vp test",
     "check": "vp check",
-    "prepublishOnly": "vp run build",
-    "buf": "buf generate"
+    "prepublishOnly": "vp run buf && vp run db:generate && vp run build"
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.12.0",

@@ -1,0 +1,45 @@
+name: Publish @dan-uni/dan-any
+on:
+  push:
+    tags:
+      - "dan-any@*.*.*"
+    paths:
+      - package.json
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: voidzero-dev/setup-vp@v1
+        with:
+          node-version: "25"
+          cache: true
+
+      - name: Install dependencies
+        run: vp install
+
+      - name: Build @dan-uni/dan-any
+        run: |
+          cd ${{ github.workspace }}
+          vp run prepublishOnly
+
+      - name: Publish @dan-uni/dan-any
+        run: |
+          cd ${{ github.workspace }}
+          npm publish --provenance --access public
+
+      - run: bun x changelogithub
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
