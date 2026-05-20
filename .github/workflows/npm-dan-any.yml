@@ -40,6 +40,6 @@ jobs:
           cd ${{ github.workspace }}
           npm publish --provenance --access public
 
-      - run: bun x changelogithub
+      - run: vpx changelogithub
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
