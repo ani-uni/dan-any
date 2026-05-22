@@ -62,8 +62,19 @@ export class InitedUniDB extends UniDB {
   async makeChunk(data: z.infer<typeof chunksZod>) {
     return UniChunk.makeChunk(this, data);
   }
-  async upsertDanmakus(data: DanmakusInsert[]) {
-    await this.$db.insert(danmakus).values(data).onConflictDoUpdate(onConflictDoUpdate.danmakus);
+  async upsertDanmakus(data: DanmakusInsert[] | Map<string, DanmakusInsert>, dedupeDMID = true) {
+    if (data instanceof Map) await this.upsertDanmakus([...data.values()], dedupeDMID);
+    else if (dedupeDMID) {
+      const map = new Map<string, DanmakusInsert>();
+      data.forEach((d) => {
+        map.set(d.DMID, d);
+      });
+      await this.$db
+        .insert(danmakus)
+        .values([...map.values()])
+        .onConflictDoUpdate(onConflictDoUpdate.danmakus);
+    } else
+      await this.$db.insert(danmakus).values(data).onConflictDoUpdate(onConflictDoUpdate.danmakus);
   }
   /**
    * 清理临时chunks
@@ -169,20 +180,47 @@ export class UniChunk {
       .then((data) => data?.danmakus ?? []);
   }
   async upsertDanmakus(
-    data: Simplify<DanmakusInsert & { DMID: string }>[],
+    data: Map<string, DanmakusInsert & { platform: string | null }>,
     autoSetDMID?: false,
+    dedupeDMID?: false,
+  ): Promise<void>;
+  async upsertDanmakus(
+    data: Simplify<DanmakusInsert & { DMID: string; platform: string | null }>[],
+    autoSetDMID?: false,
+    dedupeDMID?: boolean,
   ): Promise<void>;
   async upsertDanmakus(
     data: Simplify<DanmakusInsert & { DMID?: undefined }>[],
     autoSetDMID: true,
+    dedupeDMID?: true,
   ): Promise<void>;
-  async upsertDanmakus(data: (DanmakusInsert & { DMID?: string })[], autoSetDMID = false) {
-    if (autoSetDMID) data = data.map((d) => ({ ...d, DMID: this.$UniDB.DMIDGenerator(d) }));
-    // 写入/更新 danmakus 表
-    await this.$UniDB.upsertDanmakus(data);
+  async upsertDanmakus(
+    data:
+      | (DanmakusInsert & { DMID?: string; platform: string | null })[]
+      | Map<string, DanmakusInsert & { platform: string | null }>,
+    autoSetDMID = false,
+    dedupeDMID = true,
+  ) {
+    const dmids = new Set<string>();
+    if (data instanceof Map) {
+      await this.$UniDB.upsertDanmakus([...data.values()], dedupeDMID);
+      data.forEach((d) => dmids.add(d.DMID));
+    } else {
+      if (autoSetDMID)
+        data = data.map((d) => {
+          const DMID = this.$UniDB.DMIDGenerator(d);
+          dmids.add(DMID);
+          return { ...d, DMID };
+        });
+      else
+        data.forEach((d) => {
+          dmids.add(d.DMID!);
+        });
+      await this.$UniDB.upsertDanmakus(data, dedupeDMID);
+    }
     await this.$db
       .insert(chunk2danmakus)
-      .values(data.map((d) => ({ chunkID: this.id, DMID: d.DMID })))
+      .values([...dmids].map((DMID) => ({ chunkID: this.id, DMID })))
       .onConflictDoNothing();
   }
   async import(adapterStore: AdapterStore) {
