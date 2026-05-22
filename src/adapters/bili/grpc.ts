@@ -1,4 +1,4 @@
-import { defineAdapter } from "../index.ts";
+import { defineAdapter, type UDanmaku } from "../index.ts";
 
 import { DMAttr, Modes, Pools } from "@/core/dm.ts";
 import { PlatformVideoSource, type PlatformDanmakuSource } from "@/core/platform.ts";
@@ -10,7 +10,6 @@ import { DmSegMobileReplySchema } from "@/utils/proto/gen/bilibili/community/ser
 import { SetBin, toBits } from "@/utils/bin.ts";
 import type { UniChunk } from "@/core/index.ts";
 import type { z } from "zod";
-import type { DanmakusSelect } from "@/core/db/schema.ts";
 import type { Extra, ExtraBili } from "@/core/dm-extra.ts";
 import { UniID } from "@/core/uni-id.ts";
 
@@ -177,7 +176,7 @@ export const BiliCommonModeRec = (mode: z.infer<typeof enumModeCodec.out>, extra
 };
 export function BiliCommonBuilder(
   DMIDGenerator: DMIDGenerator,
-  that: DanmakusSelect,
+  that: UDanmaku,
   options?: BiliCommonBuilderOptions,
 ) {
   if (options?.skipBiliCommand && that.extra?.bili?.command) return null;

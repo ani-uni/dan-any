@@ -13,6 +13,7 @@ import { z } from "zod";
 
 import { JSON } from "@/utils/bigint.ts";
 import { migrateToV2Extra } from "@/utils/migrations/v2/extra.ts";
+import { defaultUniDM } from "@/core/dm.ts";
 
 const enumModeCodec = z.codec(z.enum(DanuniPbMode), z.enum(danmakus.mode.enumValues), {
   decode: (danuniPbMode) => danmakus.mode.enumValues[danuniPbMode] || "Normal",
@@ -50,7 +51,7 @@ export const DanuniPbAdapter = defineAdapter((bin: Uint8Array | ArrayBuffer) => 
           // weight: d.weight,
           pool: enumPoolCodec.decode(d.pool),
           attr: z.enum(danmakus.attr.enumValues).array().parse(d.attr),
-          // platform: d.platform,
+          platform: d.platform ?? defaultUniDM.platform,
           extra: d.extra
             ? JSON.parse(d.extra)
             : d.extraV1
