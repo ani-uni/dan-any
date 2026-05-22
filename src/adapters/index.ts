@@ -40,3 +40,4 @@ export * from "./artplayer.ts";
 export * from "./ddplay.ts";
 export * from "./dplayer.ts";
 export * from "./tencent.ts";
+export * from "./vod.ts";

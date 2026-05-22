@@ -27,6 +27,7 @@ v2 在第一次初始化实例时可能有~1s的开销，建议使用 [PGLite的
 - [x] artplayer: `ArtplayerAdapter` `ArtplayerTransformer`
 - [x] 弹弹Play: `DdplayAdapter` `DdplayTransformer`
 - [x] tencent `正向`: `TencentAdapter`
+- [x] vod `双向`: `VodAdapter` `VodTransformer`
 - [x] [ASS(`@dan-uni/dan-any-ext-ass`)](https://github.com/ani-uni/dan-any-ext-ass) `双向(部分支持，仅该库生成的ass文件支持还原)`
 
 ### Plugins 常用插件

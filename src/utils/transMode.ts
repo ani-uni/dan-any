@@ -1,9 +1,14 @@
 import type { enumModeCodec } from "@/adapters/index.ts";
 import type { z } from "zod";
 
+export function transMode(oriMode: string, fmt: "vod"): z.infer<typeof enumModeCodec.out>;
 export function transMode(
   oriMode: number,
   fmt: "bili" | "dplayer" | "artplayer" | "ddplay",
+): z.infer<typeof enumModeCodec.out>;
+export function transMode(
+  oriMode: number | string,
+  fmt: "bili" | "dplayer" | "artplayer" | "ddplay" | "vod",
 ): z.infer<typeof enumModeCodec.out> {
   let mode: z.infer<typeof enumModeCodec.out> = "Normal";
   switch (fmt) {
@@ -44,7 +49,12 @@ export function transMode(
     case "ddplay":
       // 弹幕模式：1-普通弹幕，4-底部弹幕，5-顶部弹幕
       // 其适配为bili格式子集
-      mode = transMode(oriMode, "bili");
+      mode = transMode(oriMode as number, "bili");
+      break;
+
+    case "vod":
+      if (oriMode === "top") mode = "Top";
+      else if (oriMode === "bottom") mode = "Bottom";
       break;
 
     default:
