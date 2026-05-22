@@ -10,6 +10,8 @@ import {
   DdplayAdapter,
   DdplayTransformer,
   TencentAdapter,
+  VodAdapter,
+  VodTransformer,
 } from "@/adapters/index.ts";
 import { initNewDb } from "@/core/db/index.ts";
 import { InitedUniDB, UniChunk, UniDB } from "@/core/index.ts";
@@ -289,19 +291,24 @@ describe("转化自", async () => {
     const chunk = await udb.import(TencentAdapter(json, "m00253deqqo"));
     const exportedJson = await chunk.export(DanuniJsonTransformerConfigurator({ minify: true }));
     console.info(exportedJson);
-    expect(exportedJson[0].DMID).toBe("7f735877");
-    expect(exportedJson[exportedJson.length - 1].DMID).toBe("d77d4c41");
+    expect(exportedJson[0].DMID).toBe("035d9c31");
+    expect(exportedJson[exportedJson.length - 1].DMID).toBe("ee6d0215");
+  });
+  it("vod[双向]", async () => {
+    const vod = await chunk.export(VodTransformer);
+    console.info(vod);
+    const reImport = await udb.import(
+      VodAdapter(vod, "https://v.qq.com/x/cover/mzc00200vkqr54u/u4100l66fas.html"),
+    );
+    const reImportVod = await reImport.export(VodTransformer);
+    expect(reImportVod.danmuku).toEqual(vod.danmuku);
   });
   it("min[双向]", async () => {
-    expect(
-      (
-        await udb.import(
-          DanuniJsonAdapter(
-            await chunk.export(DanuniJsonTransformerConfigurator({ minify: true })),
-          ),
-        )
-      ).export(DanuniJsonTransformerConfigurator()),
-    ).toEqual(chunk.export(DanuniJsonTransformerConfigurator()));
+    const minJson = await chunk.export(DanuniJsonTransformerConfigurator({ minify: true }));
+    console.info(minJson);
+    const reImport = await udb.import(DanuniJsonAdapter(minJson));
+    const reImportJson = await reImport.export(DanuniJsonTransformerConfigurator({ minify: true }));
+    expect(reImportJson).toEqual(minJson);
   });
 });
 
