@@ -123,13 +123,9 @@ export const MergePluginConfigurator = (lifetime = 0) =>
           attr,
           extra,
           DMID: chunk.$UniDB.DMIDGenerator({
-            content: group.base.content,
-            mode: group.base.mode,
-            pool: group.base.pool,
-            platform: group.base.platform,
+            ...group.base,
             extra: extra && Object.keys(extra).length > 0 ? extra : null,
             senderID,
-            ctime: group.base.ctime,
           }),
         };
       }),
