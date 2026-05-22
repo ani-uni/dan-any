@@ -1,6 +1,6 @@
 {
   "name": "@dan-uni/dan-any",
-  "version": "2.0.3",
+  "version": "2.0.5",
   "description": "A danmaku transformer lib, supporting danmaku from different platforms.",
   "keywords": [
     "bangumi",
@@ -47,7 +47,7 @@
     "@electric-sql/pglite": "^0.4.5",
     "@electric-sql/pglite-tools": "^0.3.5",
     "@noble/hashes": "^2.2.0",
-    "drizzle-orm": "^1.0.0-rc.3-fe92e22",
+    "drizzle-orm": "^1.0.0-rc.4-5d5b77c",
     "fast-xml-builder": "^1.2.0",
     "fast-xml-parser": "^5.8.0",
     "json-bigint": "^1.0.0",
@@ -59,12 +59,12 @@
     "@bufbuild/protoc-gen-es": "^2.12.0",
     "@types/json-bigint": "^1.0.4",
     "@types/node": "^25.9.1",
-    "@typescript/native-preview": "^7.0.0-dev.20260519.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260522.1",
     "@vitest/ui": "^4.1.7",
     "bumpp": "^11.1.0",
     "bun-types": "^1.3.14",
-    "drizzle-kit": "^1.0.0-rc.3-fe92e22",
-    "protobufjs": "^8.4.0",
+    "drizzle-kit": "^1.0.0-rc.4-5d5b77c",
+    "protobufjs": "^8.4.2",
     "type-fest": "^5.6.0",
     "typescript": "^6.0.3",
     "vite-plus": "^0.1.22"
