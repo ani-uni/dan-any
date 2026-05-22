@@ -32,7 +32,7 @@ export const enumAttrsCodec = z.codec(
   },
 );
 
-function isV1(
+function isV1UniObj(
   json: Partial<UniDMObj> & { extraStr?: string },
 ): json is Partial<UniDMObj> & { extraStr: string } {
   const progressIsV1 = !Number.isInteger(json.progress);
@@ -41,11 +41,11 @@ function isV1(
 }
 
 export const DanuniJsonAdapter = defineAdapter(
-  (json: Partial<UniDMObj & { extraStr?: string }>[]) => {
+  (json: Partial<UniDMObj & { extraStr?: string }>[], options?: { isV1?: boolean }) => {
     return async (udb, uchunk) => {
       const now = new Date();
       const chunk = uchunk ?? (await udb.makeChunk({}));
-      const isV1Fmt = json.some((d) => isV1(d));
+      const isV1Fmt = options?.isV1 ? true : json.some((d) => isV1UniObj(d));
       await chunk.upsertDanmakus(
         json.map((d) => {
           const map_d = {
