@@ -46,6 +46,10 @@ bun add @dan-uni/dan-any
 pnpm add @dan-uni/dan-any
 ```
 
+## 接入 SKILL
+
+可以从 `/.agents/skills/dan-any/SKILL.md` 导入技能文件。
+
 ## 快速开始
 
 详细使用方法可以参考库中的测试文件。
