@@ -3,6 +3,7 @@ on:
   push:
     tags:
       - "dan-any@*.*.*"
+      - "v*.*.*"
     paths:
       - package.json
   workflow_dispatch:
