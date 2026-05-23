@@ -179,6 +179,9 @@ export class UniChunk {
       })
       .then((data) => data?.danmakus ?? []);
   }
+  get isDeleted() {
+    return this.$chunks.then((cs) => cs.length === 0);
+  }
   async upsertDanmakus(
     data: Map<string, DanmakusInsert & { platform: string | null }>,
     autoSetDMID?: false,
