@@ -1,5 +1,5 @@
 import { DanUniConvertTipTemplate, defaultUniDM, type DanUniConvertTip } from "@/core/dm.ts";
-import { defineAdapter, defineTransformer } from "./index.ts";
+import { defineAdapter, defineMetadata, defineTransformer } from "./index.ts";
 import { z } from "zod";
 import { UniID } from "@/core/uni-id.ts";
 import { transMode } from "@/utils/transMode.ts";
@@ -45,10 +45,12 @@ export const VodZod = z.object({
 });
 
 export const VodAdapter = defineAdapter(
-  (json: DM_JSON_Vod, videoId: string, domain: string = "other") => {
+  (json: DM_JSON_Vod, videoId?: string, domain: string = "other") => {
     return async (udb, uchunk) => {
       const chunk = uchunk ?? (await udb.makeChunk({ fromConverted: false }));
-      const SOID = UniID.fromUnknown(videoId, domain).toString();
+      const SOID = videoId
+        ? UniID.fromUnknown(videoId, domain).toString()
+        : UniID.fromNull(domain).toString();
       const senderID = UniID.fromNull(domain).toString();
       const now = new Date();
       await chunk.upsertDanmakus(
@@ -111,3 +113,22 @@ export const VodTransformer = defineTransformer(
     });
   },
 );
+
+export const VodMetadata = defineMetadata({
+  type: "vod.json",
+  ext: [".json"],
+  check: {
+    body: (body) => {
+      return VodZod.safeParse(body).success;
+    },
+    adapter: async (uchunk, body) => {
+      if (typeof body !== "object" || !body) return false;
+      try {
+        await uchunk.import(VodAdapter(body as any));
+        return true;
+      } catch {
+        return false;
+      }
+    },
+  },
+});

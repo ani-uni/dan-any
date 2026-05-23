@@ -1,4 +1,4 @@
-import { defineAdapter, defineTransformer } from "./index.ts";
+import { defineAdapter, defineMetadata, defineTransformer } from "./index.ts";
 
 import { DanUniConvertTipTemplate, defaultUniDM, type DanUniConvertTip } from "@/core/dm.ts";
 import { transMode } from "@/utils/transMode.ts";
@@ -17,7 +17,7 @@ interface DM_JSON_DDPlay {
 export const DdplayAdapter = defineAdapter(
   (
     json: DM_JSON_DDPlay & { danuni?: DanUniConvertTip },
-    episodeId: string,
+    episodeId: string = "0",
     domain: string = PlatformDanmakuOnlySource.DanDanPlay,
   ) => {
     return async (udb, uchunk) => {
@@ -86,3 +86,19 @@ export const DdplayTransformer = defineTransformer(
     }));
   },
 );
+
+export const DdplayMetadata = defineMetadata({
+  type: "ddplay.json",
+  ext: [".json"],
+  check: {
+    adapter: async (uchunk, body) => {
+      if (typeof body !== "object" || !body) return false;
+      try {
+        await uchunk.import(DdplayAdapter(body as any));
+        return true;
+      } catch {
+        return false;
+      }
+    },
+  },
+});

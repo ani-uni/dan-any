@@ -1,6 +1,8 @@
-import { defineAdapter } from "../index.ts";
+import { defineAdapter, defineMetadata } from "../index.ts";
 
 import { BiliCommonParser } from "./grpc.ts";
+
+import { JSON } from "@/utils/bigint.ts";
 
 interface DM_JSON_BiliUp {
   /** 接口状态码，0 表示成功 */
@@ -102,4 +104,19 @@ export const BiliUpAdapter = defineAdapter((json: DM_JSON_BiliUp) => {
     );
     return chunk;
   };
+});
+
+export const BiliUpMetadata = defineMetadata({
+  type: "bili.up.json",
+  ext: [".json"],
+  check: {
+    adapter: async (uchunk, body) => {
+      if (!(typeof body === "object" || typeof body === "string") || !body) return false;
+      try {
+        return uchunk.import(BiliUpAdapter(JSON.parse(JSON.stringify(body))));
+      } catch {
+        return false;
+      }
+    },
+  },
 });

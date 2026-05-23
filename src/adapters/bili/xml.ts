@@ -1,4 +1,4 @@
-import { defineTransformer, defineAdapter } from "../index.ts";
+import { defineTransformer, defineAdapter, defineMetadata } from "../index.ts";
 
 import { XMLParser } from "fast-xml-parser";
 import { DanUniConvertTipTemplate, type DanUniConvertTip } from "@/core/dm.ts";
@@ -119,3 +119,18 @@ export const BiliXmlTransformerConfigurator = (options?: BiliXmlTransformerOptio
       },
     });
   });
+
+export const BiliXmlMetadata = defineMetadata({
+  type: "bili.xml",
+  ext: [".xml"],
+  check: {
+    adapter: async (uchunk, body) => {
+      if (typeof body !== "string") return false;
+      try {
+        return uchunk.import(BiliXmlAdapter(body));
+      } catch {
+        return false;
+      }
+    },
+  },
+});

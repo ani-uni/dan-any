@@ -1,4 +1,4 @@
-import { defineAdapter } from "./index.ts";
+import { defineAdapter, defineMetadata } from "./index.ts";
 import { defaultUniDM } from "@/core/dm.ts";
 import type { Extra, ExtraTencent } from "@/core/dm-extra.ts";
 import { UniID } from "@/core/uni-id.ts";
@@ -117,4 +117,18 @@ export const TencentAdapter = defineAdapter((json: DM_JSON_Tencent, vid?: string
   };
 });
 
-export default TencentAdapter;
+export const TencentMetadata = defineMetadata({
+  type: "tencent.json",
+  ext: [".json"],
+  check: {
+    adapter: async (uchunk, body) => {
+      if (typeof body !== "object" || !body) return false;
+      try {
+        await uchunk.import(TencentAdapter(body as any));
+        return true;
+      } catch {
+        return false;
+      }
+    },
+  },
+});

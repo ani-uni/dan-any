@@ -1,4 +1,4 @@
-import { defineAdapter } from "../index.ts";
+import { defineAdapter, defineMetadata } from "../index.ts";
 
 import { defaultUniDM, DMAttr } from "@/core/dm.ts";
 import { PlatformVideoSource } from "@/core/platform.ts";
@@ -45,4 +45,29 @@ export const BiliCommandGrpcAdapter = defineAdapter((bin: Uint8Array | ArrayBuff
     );
     return chunk;
   };
+});
+
+export const BiliCommandGrpcMetadata = defineMetadata({
+  type: "bili.cmd.binpb",
+  ext: [".binpb", ".bin", ".pb.bin", ".so"],
+  check: {
+    adapter: async (uchunk, body) => {
+      if (typeof body !== "object") return false;
+      if (!(body instanceof ArrayBuffer) && !ArrayBuffer.isView(body)) return false;
+      try {
+        let buf: Uint8Array;
+        if (body instanceof ArrayBuffer) {
+          buf = new Uint8Array(body);
+        } else if (ArrayBuffer.isView(body)) {
+          const view = body;
+          buf = new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
+        } else {
+          return false;
+        }
+        return uchunk.import(BiliCommandGrpcAdapter(buf));
+      } catch {
+        return false;
+      }
+    },
+  },
 });

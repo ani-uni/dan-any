@@ -7,7 +7,7 @@ import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
 import { timestampDate, timestampFromDate, timestampNow } from "@bufbuild/protobuf/wkt";
 
 import { ListDanResponseSchema } from "@/utils/proto/gen/danuni/danmaku/v1/danmaku_pb.ts";
-import { defineAdapter, defineTransformer } from "../index.ts";
+import { defineAdapter, defineMetadata, defineTransformer } from "../index.ts";
 import { danmakus } from "@/core/db/schema.ts";
 import { z } from "zod";
 
@@ -87,4 +87,29 @@ export const DanuniPbTransformer = defineTransformer((udanmakus): Promise<Uint8A
       }),
     ),
   );
+});
+
+export const DanuniPbMetadata = defineMetadata({
+  type: "danuni.binpb",
+  ext: [".binpb", ".bin", ".pb.bin"],
+  check: {
+    adapter: async (uchunk, body) => {
+      if (typeof body !== "object") return false;
+      if (!(body instanceof ArrayBuffer) && !ArrayBuffer.isView(body)) return false;
+      try {
+        let buf: Uint8Array;
+        if (body instanceof ArrayBuffer) {
+          buf = new Uint8Array(body);
+        } else if (ArrayBuffer.isView(body)) {
+          const view = body;
+          buf = new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
+        } else {
+          return false;
+        }
+        return uchunk.import(DanuniPbAdapter(buf));
+      } catch {
+        return false;
+      }
+    },
+  },
 });

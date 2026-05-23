@@ -1,5 +1,5 @@
 import type { Extra } from "@/core/dm-extra.ts";
-import { defineAdapter, defineTransformer } from "./index.ts";
+import { defineAdapter, defineMetadata, defineTransformer } from "./index.ts";
 
 import { DanUniConvertTipTemplate, defaultUniDM, type DanUniConvertTip } from "@/core/dm.ts";
 import { UniID } from "@/core/uni-id.ts";
@@ -19,12 +19,14 @@ interface DM_JSON_Artplayer {
 export const ArtplayerAdapter = defineAdapter(
   (
     json: DM_JSON_Artplayer & { danuni?: DanUniConvertTip },
-    playerID: string,
+    playerID?: string,
     domain: string = "other",
   ) => {
     return async (udb, uchunk) => {
       const chunk = uchunk ?? (await udb.makeChunk({ fromConverted: !!json.danuni }));
-      const SOID = UniID.fromUnknown(playerID, domain).toString();
+      const SOID = playerID
+        ? UniID.fromUnknown(playerID, domain).toString()
+        : UniID.fromNull(domain).toString();
       const senderID = UniID.fromNull(domain).toString();
       const now = new Date();
       await chunk.upsertDanmakus(
@@ -91,3 +93,19 @@ export const ArtplayerTransformer = defineTransformer(
     }));
   },
 );
+
+export const ArtplayerMetadata = defineMetadata({
+  type: "artplayer.json",
+  ext: [".json"],
+  check: {
+    adapter: async (uchunk, body) => {
+      if (typeof body !== "object" || !body) return false;
+      try {
+        await uchunk.import(ArtplayerAdapter(body as any));
+        return true;
+      } catch {
+        return false;
+      }
+    },
+  },
+});

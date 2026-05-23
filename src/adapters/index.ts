@@ -17,6 +17,15 @@ export type Transformer<T = unknown> = (
   },
 ) => Promisable<T>;
 export type Plugin<T = unknown> = (uchunk: UniChunk) => Promisable<T>;
+export type Metadata = {
+  type: string;
+  ext: string[];
+  check?: {
+    fn?: (fn: string) => boolean; // 基于文件名的自定义检测方法，默认根据ext自动检测
+    body?: (body: unknown) => Promisable<boolean>; // 基于文件内容的检测方法，成功则认为检测通过
+    adapter?: (uchunk: UniChunk, body: unknown) => Promisable<boolean | UniChunk>; // 同上，但上下文给定一个特定chunk，若使用Adapter导入进行检测，应使用该方法;返回UniChunk表示非临时导入，可直接使用
+  };
+};
 
 export function defineAdapter<T extends Adapter>(adapter: T) {
   return adapter;
@@ -26,6 +35,9 @@ export function defineTransformer<T extends Transformer>(transformer: T) {
 }
 export function definePlugin<T extends Plugin>(plugin: T) {
   return plugin;
+}
+export function defineMetadata(metadata: Metadata) {
+  return metadata;
 }
 
 export * from "./danuni/json.ts";

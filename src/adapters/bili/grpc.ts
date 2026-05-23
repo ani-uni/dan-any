@@ -1,4 +1,4 @@
-import { defineAdapter, type UDanmaku } from "../index.ts";
+import { defineAdapter, defineMetadata, type UDanmaku } from "../index.ts";
 
 import { DMAttr, Modes, Pools } from "@/core/dm.ts";
 import { PlatformVideoSource, type PlatformDanmakuSource } from "@/core/platform.ts";
@@ -222,4 +222,29 @@ export const BiliGrpcAdapter = defineAdapter((bin: Uint8Array | ArrayBuffer) => 
     await chunk.upsertDanmakus(json.map((d) => BiliCommonParser(chunk, d)));
     return chunk;
   };
+});
+
+export const BiliGrpcMetadata = defineMetadata({
+  type: "bili.binpb",
+  ext: [".binpb", ".bin", ".pb.bin", ".so"],
+  check: {
+    adapter: async (uchunk, body) => {
+      if (typeof body !== "object") return false;
+      if (!(body instanceof ArrayBuffer) && !ArrayBuffer.isView(body)) return false;
+      try {
+        let buf: Uint8Array;
+        if (body instanceof ArrayBuffer) {
+          buf = new Uint8Array(body);
+        } else if (ArrayBuffer.isView(body)) {
+          const view = body;
+          buf = new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
+        } else {
+          return false;
+        }
+        return uchunk.import(BiliGrpcAdapter(buf));
+      } catch {
+        return false;
+      }
+    },
+  },
 });

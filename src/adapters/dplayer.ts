@@ -1,4 +1,4 @@
-import { defineAdapter, defineTransformer } from "./index.ts";
+import { defineAdapter, defineMetadata, defineTransformer } from "./index.ts";
 
 import { DanUniConvertTipTemplate, defaultUniDM, type DanUniConvertTip } from "@/core/dm.ts";
 import { UniID } from "@/core/uni-id.ts";
@@ -15,12 +15,14 @@ interface DM_JSON_Dplayer {
 export const DplayerAdapter = defineAdapter(
   (
     json: DM_JSON_Dplayer & { danuni?: DanUniConvertTip },
-    playerID: string,
+    playerID?: string,
     domain: string = "other",
   ) => {
     return async (udb, uchunk) => {
       const chunk = uchunk ?? (await udb.makeChunk({ fromConverted: !!json.danuni }));
-      const SOID = UniID.fromUnknown(playerID, domain).toString();
+      const SOID = playerID
+        ? UniID.fromUnknown(playerID, domain).toString()
+        : UniID.fromNull(domain).toString();
       const now = new Date();
       await chunk.upsertDanmakus(
         json.data.map(([progress, ori_mode, color, midHash, content]) => {
@@ -69,3 +71,19 @@ export const DplayerTransformer = defineTransformer(
     }));
   },
 );
+
+export const DplayerMetadata = defineMetadata({
+  type: "dplayer.json",
+  ext: [".json"],
+  check: {
+    adapter: async (uchunk, body) => {
+      if (typeof body !== "object" || !body) return false;
+      try {
+        await uchunk.import(DplayerAdapter(body as any));
+        return true;
+      } catch {
+        return false;
+      }
+    },
+  },
+});

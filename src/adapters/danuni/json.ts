@@ -1,5 +1,5 @@
 import { danmakus } from "@/core/db/schema.ts";
-import { defineTransformer, defineAdapter, type Transformer } from "../index.ts";
+import { defineTransformer, defineAdapter, type Transformer, defineMetadata } from "../index.ts";
 import { defaultUniDM, DMAttr, Modes, Pools, type UniDMObj } from "@/core/dm.ts";
 import { z } from "zod";
 import { modeExtCheck } from "@/utils/modeExtCheck.ts";
@@ -124,3 +124,18 @@ export function DanuniJsonTransformerConfigurator(
     }),
   );
 }
+
+export const DanuniJsonMetadata = defineMetadata({
+  type: "danuni.json",
+  ext: [".json"],
+  check: {
+    adapter: async (uchunk, body) => {
+      if (typeof body !== "object" || !body) return false;
+      try {
+        return uchunk.import(DanuniJsonAdapter(body as any));
+      } catch {
+        return false;
+      }
+    },
+  },
+});
