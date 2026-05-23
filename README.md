@@ -92,7 +92,11 @@ const reimported = await udb.import(DanuniPbAdapter(pb))
 
 ### 高级: 提供兼容的drizzle+pglite实例接入自己的数据库
 
-详见 测试文件 `tests/db.test.ts`.
+详见 测试文件 `tests/db.test.ts` 。
+
+### 高级: 使用 `WildcardAdapterUtil` 进行格式自动识别与导入
+
+详见 测试文件 `tests/utils.test.ts` 。
 
 ## 模块入口
 
