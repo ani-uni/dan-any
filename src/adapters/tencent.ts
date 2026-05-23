@@ -122,12 +122,12 @@ export const TencentMetadata = defineMetadata({
   ext: [".json"],
   check: {
     adapter: async (uchunk, body) => {
-      if (typeof body !== "object" || !body) return false;
+      if (typeof body !== "object" || !body) return null;
       try {
         await uchunk.import(TencentAdapter(body as any));
-        return true;
+        return TencentAdapter;
       } catch {
-        return false;
+        return null;
       }
     },
   },

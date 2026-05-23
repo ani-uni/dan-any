@@ -125,11 +125,11 @@ export const BiliXmlMetadata = defineMetadata({
   ext: [".xml"],
   check: {
     adapter: async (uchunk, body) => {
-      if (typeof body !== "string") return false;
+      if (typeof body !== "string") return null;
       try {
         return uchunk.import(BiliXmlAdapter(body));
       } catch {
-        return false;
+        return null;
       }
     },
   },

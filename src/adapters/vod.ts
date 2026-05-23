@@ -122,12 +122,12 @@ export const VodMetadata = defineMetadata({
       return VodZod.safeParse(body).success;
     },
     adapter: async (uchunk, body) => {
-      if (typeof body !== "object" || !body) return false;
+      if (typeof body !== "object" || !body) return null;
       try {
         await uchunk.import(VodAdapter(body as any));
-        return true;
+        return VodAdapter;
       } catch {
-        return false;
+        return null;
       }
     },
   },

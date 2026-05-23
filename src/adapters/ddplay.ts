@@ -92,12 +92,12 @@ export const DdplayMetadata = defineMetadata({
   ext: [".json"],
   check: {
     adapter: async (uchunk, body) => {
-      if (typeof body !== "object" || !body) return false;
+      if (typeof body !== "object" || !body) return null;
       try {
         await uchunk.import(DdplayAdapter(body as any));
-        return true;
+        return DdplayAdapter;
       } catch {
-        return false;
+        return null;
       }
     },
   },

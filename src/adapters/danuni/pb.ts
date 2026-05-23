@@ -94,8 +94,8 @@ export const DanuniPbMetadata = defineMetadata({
   ext: [".binpb", ".bin", ".pb.bin"],
   check: {
     adapter: async (uchunk, body) => {
-      if (typeof body !== "object") return false;
-      if (!(body instanceof ArrayBuffer) && !ArrayBuffer.isView(body)) return false;
+      if (typeof body !== "object") return null;
+      if (!(body instanceof ArrayBuffer) && !ArrayBuffer.isView(body)) return null;
       try {
         let buf: Uint8Array;
         if (body instanceof ArrayBuffer) {
@@ -104,11 +104,11 @@ export const DanuniPbMetadata = defineMetadata({
           const view = body;
           buf = new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
         } else {
-          return false;
+          return null;
         }
         return uchunk.import(DanuniPbAdapter(buf));
       } catch {
-        return false;
+        return null;
       }
     },
   },

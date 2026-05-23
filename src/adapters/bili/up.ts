@@ -111,11 +111,11 @@ export const BiliUpMetadata = defineMetadata({
   ext: [".json"],
   check: {
     adapter: async (uchunk, body) => {
-      if (!(typeof body === "object" || typeof body === "string") || !body) return false;
+      if (!(typeof body === "object" || typeof body === "string") || !body) return null;
       try {
         return uchunk.import(BiliUpAdapter(JSON.parse(JSON.stringify(body))));
       } catch {
-        return false;
+        return null;
       }
     },
   },

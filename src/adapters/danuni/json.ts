@@ -130,11 +130,11 @@ export const DanuniJsonMetadata = defineMetadata({
   ext: [".json"],
   check: {
     adapter: async (uchunk, body) => {
-      if (typeof body !== "object" || !body) return false;
+      if (typeof body !== "object" || !body) return null;
       try {
         return uchunk.import(DanuniJsonAdapter(body as any));
       } catch {
-        return false;
+        return null;
       }
     },
   },

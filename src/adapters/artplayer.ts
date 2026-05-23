@@ -99,12 +99,12 @@ export const ArtplayerMetadata = defineMetadata({
   ext: [".json"],
   check: {
     adapter: async (uchunk, body) => {
-      if (typeof body !== "object" || !body) return false;
+      if (typeof body !== "object" || !body) return null;
       try {
         await uchunk.import(ArtplayerAdapter(body as any));
-        return true;
+        return ArtplayerAdapter;
       } catch {
-        return false;
+        return null;
       }
     },
   },
