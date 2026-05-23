@@ -8,9 +8,7 @@ export function transformerInput2Danmakus(input: TransformerInput) {
 
 export type UDanmaku = Awaited<ReturnType<typeof transformerInput2Danmakus>>[number];
 
-export type Adapter<Args extends unknown[] = unknown[]> = (
-  ...args: Args
-) => Promisable<AdapterStore>;
+export type Adapter<Args extends any[] = any[]> = (...args: Args) => Promisable<AdapterStore>;
 export type Transformer<T = unknown> = (
   udanmakus: ReturnType<typeof transformerInput2Danmakus>,
   ctx: {
@@ -20,7 +18,7 @@ export type Transformer<T = unknown> = (
 ) => Promisable<T>;
 export type Plugin<T = unknown> = (uchunk: UniChunk) => Promisable<T>;
 
-export function defineAdapter<T extends (...args: any[]) => Promisable<AdapterStore>>(adapter: T) {
+export function defineAdapter<T extends Adapter>(adapter: T) {
   return adapter;
 }
 export function defineTransformer<T extends Transformer>(transformer: T) {

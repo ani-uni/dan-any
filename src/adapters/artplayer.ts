@@ -17,7 +17,11 @@ interface DM_JSON_Artplayer {
 }
 
 export const ArtplayerAdapter = defineAdapter(
-  (json: DM_JSON_Artplayer & { danuni?: DanUniConvertTip }, playerID: string, domain = "other") => {
+  (
+    json: DM_JSON_Artplayer & { danuni?: DanUniConvertTip },
+    playerID: string,
+    domain: string = "other",
+  ) => {
     return async (udb, uchunk) => {
       const chunk = uchunk ?? (await udb.makeChunk({ fromConverted: !!json.danuni }));
       const SOID = UniID.fromUnknown(playerID, domain).toString();

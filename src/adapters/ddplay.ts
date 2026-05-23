@@ -18,7 +18,7 @@ export const DdplayAdapter = defineAdapter(
   (
     json: DM_JSON_DDPlay & { danuni?: DanUniConvertTip },
     episodeId: string,
-    domain = PlatformDanmakuOnlySource.DanDanPlay,
+    domain: string = PlatformDanmakuOnlySource.DanDanPlay,
   ) => {
     return async (udb, uchunk) => {
       const chunk = uchunk ?? (await udb.makeChunk({ fromConverted: !!json.danuni }));
