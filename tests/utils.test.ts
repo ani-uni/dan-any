@@ -1,6 +1,16 @@
-import { BiliXmlAdapter } from "@/adapters/index.ts";
-import { defaultUniDM, UniDB, type InitedUniDB, type UniChunk } from "@/core/index.ts";
+import {
+  ArtplayerAdapter,
+  ArtplayerMetadata,
+  BiliXmlAdapter,
+  BiliXmlMetadata,
+  DanuniPbAdapter,
+  DanuniPbMetadata,
+  DdplayAdapter,
+  DdplayMetadata,
+} from "@/adapters/index.ts";
+import { defaultUniDM, UniChunk, UniDB, type InitedUniDB } from "@/core/index.ts";
 import { isSame } from "@/utils/index.ts";
+import { WildcardAdapterUtil } from "@/utils/wildcardAdapter.ts";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const xml = `<i>
@@ -85,5 +95,57 @@ describe("其它", () => {
     expect(isSame(pool2[0], pool2[3])).toBe(false);
     expect(isSame(pool2[0], pool2[3], { skipDanuniMerge: true })).toBe(true);
     expect(isSame(pool2[0], pool2[4])).toBe(false);
+  });
+});
+
+describe("通配导入", () => {
+  it("无需额外参数", async () => {
+    const r = await WildcardAdapterUtil(
+      udb,
+      [
+        [DanuniPbMetadata, DanuniPbAdapter],
+        [BiliXmlMetadata, BiliXmlAdapter],
+      ],
+      "test.xml",
+      xml,
+    );
+    if (r instanceof UniChunk) {
+      console.info(await r.$danmakus);
+    }
+  });
+  it("需要额外参数", async () => {
+    const artplayerJson = {
+      danmuku: [
+        {
+          text: "artplayer测试弹幕", // 弹幕文本
+          time: 10, // 弹幕时间, 默认为当前播放器时间
+          mode: 0, // 弹幕模式: 0: 滚动(默认)，1: 顶部，2: 底部
+          color: "#FFFFFF", // 弹幕颜色，默认为白色
+          border: false, // 弹幕是否有描边, 默认为 false
+          style: { border: "10rem" }, // 弹幕自定义样式, 默认为空对象
+        },
+      ],
+    };
+    const r = await WildcardAdapterUtil(
+      udb,
+      [
+        [DdplayMetadata, DdplayAdapter],
+        [ArtplayerMetadata, ArtplayerAdapter],
+      ],
+      "test.json",
+      artplayerJson,
+    );
+    console.info(r);
+    if (r instanceof UniChunk) {
+      console.info(await r.$danmakus);
+    }
+    if (r === DdplayAdapter) {
+      console.info("成功识别为DdplayAdapter");
+    }
+    if (r === ArtplayerAdapter) {
+      console.info("成功识别为ArtplayerAdapter");
+      // await r(artplayerJson, "testPlayer", "testDomain");
+      await udb.import(ArtplayerAdapter(artplayerJson, "testPlayer", "testDomain"));
+    }
   });
 });
