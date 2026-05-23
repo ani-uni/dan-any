@@ -119,7 +119,7 @@ export const VodMetadata = defineMetadata({
   ext: [".json"],
   check: {
     body: (body) => {
-      return VodZod.safeParse(body).success;
+      return VodZod.safeParse(body).success ? VodAdapter : null;
     },
     adapter: async (uchunk, body) => {
       if (typeof body !== "object" || !body) return null;

@@ -22,7 +22,7 @@ export type Metadata = {
   ext: string[];
   check?: {
     fn?: (fn: string) => boolean; // 基于文件名的自定义检测方法，默认根据ext自动检测
-    body?: (body: unknown) => Promisable<boolean>; // 基于文件内容的检测方法，成功则认为检测通过
+    body?: (body: unknown) => Promisable<null | Adapter>; // 基于文件内容的检测方法，成功则认为检测通过
     adapter?: (uchunk: UniChunk, body: unknown) => Promisable<null | Adapter | UniChunk>; // 同上，但上下文给定一个特定chunk，若使用Adapter导入进行检测，应使用该方法;返回UniChunk表示非临时导入，可直接使用
   };
 };
