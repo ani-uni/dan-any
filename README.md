@@ -8,8 +8,8 @@
 - 用 `Plugin` 在处理中间态（`UniChunk`）上做增强/清洗/统计
 
 v2 使用 drizzle+pglite(支持`MemoryFS`(默认)/`NodeFS`/`IndexedDbFS`/`OpfsAhpFS`) 作为默认数据库选项，同时允许通过drizzle接入自定义postgres数据库实例  
-v2 打包大小gzip后~100KB (大部分为打包后展开的drizzle schema定义)，同时支持tree-shake，故不会大幅增加软件体积  
-v2 在第一次初始化实例时可能有~1s的开销，建议使用 [PGLite的Multi-tab Worker](https://pglite.dev/docs/multi-tab-worker) 使所有调用共享一个数据库实例
+v2 打包大小gzip后约100KB (大部分为打包后展开的drizzle schema定义)，同时支持tree-shake，故不会大幅增加软件体积  
+v2 在第一次初始化实例时可能有约1s的开销，建议使用 [PGLite的Multi-tab Worker](https://pglite.dev/docs/multi-tab-worker) 使所有调用共享一个数据库实例
 
 如果还是觉得太重了，可以使用 v1 版本，在临时小文件处理上速度更快。  
 
