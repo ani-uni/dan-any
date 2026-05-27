@@ -8,7 +8,7 @@ interface DM_JSON_Vod {
   code: number;
   name: string; //url str 带转义符
   danum: number;
-  danmuku: [number, string, string, string, string, string, string, string][];
+  danmuku: [number, string, string, string, string, string, string, string, ...any][];
 }
 
 export const VodZod = z.object({
