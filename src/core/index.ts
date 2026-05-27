@@ -179,6 +179,9 @@ export class UniChunk {
       })
       .then((data) => data?.danmakus ?? []);
   }
+  get $count() {
+    return this.$db.$count(chunk2danmakus, eq(chunk2danmakus.chunkID, this.id));
+  }
   get isDeleted() {
     return this.$chunks.then((cs) => cs.length === 0);
   }

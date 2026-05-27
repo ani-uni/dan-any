@@ -15,7 +15,6 @@ import {
 } from "@/adapters/index.ts";
 import { initNewDb } from "@/core/db/index.ts";
 import { InitedUniDB, UniChunk, UniDB } from "@/core/index.ts";
-import { CountTransformer } from "@/plugins/count.ts";
 import { describe, it, expect, beforeAll, afterAll } from "vite-plus/test";
 
 const xml = `<i>
@@ -318,8 +317,8 @@ describe("其它", () => {
     const chunk1 = await udb.import(BiliXmlAdapter(xml));
     const chunk2 = await udb.import(BiliXmlAdapter(xml2));
     // 获取合并前的 danmakus 数量
-    const result1 = await chunk1.export(CountTransformer);
-    const result2 = await chunk2.export(CountTransformer);
+    const result1 = await chunk1.$count;
+    const result2 = await chunk2.$count;
     expect(result1).toBe(15);
     expect(result2).toBe(1);
     console.info(`Chunk1 count: ${result1}, Chunk2 count: ${result2}`);
@@ -329,7 +328,7 @@ describe("其它", () => {
     expect(merged.id).toBe(chunk1.id);
     expect(merged.$UniDB).toBe(chunk1.$UniDB);
     // 验证合并后 danmakus 数量应该是两个的总和
-    const mergedResult = await merged.export(CountTransformer);
+    const mergedResult = await merged.$count;
     console.info(`Merged count: ${mergedResult}, Expected: 16`);
     expect(mergedResult).toBe(16);
   });
@@ -339,8 +338,8 @@ describe("其它", () => {
     const chunk1 = await udb.import(BiliXmlAdapter(xml));
     const chunk2 = await udb2.import(BiliXmlAdapter(xml2));
     // 获取合并前的 danmakus 数量
-    const result1 = await chunk1.export(CountTransformer);
-    const result2 = await chunk2.export(CountTransformer);
+    const result1 = await chunk1.$count;
+    const result2 = await chunk2.$count;
     expect(result1).toBe(15);
     expect(result2).toBe(1);
     console.info(`Chunk1 count: ${result1}, Chunk2 count: ${result2}`);
@@ -350,7 +349,7 @@ describe("其它", () => {
     expect(merged.id).toBe(chunk1.id);
     expect(merged.$UniDB).toBe(chunk1.$UniDB);
     // 验证合并后 danmakus 数量应该是两个的总和
-    const mergedResult = await merged.export(CountTransformer);
+    const mergedResult = await merged.$count;
     console.info(`Merged count: ${mergedResult}, Expected: 16`);
     expect(mergedResult).toBe(16);
     await udb2.close();

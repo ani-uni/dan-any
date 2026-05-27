@@ -12,6 +12,7 @@
 - 主要入口：`@dan-uni/dan-any`、`@dan-uni/dan-any/adapters`、`@dan-uni/dan-any/core`、`@dan-uni/dan-any/plugins`。
 - 推荐安装：`pnpm add @dan-uni/dan-any`（或 `bun add` / `vp add`）。
 - 开发命令：`vp install`、`vp check`、`vp test`、`vp pack`。
+- 计数优先直接使用 `UniChunk.$count`；`CountTransformer` 已弃用，仅保留兼容用途。
 
 ## 常见接入步骤（示例）
 1) 安装依赖
@@ -49,7 +50,14 @@ const merged = await chunk.plugin(mergePluginConfigurator(10))
 const result = await merged.export(DanuniJsonTransformerConfigurator({ minify: true }))
 ```
 
-4) PB 双向示例（导出再导入）
+4) 获取弹幕数量（推荐）
+
+```ts
+const count = await chunk.$count
+const mergedCount = await merged.$count
+```
+
+5) PB 双向示例（导出再导入）
 
 ```ts
 import { DanuniPbTransformer, DanuniPbAdapter } from '@dan-uni/dan-any/adapters'
@@ -158,11 +166,11 @@ const stats = await chunk.export(GetStatsTransformerConfigurator(['mode','fontsi
 // 可以用 GetStatsUtil4getMost(stats.mode) 获取出现最多的 mode
 ```
 
-4) CountTransformer（数量统计）
+4) `$count`（数量统计）
 
 ```ts
-const count = await chunk.export(CountTransformer)
-// 返回弹幕总数（number）
+const count = await chunk.$count
+// 返回弹幕总数（number）；CountTransformer 仅作兼容，不建议作为新示例
 ```
 
 -- 小结：测试覆盖了导入（各 Adapter）、导出（各 Transformer）、插件（Merge/Downgrade/GetStats）、以及 DB 可插拔性，建议 skill 中保留这些示例以便用户按需引用。
@@ -186,6 +194,7 @@ const count = await chunk.export(CountTransformer)
 - 用户说“导出/转换为 X/生成 X 文件”：优先找 `Transformer`
 - 用户只说“支持 X 格式吗”：同时检查两者，若某一侧不存在则说明该格式仅单向支持
 - 如果格式别名很多，先做归一化再查表（例如 `b站 xml`、`bilixml`、`bili xml`、`Bili-XML` 都归为 `bili.xml`）
+- 如果用户只是想拿数量，优先回答 `UniChunk.$count` ，不要再推荐 `CountTransformer`
 
 注意：部分格式仅支持单向（只导入或只导出），具体以上述映射为准。如果需要确认某个格式是否可导入或导出，建议在运行时按需从 `@dan-uni/dan-any/adapters` 导入对应符号并检测其是否存在。
 
