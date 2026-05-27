@@ -8,7 +8,7 @@ interface DM_JSON_Vod {
   code: number;
   name: string; //url str 带转义符
   danum: number;
-  danmuku: [number, string, string, string, string, string, string, string, ...any][];
+  danmuku: [number, string, string, string, string, string?, string?, string?, ...any][];
 }
 
 export const VodZod = z.object({
@@ -36,9 +36,12 @@ export const VodZod = z.object({
           }), // color
         z.string().prefault(""), // ?
         z.string(), // text
-        z.string().prefault(""), // ?
-        z.string().prefault(""), // ?
-        z.string().regex(/^\d+px$/), // font size
+        z.string().prefault("").optional(), // ?
+        z.string().prefault("").optional(), // ?
+        z
+          .string()
+          .regex(/^\d+px$/)
+          .optional(), // font size
       ])
       .rest(z.any()),
   ),
@@ -67,7 +70,7 @@ export const VodAdapter = defineAdapter(
             mode: transMode(d[1], "vod"),
             color: Number((d[2] || "FFFFFF").replace("#", "0x")),
             content: d[4],
-            fontsize: Number(d[7].replace("px", "")),
+            fontsize: d[7] ? Number(d[7].replace("px", "")) : defaultUniDM.fontsize,
           };
           return { ...map_d, DMID: chunk.$UniDB.DMIDGenerator(map_d) };
         }),
