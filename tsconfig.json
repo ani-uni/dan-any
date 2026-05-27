@@ -26,7 +26,7 @@
       "@/*": [
         "./src/*"
       ],
-      "@dan-uni/dan-any": [
+      "@dan-uni/dan-any/*": [
         "./dist/*"
       ]
     }
