@@ -79,7 +79,7 @@ export function BiliCommonParser(chunk: UniChunk, args: DMBili, cid?: bigint, re
     ? args.midHash
     : UniID.fromBili({ midHash: args.midHash }).toString();
   let mode: Modes;
-  const pool = args.pool; //暂时不做处理，兼容bili的pool格式
+  const pool = enumPoolCodec.in.safeParse(args.pool).success ? args.pool : Pools.Def; // 偶尔会有特殊pool值(非标),如 7(未知)
   const extra: Extra = {
     bili: {
       mode: args.mode,
