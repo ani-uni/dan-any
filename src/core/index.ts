@@ -63,7 +63,7 @@ export class InitedUniDB extends UniDB {
     return UniChunk.makeChunk(this, data);
   }
   async upsertDanmakus(data: DanmakusInsert[] | Map<string, DanmakusInsert>, dedupeDMID = true) {
-    if (data instanceof Map) await this.upsertDanmakus([...data.values()], dedupeDMID);
+    if (data instanceof Map) await this.upsertDanmakus([...data.values()], false);
     else if (dedupeDMID) {
       const map = new Map<string, DanmakusInsert>();
       data.forEach((d) => {
@@ -209,7 +209,7 @@ export class UniChunk {
   ) {
     const dmids = new Set<string>();
     if (data instanceof Map) {
-      await this.$UniDB.upsertDanmakus([...data.values()], dedupeDMID);
+      await this.$UniDB.upsertDanmakus([...data.values()], false);
       data.forEach((d) => dmids.add(d.DMID));
     } else {
       if (autoSetDMID)
