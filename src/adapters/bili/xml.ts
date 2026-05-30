@@ -10,11 +10,11 @@ import { UniID } from "@/core/uni-id.ts";
 interface DM_XML_Bili {
   i: {
     chatserver: string;
-    chatid: bigint;
-    mission: number;
-    maxlimit: number;
-    state: number;
-    real_name: number;
+    chatid: string; // bigint
+    mission: string; // number
+    maxlimit: string; // number
+    state: string; // number
+    real_name: string; // number
     source: string;
     d: {
       "#text": string;
@@ -25,6 +25,9 @@ interface DM_XML_Bili {
 
 const parser = new XMLParser({
   ignoreAttributes: false,
+  parseTagValue: false,
+  parseAttributeValue: false,
+  trimValues: false,
   isArray: (_name, jpath, _isLeafNode, _isAttribute) => {
     if (jpath === "i.d") return true;
     return false;
