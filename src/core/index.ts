@@ -12,6 +12,7 @@ import { eq } from "drizzle-orm";
 import type { Asyncify, Promisable, Simplify } from "type-fest";
 import { createDMID, type DMIDGenerator } from "./id.ts";
 import type { z } from "zod";
+import { array2chunk } from "@/utils/array2chunk.ts";
 
 export type AdapterStore = (udb: InitedUniDB, uchunk?: UniChunk) => Promisable<UniChunk>;
 
@@ -62,6 +63,27 @@ export class InitedUniDB extends UniDB {
   async makeChunk(data: z.infer<typeof chunksZod>) {
     return UniChunk.makeChunk(this, data);
   }
+  async #upsertDanmakus(data: DanmakusInsert[]) {
+    data = data.map((d) => {
+      const rawContent = d.content;
+      // oxlint-disable-next-line no-control-regex
+      d.content = rawContent.replace(/[\x00-\x1F\x7F]/g, "");
+      if (d.content !== rawContent)
+        d.extra = {
+          ...d.extra,
+          danuni: {
+            ...d.extra?.danuni,
+            raw: {
+              ...d.extra?.danuni?.raw,
+              content: Buffer.from(rawContent, "utf8").toString("base64"),
+            },
+          },
+        };
+      return d;
+    });
+    for (const c of array2chunk(data, 2340))
+      await this.$db.insert(danmakus).values(c).onConflictDoUpdate(onConflictDoUpdate.danmakus);
+  }
   async upsertDanmakus(data: DanmakusInsert[] | Map<string, DanmakusInsert>, dedupeDMID = true) {
     if (data instanceof Map) await this.upsertDanmakus([...data.values()], false);
     else if (dedupeDMID) {
@@ -69,12 +91,8 @@ export class InitedUniDB extends UniDB {
       data.forEach((d) => {
         map.set(d.DMID, d);
       });
-      await this.$db
-        .insert(danmakus)
-        .values([...map.values()])
-        .onConflictDoUpdate(onConflictDoUpdate.danmakus);
-    } else
-      await this.$db.insert(danmakus).values(data).onConflictDoUpdate(onConflictDoUpdate.danmakus);
+      await this.#upsertDanmakus([...map.values()]);
+    } else await this.#upsertDanmakus(data);
   }
   /**
    * 清理临时chunks
@@ -224,10 +242,11 @@ export class UniChunk {
         });
       await this.$UniDB.upsertDanmakus(data, dedupeDMID);
     }
-    await this.$db
-      .insert(chunk2danmakus)
-      .values([...dmids].map((DMID) => ({ chunkID: this.id, DMID })))
-      .onConflictDoNothing();
+    for (const c of array2chunk(
+      [...dmids].map((DMID) => ({ chunkID: this.id, DMID })),
+      2340,
+    ))
+      await this.$db.insert(chunk2danmakus).values(c).onConflictDoNothing();
   }
   async import(adapterStore: AdapterStore) {
     const chunk = await adapterStore(this.$UniDB, this);
