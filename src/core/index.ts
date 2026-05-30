@@ -249,8 +249,7 @@ export class UniChunk {
       await this.$db.insert(chunk2danmakus).values(c).onConflictDoNothing();
   }
   async import(adapterStore: AdapterStore) {
-    const chunk = await adapterStore(this.$UniDB, this);
-    return chunk;
+    return adapterStore(this.$UniDB, this);
   }
   async export<T extends Transformer | Asyncify<Transformer>>(
     transformer: T,
