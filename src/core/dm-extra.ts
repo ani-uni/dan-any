@@ -26,6 +26,7 @@ export interface ExtraBili {
 }
 export interface ExtraDanUni {
   merge?: ExtraDanUniMerge;
+  raw?: ExtraDanUniRaw; // 由于各种问题导致解析错误，使用二进制方法保存一份原始数据;内部使用base64
 }
 export interface ExtraDanUniMerge {
   duration: number; //持续时间(重复内容第一次出现时间开始到合并了的弹幕中最后一次出现的时间)
@@ -33,6 +34,9 @@ export interface ExtraDanUniMerge {
   senders: string[]; //发送者
   taolu_count: number; //类似弹幕数量
   taolu_senders: string[]; //类似弹幕发送者
+}
+export interface ExtraDanUniRaw {
+  content?: string;
 }
 export interface ExtraDdPlay {
   cid: number;
