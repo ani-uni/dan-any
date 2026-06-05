@@ -1,7 +1,7 @@
 import { sha3_256 } from "@noble/hashes/sha3.js";
 import { JSON } from "@/utils/bigint.ts";
 import { bytesToHex, utf8ToBytes } from "@noble/hashes/utils.js";
-import { type UDanmaku } from "@/adapters/index.ts";
+import type { UDanmaku } from "./index.ts";
 
 type DMIDGeneratorDanmaku = Omit<UDanmaku, "DMID">;
 export type DMIDGenerator = (dan: DMIDGeneratorDanmaku, slice?: number) => string;

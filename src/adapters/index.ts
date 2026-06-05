@@ -1,21 +1,23 @@
-import { UniChunk, type AdapterStore, type DMIDGenerator, type InitedUniDB } from "@/core/index.ts";
+import {
+  UniChunk,
+  type AdapterStore,
+  type DMIDGenerator,
+  type InitedUniDB,
+  type UChunk,
+  type UDanmaku,
+} from "@/core/index.ts";
 import type { Promisable } from "type-fest";
 
-export type TransformerInput = InitedUniDB | UniChunk;
-export function transformerInput2Danmakus(input: TransformerInput) {
-  return input.$danmakus;
-}
-
-export type UDanmaku = Awaited<ReturnType<typeof transformerInput2Danmakus>>[number];
+export type TransformerInput<T = InitedUniDB | UniChunk> = T;
 
 export type Adapter<Args extends any[] = any[]> = (...args: Args) => Promisable<AdapterStore>;
 export type Transformer<T = unknown> = (
-  udanmakus: ReturnType<typeof transformerInput2Danmakus>,
+  udanmakus: UDanmaku[],
   ctx: {
-    uchunk?: Awaited<ReturnType<typeof UniChunk.prototype.$chunk>>;
+    uchunk?: UChunk;
     DMIDGenerator: DMIDGenerator;
   },
-) => Promisable<T>;
+) => T;
 export type Plugin<T = unknown> = (uchunk: UniChunk) => Promisable<T>;
 export type Metadata = {
   type: string;
