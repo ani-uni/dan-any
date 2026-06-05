@@ -7,11 +7,13 @@
 - 用 `Transformer` 把统一数据导出为目标格式
 - 用 `Plugin` 在处理中间态（`UniChunk`）上做增强/清洗/统计
 
-v2 使用 drizzle+pglite(支持`MemoryFS`(默认)/`NodeFS`/`IndexedDbFS`/`OpfsAhpFS`) 作为默认数据库选项，同时允许通过drizzle接入自定义postgres数据库实例  
+v2 使用 drizzle+pglite(支持`MemoryFS`(默认)/`NodeFS`/`IndexedDbFS`/`OpfsAhpFS`) 作为默认数据库选项(`@dan-uni/dan-any/core/main/drizzle`)，同时允许通过drizzle接入自定义postgres数据库实例  
 v2 打包大小gzip后约100KB (大部分为打包后展开的drizzle schema定义)，同时支持tree-shake，故不会大幅增加软件体积  
-v2 在第一次初始化实例时可能有约1s的开销，建议使用 [PGLite的Multi-tab Worker](https://pglite.dev/docs/multi-tab-worker) 使所有调用共享一个数据库实例
+v2 在第一次初始化实例时可能有约1s的开销，建议使用 [PGLite的Multi-tab Worker](https://pglite.dev/docs/multi-tab-worker) 使所有调用共享一个数据库实例  
 
-如果还是觉得太重了，可以使用 v1 版本，在临时小文件处理上速度更快。  
+v2 同时提供了纯TS实现的方法（`@dan-uni/dan-any/core/main/pure`），不依赖drizzle+pglite，使用Map进行数据管理。  
+
+由于pglite(调用了Emscripten生成的wasm胶水代码)在 `@edge-runtime/vm` `ServiceWorker` 下无法正常检测环境(process、pathname等无法检测)，因此在这些环境下应当使用纯TS实现的方法。  
 
 ## 功能概览
 
@@ -56,7 +58,8 @@ pnpm add @dan-uni/dan-any
 ### 1) 从 Bilibili XML 导入，再导出为 Danuni JSON
 
 ```ts
-import { UniDB } from '@dan-uni/dan-any/core'
+import { UniDB } from '@dan-uni/dan-any/core/main/drizzle'
+// import { UniDB } from '@dan-uni/dan-any/core/main/pure'
 import {
 	BiliXmlAdapter,
 	DanuniJsonTransformerConfigurator,
@@ -101,16 +104,38 @@ const reimported = await udb.import(DanuniPbAdapter(pb))
 
 详见 测试文件 `tests/utils.test.ts` 。
 
+### 高级: 自行实现 UniDB、InitedUniDB、UniChunk 方法
+
+```ts
+import * as base from "./index.ts";
+
+class UniDB implements base.UniDB {
+	// 实现 UniDB 接口
+}
+class InitedUniDB extends UniDB implements base.InitedUniDB {
+	// 实现 InitedUniDB 接口
+}
+class UniChunk implements base.UniChunk {
+	// 实现 UniChunk 接口
+}
+```
+
+注意实现 `import`/`plugin` 方法时需要类型转换 `base.UniDB` / `base.InitedUniDB` / `base.UniChunk` 为当前实现的类，以保证插件系统的类型兼容性。
+
+详见 `src/core/main-pure.ts` / `src/core/main-drizzle.ts` 。
+
 ## 模块入口
 
 包已提供以下子路径导出：
 - `@dan-uni/dan-any`（聚合导出）
-- `@dan-uni/dan-any/adapters`
-- `@dan-uni/dan-any/core`
-- `@dan-uni/dan-any/plugins`
-- `@dan-uni/dan-any/utils`
-- `@dan-uni/dan-any/core/db/schema`
-- `@dan-uni/dan-any/core/db/utils`
+- `@dan-uni/dan-any/adapters` (导入、导出适配器)
+- `@dan-uni/dan-any/core` (核心类与接口定义+聚合导出core实现)
+  - `@dan-uni/dan-any/core/main/drizzle` (drizzle+pglite核心实现)
+  - `@dan-uni/dan-any/core/main/pure` (纯TS核心实现)
+- `@dan-uni/dan-any/plugins` (插件、类插件导出、类导出插件)
+- `@dan-uni/dan-any/utils` (工具函数)
+- `@dan-uni/dan-any/core/db/schema` (drizzle+pglite 数据库schema定义)
+- `@dan-uni/dan-any/core/db/utils` (drizzle+pglite 数据库工具函数)
 
 ## 开发
 
