@@ -27,7 +27,6 @@ const parser = new XMLParser({
   ignoreAttributes: false,
   parseTagValue: false,
   parseAttributeValue: false,
-  trimValues: false,
   isArray: (_name, jpath, _isLeafNode, _isAttribute) => {
     if (jpath === "i.d") return true;
     return false;
