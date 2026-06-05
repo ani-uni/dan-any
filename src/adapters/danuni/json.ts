@@ -41,8 +41,8 @@ function isV1UniObj(
 }
 
 export const DanuniJsonAdapter = defineAdapter(
-  (json: Partial<UniDMObj & { extraStr?: string }>[], options?: { isV1?: boolean }) => {
-    return async (udb, uchunk) => {
+  (json: Partial<UniDMObj & { extraStr?: string }>[], options?: { isV1?: boolean }) =>
+    async (udb, uchunk) => {
       const now = new Date();
       const chunk = uchunk ?? (await udb.makeChunk({}));
       const isV1Fmt = options?.isV1 ? true : json.some((d) => isV1UniObj(d));
@@ -75,8 +75,7 @@ export const DanuniJsonAdapter = defineAdapter(
         }),
       );
       return chunk;
-    };
-  },
+    },
 );
 
 interface DanuniJsonTransformerOptions {
@@ -88,41 +87,39 @@ interface DanuniJsonTransformerOptions {
 
 export function DanuniJsonTransformerConfigurator(
   options: DanuniJsonTransformerOptions & { minify: true },
-): Transformer<Promise<Partial<UniDMObj>[]>>;
+): Transformer<Partial<UniDMObj>[]>;
 export function DanuniJsonTransformerConfigurator(
   options?: DanuniJsonTransformerOptions,
-): Transformer<Promise<UniDMObj[]>>;
+): Transformer<UniDMObj[]>;
 export function DanuniJsonTransformerConfigurator(
   options?: DanuniJsonTransformerOptions,
 ): Transformer {
-  return defineTransformer((udanmakus) =>
-    udanmakus.then((data) => {
-      if (options?.minify) {
-        return data.map((d) => ({
-          SOID: d.SOID === defaultUniDM.SOID ? undefined : d.SOID,
-          progress: d.progress === defaultUniDM.progress ? undefined : d.progress,
-          mode: d.mode === "Normal" ? undefined : enumModeCodec.encode(d.mode),
-          fontsize: d.fontsize === defaultUniDM.fontsize ? undefined : d.fontsize,
-          color: d.color === defaultUniDM.color ? undefined : d.color,
-          senderID: d.senderID === defaultUniDM.senderID ? undefined : d.senderID,
-          content: d.content === defaultUniDM.content ? undefined : d.content,
-          ctime: d.ctime,
-          weight: d.weight === defaultUniDM.weight ? undefined : d.weight,
-          pool: d.pool === "Def" ? undefined : enumPoolCodec.encode(d.pool),
-          attr: d.attr && d.attr.length > 0 ? enumAttrsCodec.encode(d.attr) : undefined,
-          platform: d.platform ?? undefined,
-          extra: d.extra ?? undefined,
-          DMID: d.DMID,
-        }));
-      } else
-        return data.map((d) => ({
-          ...d,
-          mode: enumModeCodec.encode(d.mode)!,
-          pool: enumPoolCodec.encode(d.pool)!,
-          attr: enumAttrsCodec.encode(d.attr),
-        }));
-    }),
-  );
+  return defineTransformer((udanmakus) => {
+    if (options?.minify) {
+      return udanmakus.map((d) => ({
+        SOID: d.SOID === defaultUniDM.SOID ? undefined : d.SOID,
+        progress: d.progress === defaultUniDM.progress ? undefined : d.progress,
+        mode: d.mode === "Normal" ? undefined : enumModeCodec.encode(d.mode),
+        fontsize: d.fontsize === defaultUniDM.fontsize ? undefined : d.fontsize,
+        color: d.color === defaultUniDM.color ? undefined : d.color,
+        senderID: d.senderID === defaultUniDM.senderID ? undefined : d.senderID,
+        content: d.content === defaultUniDM.content ? undefined : d.content,
+        ctime: d.ctime,
+        weight: d.weight === defaultUniDM.weight ? undefined : d.weight,
+        pool: d.pool === "Def" ? undefined : enumPoolCodec.encode(d.pool),
+        attr: d.attr && d.attr.length > 0 ? enumAttrsCodec.encode(d.attr) : undefined,
+        platform: d.platform ?? undefined,
+        extra: d.extra ?? undefined,
+        DMID: d.DMID,
+      }));
+    } else
+      return udanmakus.map((d) => ({
+        ...d,
+        mode: enumModeCodec.encode(d.mode)!,
+        pool: enumPoolCodec.encode(d.pool)!,
+        attr: enumAttrsCodec.encode(d.attr),
+      }));
+  });
 }
 
 export const DanuniJsonMetadata = defineMetadata({

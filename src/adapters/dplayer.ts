@@ -55,21 +55,19 @@ export const DplayerAdapter = defineAdapter(
 );
 
 export const DplayerTransformer = defineTransformer(
-  (udanmakus): Promise<DM_JSON_Dplayer & { danuni?: DanUniConvertTip }> => {
-    return udanmakus.then((dans) => ({
-      code: 0,
-      danuni: {
-        ...DanUniConvertTipTemplate,
-        data: dans[0]?.SOID.split("@")[0],
-      },
-      data: dans.map((dan) => {
-        let mode = 0;
-        if (dan.mode === "Top") mode = 1;
-        else if (dan.mode === "Bottom") mode = 2;
-        return [dan.progress / 1000, mode, dan.color, dan.senderID, dan.content];
-      }),
-    }));
-  },
+  (udanmakus): DM_JSON_Dplayer & { danuni?: DanUniConvertTip } => ({
+    code: 0,
+    danuni: {
+      ...DanUniConvertTipTemplate,
+      data: udanmakus[0]?.SOID.split("@")[0],
+    },
+    data: udanmakus.map((dan) => {
+      let mode = 0;
+      if (dan.mode === "Top") mode = 1;
+      else if (dan.mode === "Bottom") mode = 2;
+      return [dan.progress / 1000, mode, dan.color, dan.senderID, dan.content];
+    }),
+  }),
 );
 
 export const DplayerMetadata = defineMetadata({

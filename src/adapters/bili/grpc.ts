@@ -1,4 +1,4 @@
-import { defineAdapter, defineMetadata, type UDanmaku } from "../index.ts";
+import { defineAdapter, defineMetadata } from "../index.ts";
 
 import { DMAttr, Modes, Pools } from "@/core/dm.ts";
 import { PlatformVideoSource, type PlatformDanmakuSource } from "@/core/platform.ts";
@@ -8,7 +8,7 @@ import { enumModeCodec, enumPoolCodec } from "../danuni/json.ts";
 import { fromBinary } from "@bufbuild/protobuf";
 import { DmSegMobileReplySchema } from "@/utils/proto/gen/bilibili/community/service/dm/v1/dm_pb.ts";
 import { SetBin, toBits } from "@/utils/bin.ts";
-import type { UniChunk } from "@/core/index.ts";
+import type { UDanmaku, UniChunk } from "@/core/index.ts";
 import type { z } from "zod";
 import type { Extra, ExtraBili } from "@/core/dm-extra.ts";
 import { UniID } from "@/core/uni-id.ts";

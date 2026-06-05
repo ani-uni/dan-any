@@ -81,40 +81,36 @@ export const VodAdapter = defineAdapter(
 );
 
 export const VodTransformer = defineTransformer(
-  (udanmakus): Promise<DM_JSON_Vod & { danuni?: DanUniConvertTip }> => {
-    return udanmakus.then((dans) => {
-      return {
-        danuni: {
-          ...DanUniConvertTipTemplate,
-          data: dans[0]?.SOID.split("@")[0],
-        },
-        code: 0,
-        name: dans[0]?.SOID ?? "unknown",
-        danum: dans.length,
-        danmuku: dans.map((d) => {
-          let mode = "right";
-          switch (d.mode) {
-            case "Top":
-              mode = "top";
-              break;
-            case "Bottom":
-              mode = "bottom";
-              break;
-          }
-          return [
-            d.progress / 1000,
-            mode,
-            `#${d.color.toString(16).toUpperCase() || "FFFFFF"}`,
-            "",
-            d.content,
-            "",
-            "",
-            `${d.fontsize}px`,
-          ];
-        }),
-      };
-    });
-  },
+  (udanmakus): DM_JSON_Vod & { danuni?: DanUniConvertTip } => ({
+    danuni: {
+      ...DanUniConvertTipTemplate,
+      data: udanmakus[0]?.SOID.split("@")[0],
+    },
+    code: 0,
+    name: udanmakus[0]?.SOID ?? "unknown",
+    danum: udanmakus.length,
+    danmuku: udanmakus.map((d) => {
+      let mode = "right";
+      switch (d.mode) {
+        case "Top":
+          mode = "top";
+          break;
+        case "Bottom":
+          mode = "bottom";
+          break;
+      }
+      return [
+        d.progress / 1000,
+        mode,
+        `#${d.color.toString(16).toUpperCase() || "FFFFFF"}`,
+        "",
+        d.content,
+        "",
+        "",
+        `${d.fontsize}px`,
+      ];
+    }),
+  }),
 );
 
 export const VodMetadata = defineMetadata({

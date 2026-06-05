@@ -30,8 +30,8 @@ const enumPoolCodec = z.codec(z.enum(DanuniPbPool), z.enum(danmakus.pool.enumVal
   },
 });
 
-export const DanuniPbAdapter = defineAdapter((bin: Uint8Array | ArrayBuffer) => {
-  return async (udb, uchunk) => {
+export const DanuniPbAdapter = defineAdapter(
+  (bin: Uint8Array | ArrayBuffer) => async (udb, uchunk) => {
     const data = fromBinary(ListDanResponseSchema, new Uint8Array(bin));
     const chunk = uchunk ?? (await udb.makeChunk({}));
     const isV1Fmt = data.danmakus.some((d) => d.extraV1);
@@ -63,29 +63,27 @@ export const DanuniPbAdapter = defineAdapter((bin: Uint8Array | ArrayBuffer) => 
       }),
     );
     return chunk;
-  };
-});
+  },
+);
 
-export const DanuniPbTransformer = defineTransformer((udanmakus): Promise<Uint8Array> => {
-  return udanmakus.then((data) =>
-    toBinary(
-      ListDanResponseSchema,
-      create(ListDanResponseSchema, {
-        danmakus: data.map((d) => ({
-          ...d,
-          soid: d.SOID,
-          dmid: d.DMID,
-          mode: enumModeCodec.encode(d.mode),
-          senderId: d.senderID,
-          ctime: timestampFromDate(d.ctime),
-          pool: enumPoolCodec.encode(d.pool),
-          // attr: d.attr,
-          platform: d.platform ?? undefined,
-          extra: JSON.stringify(d.extra),
-          // $typeName: "danuni.danmaku.v1.Danmaku" as const,
-        })),
-      }),
-    ),
+export const DanuniPbTransformer = defineTransformer((udanmakus) => {
+  return toBinary(
+    ListDanResponseSchema,
+    create(ListDanResponseSchema, {
+      danmakus: udanmakus.map((d) => ({
+        ...d,
+        soid: d.SOID,
+        dmid: d.DMID,
+        mode: enumModeCodec.encode(d.mode),
+        senderId: d.senderID,
+        ctime: timestampFromDate(d.ctime),
+        pool: enumPoolCodec.encode(d.pool),
+        // attr: d.attr,
+        platform: d.platform ?? undefined,
+        extra: JSON.stringify(d.extra),
+        // $typeName: "danuni.danmaku.v1.Danmaku" as const,
+      })),
+    }),
   );
 });
 

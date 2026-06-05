@@ -96,8 +96,8 @@ const genCID = (id?: string, options?: BiliXmlTransformerOptions) => {
 };
 
 export const BiliXmlTransformerConfigurator = (options?: BiliXmlTransformerOptions) =>
-  defineTransformer(async (udanmakus, ctx) => {
-    const dans = await udanmakus;
+  defineTransformer((udanmakus, ctx) => {
+    const dans = udanmakus;
     if (options?.avoidSenderIDWithAt) {
       const ok = dans.every((d) => d.senderID.endsWith(`@${PlatformVideoSource.Bilibili}`));
       if (!ok) throw new Error("存在其他来源的senderID，请关闭该功能再试！");

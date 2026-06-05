@@ -60,31 +60,29 @@ export const DdplayAdapter = defineAdapter(
 );
 
 export const DdplayTransformer = defineTransformer(
-  (udanmakus): Promise<DM_JSON_DDPlay & { danuni?: DanUniConvertTip }> => {
-    return udanmakus.then((dans) => ({
-      danuni: {
-        ...DanUniConvertTipTemplate,
-        data: dans[0]?.SOID.split("@")[0].replaceAll(
-          `def_${PlatformDanmakuOnlySource.DanDanPlay}+`,
-          "",
-        ),
-      },
-      count: dans.length,
-      comments: dans.map((dan) => {
-        let mode = 1;
-        if (dan.mode === "Top") mode = 5;
-        else if (dan.mode === "Bottom") mode = 4;
-        return {
-          cid:
-            dan.extra?.ddplay?.cid ??
-            Number.parseInt(`0x${Buffer.from(dan.DMID).toString("hex")}`) ??
-            0,
-          p: `${dan.progress / 1000},${mode},${dan.color},${dan.extra?.ddplay?.uid ?? dan.senderID}`,
-          m: dan.content,
-        };
-      }),
-    }));
-  },
+  (udanmakus): DM_JSON_DDPlay & { danuni?: DanUniConvertTip } => ({
+    danuni: {
+      ...DanUniConvertTipTemplate,
+      data: udanmakus[0]?.SOID.split("@")[0].replaceAll(
+        `def_${PlatformDanmakuOnlySource.DanDanPlay}+`,
+        "",
+      ),
+    },
+    count: udanmakus.length,
+    comments: udanmakus.map((dan) => {
+      let mode = 1;
+      if (dan.mode === "Top") mode = 5;
+      else if (dan.mode === "Bottom") mode = 4;
+      return {
+        cid:
+          dan.extra?.ddplay?.cid ??
+          Number.parseInt(`0x${Buffer.from(dan.DMID).toString("hex")}`) ??
+          0,
+        p: `${dan.progress / 1000},${mode},${dan.color},${dan.extra?.ddplay?.uid ?? dan.senderID}`,
+        m: dan.content,
+      };
+    }),
+  }),
 );
 
 export const DdplayMetadata = defineMetadata({
