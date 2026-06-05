@@ -14,16 +14,45 @@ export type UDanmaku = UDanmakus[number];
 type UChunk2Danmakus = Awaited<ReturnType<typeof db.query.chunk2danmakus.findMany>>;
 export type UChunk2Danmaku = UChunk2Danmakus[number];
 
+export type baseClassTrans<T, ImplUniDB, ImplInitedUniDB, ImplUniChunk> = baseUniChunkTransX<
+  baseInitedUniDBTransX<baseUniDBTransX<T, ImplUniDB>, ImplInitedUniDB>,
+  ImplUniChunk
+>;
+
+type baseUniDBTrans<T, ImplClass> = T extends UniDB ? ImplClass : T;
+type baseUniDBTransPromise<T, ImplClass> = T extends Promise<UniDB> ? Promise<ImplClass> : T;
+type baseUniDBTransX<T, ImplClass> = baseUniDBTransPromise<baseUniDBTrans<T, ImplClass>, ImplClass>;
 export abstract class UniDB {
+  __isUniDB = true;
+  static [Symbol.hasInstance](obj: any) {
+    return obj?.__isUniDB === true;
+  }
   constructor(
     public $db: any,
-    public DMIDGenerator: DMIDGenerator,
+    public DMIDGenerator: DMIDGenerator = createDMID,
   ) {}
   abstract init(dump?: unknown): Promisable<InitedUniDB>;
   abstract close(): Promisable<void>;
 }
 
+type baseInitedUniDBTrans<T, ImplClass> = T extends InitedUniDB ? ImplClass : T;
+type baseInitedUniDBTransPromise<T, ImplClass> =
+  T extends Promise<InitedUniDB> ? Promise<ImplClass> : T;
+type baseInitedUniDBTransX<T, ImplClass> = baseInitedUniDBTransPromise<
+  baseInitedUniDBTrans<T, ImplClass>,
+  ImplClass
+>;
 export abstract class InitedUniDB extends UniDB {
+  __isInitedUniDB = true;
+  static [Symbol.hasInstance](obj: any) {
+    return obj?.__isInitedUniDB === true;
+  }
+  constructor(
+    public $db: NonNullable<UniDB["$db"]>,
+    public DMIDGenerator: DMIDGenerator = createDMID,
+  ) {
+    super($db, DMIDGenerator);
+  }
   abstract dump(): Promisable<any>;
   abstract get $chunks(): Promisable<UChunks>;
   abstract get $danmakus(): Promisable<UDanmakus>;
@@ -43,7 +72,17 @@ export abstract class InitedUniDB extends UniDB {
   ): Promisable<ReturnType<T>>;
 }
 
+type baseUniChunkTrans<T, ImplClass> = T extends UniChunk ? ImplClass : T;
+type baseUniChunkTransPromise<T, ImplClass> = T extends Promise<UniChunk> ? Promise<ImplClass> : T;
+type baseUniChunkTransX<T, ImplClass> = baseUniChunkTransPromise<
+  baseUniChunkTrans<T, ImplClass>,
+  ImplClass
+>;
 export abstract class UniChunk {
+  __isUniChunk = true;
+  static [Symbol.hasInstance](obj: any) {
+    return obj?.__isUniChunk === true;
+  }
   constructor(
     public $UniDB: InitedUniDB,
     public id: number,
@@ -109,5 +148,5 @@ export * from "./platform.ts";
 export * from "./uni-id.ts";
 import * as drizzle from "./main-drizzle.ts";
 import * as pure from "./main-pure.ts";
-import type { DMIDGenerator } from "./id.ts";
+import { createDMID, type DMIDGenerator } from "./id.ts";
 export const main = { drizzle, pure };

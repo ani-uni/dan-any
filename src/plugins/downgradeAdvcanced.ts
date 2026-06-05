@@ -13,11 +13,11 @@ export const DowngradeAdvancedPluginConfigurator = ({
   include?: (keyof Extra)[];
   exclude?: (keyof Extra)[];
 } = {}) =>
-  definePlugin(async (uchunk) => {
+  definePlugin(async <T extends UniChunk>(uchunk: T): Promise<T> => {
     if (!include) include = [];
     if (!exclude) exclude = [];
     const check = (k: keyof Extra) => include?.includes(k) || !exclude?.includes(k);
-    const chunk = await UniChunk.makeChunk(uchunk, { tmp: true });
+    const chunk = <T>await UniChunk.makeChunk(uchunk, { tmp: true });
     await chunk.upsertDanmakus(
       (await uchunk.$danmakus).map((d) => {
         if (!d.extra) return d;

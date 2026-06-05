@@ -6,6 +6,8 @@ import type { Plugin, Transformer, TransformerInput } from "@/adapters/index.ts"
 import type { Asyncify, Promisable, Simplify } from "type-fest";
 import { BigSerialMap, SerialMap } from "@/utils/serialMap.ts";
 
+type baseClassTrans<T> = base.baseClassTrans<T, UniDB, InitedUniDB, UniChunk>;
+
 interface UJson {
   danmakus: base.UDanmaku[];
   chunks: ReturnType<SerialMap<base.UChunk>["toJSON"]>;
@@ -28,6 +30,7 @@ export function initNewDb() {
 }
 
 export class UniDB implements base.UniDB {
+  __isUniDB = true;
   constructor(
     public $db: UMaps = emptyDB,
     public DMIDGenerator: DMIDGenerator = createDMID,
@@ -68,6 +71,7 @@ function $Private4InitedUniDB_upsertDanmakus(that: InitedUniDB, data: DanmakusIn
 }
 
 export class InitedUniDB extends UniDB implements base.InitedUniDB {
+  __isInitedUniDB = true;
   constructor(
     public $db: UMaps,
     public DMIDGenerator: DMIDGenerator = createDMID,
@@ -118,7 +122,7 @@ export class InitedUniDB extends UniDB implements base.InitedUniDB {
     for (const c of uchunks) new UniChunk(this, c.id).delete();
   }
   import(adapterStore: base.AdapterStore): Promisable<UniChunk> {
-    return adapterStore(this) as Promisable<UniChunk>;
+    return <Promisable<UniChunk>>adapterStore(this);
   }
   export<T extends Transformer>(transformer: T): ReturnType<T>;
   async export<T extends Asyncify<Transformer>>(transformer: T): Promise<ReturnType<T>>;
@@ -128,6 +132,7 @@ export class InitedUniDB extends UniDB implements base.InitedUniDB {
 }
 
 export class UniChunk implements base.UniChunk {
+  __isUniChunk = true;
   constructor(
     public $UniDB: InitedUniDB,
     public id: number,
@@ -253,7 +258,7 @@ export class UniChunk implements base.UniChunk {
     });
   }
   import(adapterStore: base.AdapterStore): Promisable<UniChunk> {
-    return adapterStore(this.$UniDB, this) as Promisable<UniChunk>;
+    return <Promisable<UniChunk>>adapterStore(this.$UniDB, this);
   }
   export<T extends Transformer>(transformer: T): ReturnType<T>;
   async export<T extends Asyncify<Transformer>>(transformer: T): Promise<ReturnType<T>>;
@@ -264,10 +269,12 @@ export class UniChunk implements base.UniChunk {
       uchunk: this.$chunk(),
     });
   }
-  plugin<T extends Plugin>(plugin: T): ReturnType<T>;
-  plugin<T extends Asyncify<Plugin>>(plugin: T): Promise<ReturnType<T>>;
-  plugin<T extends Plugin | Asyncify<Plugin>>(plugin: T): Promisable<ReturnType<T>> {
-    const output = <ReturnType<T>>plugin(this);
+  plugin<T extends Plugin>(plugin: T): baseClassTrans<ReturnType<T>>;
+  plugin<T extends Asyncify<Plugin>>(plugin: T): Promise<baseClassTrans<ReturnType<T>>>;
+  plugin<T extends Plugin | Asyncify<Plugin>>(
+    plugin: T,
+  ): Promisable<baseClassTrans<ReturnType<T>>> {
+    const output = <baseClassTrans<ReturnType<T>>>plugin(this);
     return output;
   }
   delete() {

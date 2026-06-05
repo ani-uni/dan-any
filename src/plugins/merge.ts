@@ -9,8 +9,8 @@ import { isSame } from "@/utils/isSame.ts";
  * @param lifetime 查重时间区段，单位秒 (默认为 0，表示不查重)
  */
 export const MergePluginConfigurator = (lifetime = 0) =>
-  definePlugin(async (uchunk) => {
-    const chunk = await UniChunk.makeChunk(uchunk, { tmp: true });
+  definePlugin(async <T extends UniChunk>(uchunk: T): Promise<T> => {
+    const chunk = <T>await UniChunk.makeChunk(uchunk, { tmp: true });
     const sourceDanmakus = [...(await uchunk.$danmakus)].sort(
       (a, b) => a.progress - b.progress || a.ctime.getTime() - b.ctime.getTime(),
     );

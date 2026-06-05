@@ -15,7 +15,10 @@ import type { z } from "zod";
 import { array2chunk } from "@/utils/array2chunk.ts";
 import * as base from "./index.ts";
 
+type baseClassTrans<T> = base.baseClassTrans<T, UniDB, InitedUniDB, UniChunk>;
+
 export class UniDB implements base.UniDB {
+  __isUniDB = true;
   constructor(
     public $db = db,
     public DMIDGenerator: DMIDGenerator = createDMID,
@@ -52,6 +55,7 @@ async function $Private4InitedUniDB_upsertDanmakus(that: InitedUniDB, data: Danm
 }
 
 export class InitedUniDB extends UniDB implements base.InitedUniDB {
+  __isInitedUniDB = true;
   constructor(
     public $db: NonNullable<UniDB["$db"]>,
     public DMIDGenerator: DMIDGenerator = createDMID,
@@ -106,7 +110,7 @@ export class InitedUniDB extends UniDB implements base.InitedUniDB {
     for (const c of uchunks) await new UniChunk(this, c.id).delete();
   }
   import(adapterStore: base.AdapterStore): Promisable<UniChunk> {
-    return adapterStore(this) as Promisable<UniChunk>;
+    return <Promisable<UniChunk>>adapterStore(this);
   }
   async export<T extends Transformer>(transformer: T) {
     return <ReturnType<T>>transformer(await this.$danmakus, { DMIDGenerator: this.DMIDGenerator });
@@ -114,6 +118,7 @@ export class InitedUniDB extends UniDB implements base.InitedUniDB {
 }
 
 export class UniChunk implements base.UniChunk {
+  __isUniChunk = true;
   constructor(
     public $UniDB: InitedUniDB,
     public id: number,
@@ -248,7 +253,7 @@ export class UniChunk implements base.UniChunk {
       await this.$db.insert(chunk2danmakus).values(c).onConflictDoNothing();
   }
   import(adapterStore: base.AdapterStore): Promisable<UniChunk> {
-    return adapterStore(this.$UniDB, this) as Promisable<UniChunk>;
+    return <Promisable<UniChunk>>adapterStore(this.$UniDB, this);
   }
   async export<T extends Transformer>(transformer: T) {
     // transformer 格式转换器 不应对数据库执行任何写操作
@@ -257,10 +262,12 @@ export class UniChunk implements base.UniChunk {
       uchunk: await this.$chunk(),
     });
   }
-  plugin<T extends Plugin>(plugin: T): ReturnType<T>;
-  async plugin<T extends Asyncify<Plugin>>(plugin: T): Promise<ReturnType<T>>;
-  plugin<T extends Plugin | Asyncify<Plugin>>(plugin: T): Promisable<ReturnType<T>> {
-    const output = <ReturnType<T>>plugin(this);
+  plugin<T extends Plugin>(plugin: T): baseClassTrans<ReturnType<T>>;
+  async plugin<T extends Asyncify<Plugin>>(plugin: T): Promise<baseClassTrans<ReturnType<T>>>;
+  plugin<T extends Plugin | Asyncify<Plugin>>(
+    plugin: T,
+  ): Promisable<baseClassTrans<ReturnType<T>>> {
+    const output = <baseClassTrans<ReturnType<T>>>plugin(this);
     return output;
   }
   async delete() {
