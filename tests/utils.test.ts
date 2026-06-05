@@ -9,7 +9,8 @@ import {
   DdplayAdapter,
   DdplayMetadata,
 } from "@/adapters/index.ts";
-import { defaultUniDM, UniChunk, UniDB, type InitedUniDB } from "@/core/index.ts";
+import { defaultUniDM } from "@/core/dm.ts";
+import { InitedUniDB, UniChunk, UniDB } from "@/core/main-drizzle.ts";
 import { compress, decompress, isSame } from "@/utils/index.ts";
 import { WildcardAdapterUtil } from "@/utils/wildcardAdapter.ts";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";

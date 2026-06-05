@@ -3,7 +3,8 @@ import {
   DanuniJsonAdapter,
   DanuniJsonTransformerConfigurator,
 } from "@/adapters/index.ts";
-import { defaultUniDM, InitedUniDB, UniDB, type UniChunk, type UniDMObj } from "@/core/index.ts";
+import { type UniDMObj, defaultUniDM } from "@/core/dm.ts";
+import { InitedUniDB, UniChunk, UniDB } from "@/core/main-drizzle.ts";
 import {
   MergePluginConfigurator,
   GetStatsTransformerConfigurator,

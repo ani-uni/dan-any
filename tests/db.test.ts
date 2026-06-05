@@ -2,10 +2,10 @@ import { expectTypeOf, it } from "vite-plus/test";
 import { relations } from "@dan-uni/dan-any/core/db/schema";
 import { migrateDb } from "@dan-uni/dan-any/core/db/utils";
 import { drizzle } from "drizzle-orm/pglite";
-import { InitedUniDB, UniChunk } from "@dan-uni/dan-any/core";
 import { defineRelations, defineRelationsPart } from "drizzle-orm";
 import { baseRelations } from "@dan-uni/dan-any/core/db/schema";
 import { pgTable, serial, text } from "drizzle-orm/pg-core";
+import { InitedUniDB, UniChunk } from "@dan-uni/dan-any/core/main/drizzle";
 
 it("自定义数据库实例", async () => {
   const db = drizzle({ relations: { ...baseRelations, ...relations } });
