@@ -14,6 +14,8 @@ export default defineConfig({
     entry: {
       index: "./src/index.ts",
       core: "./src/core/index.ts",
+      "core/main/pure": "./src/core/main-pure.ts",
+      "core/main/drizzle": "./src/core/main-drizzle.ts",
       "core/db/utils": "./src/core/db/index.ts",
       "core/db/schema": "./src/core/db/schema.ts",
       adapters: "./src/adapters/index.ts",
