@@ -1,3 +1,4 @@
+import { fileParser } from "@/utils/fileParser.ts";
 import { defineAdapter, defineMetadata } from "../index.ts";
 
 import { BiliCommonParser } from "./grpc.ts";
@@ -111,9 +112,8 @@ export const BiliUpMetadata = defineMetadata({
   ext: [".json"],
   check: {
     adapter: async (uchunk, body) => {
-      if (!(typeof body === "object" || typeof body === "string") || !body) return null;
       try {
-        return uchunk.import(BiliUpAdapter(JSON.parse(JSON.stringify(body))));
+        return uchunk.import(BiliUpAdapter(await fileParser(body, "json", JSON)));
       } catch {
         return null;
       }

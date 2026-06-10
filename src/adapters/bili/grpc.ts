@@ -12,6 +12,7 @@ import type { UDanmaku, UniChunk } from "@/core/index.ts";
 import type { z } from "zod";
 import type { Extra, ExtraBili } from "@/core/dm-extra.ts";
 import { UniID } from "@/core/uni-id.ts";
+import { fileParser } from "@/utils/fileParser.ts";
 
 interface DMBili {
   id: bigint; // xml 7
@@ -229,19 +230,8 @@ export const BiliGrpcMetadata = defineMetadata({
   ext: [".binpb", ".bin", ".pb.bin", ".so"],
   check: {
     adapter: async (uchunk, body) => {
-      if (typeof body !== "object") return null;
-      if (!(body instanceof ArrayBuffer) && !ArrayBuffer.isView(body)) return null;
       try {
-        let buf: Uint8Array;
-        if (body instanceof ArrayBuffer) {
-          buf = new Uint8Array(body);
-        } else if (ArrayBuffer.isView(body)) {
-          const view = body;
-          buf = new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
-        } else {
-          return null;
-        }
-        return uchunk.import(BiliGrpcAdapter(buf));
+        return uchunk.import(BiliGrpcAdapter(await fileParser(body, "bin")));
       } catch {
         return null;
       }

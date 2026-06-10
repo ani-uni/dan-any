@@ -2,6 +2,7 @@ import { defineAdapter, defineMetadata, defineTransformer } from "./index.ts";
 
 import { DanUniConvertTipTemplate, defaultUniDM, type DanUniConvertTip } from "@/core/dm.ts";
 import { UniID } from "@/core/uni-id.ts";
+import { fileParser } from "@/utils/fileParser.ts";
 import { transMode } from "@/utils/transMode.ts";
 
 interface DM_JSON_Dplayer {
@@ -75,9 +76,8 @@ export const DplayerMetadata = defineMetadata({
   ext: [".json"],
   check: {
     adapter: async (uchunk, body) => {
-      if (typeof body !== "object" || !body) return null;
       try {
-        await uchunk.import(DplayerAdapter(body as any));
+        await uchunk.import(DplayerAdapter(await fileParser(body, "json")));
         return DplayerAdapter;
       } catch {
         return null;

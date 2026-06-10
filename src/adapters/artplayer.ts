@@ -4,6 +4,7 @@ import { defineAdapter, defineMetadata, defineTransformer } from "./index.ts";
 import { DanUniConvertTipTemplate, defaultUniDM, type DanUniConvertTip } from "@/core/dm.ts";
 import { UniID } from "@/core/uni-id.ts";
 import { transMode } from "@/utils/transMode.ts";
+import { fileParser } from "@/utils/fileParser.ts";
 
 interface DM_JSON_Artplayer {
   danmuku: {
@@ -97,9 +98,8 @@ export const ArtplayerMetadata = defineMetadata({
   ext: [".json"],
   check: {
     adapter: async (uchunk, body) => {
-      if (typeof body !== "object" || !body) return null;
       try {
-        await uchunk.import(ArtplayerAdapter(body as any));
+        await uchunk.import(ArtplayerAdapter(await fileParser(body, "json")));
         return ArtplayerAdapter;
       } catch {
         return null;

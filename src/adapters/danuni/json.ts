@@ -6,6 +6,7 @@ import { modeExtCheck } from "@/utils/modeExtCheck.ts";
 
 import { migrateToV2Extra } from "@/utils/migrations/v2/extra.ts";
 import { migrateToV2Progress } from "@/utils/migrations/v2/progress.ts";
+import { fileParser } from "@/utils/fileParser.ts";
 
 export const enumModeCodec = z.codec(
   z.enum(Modes).default(Modes.Normal),
@@ -127,9 +128,8 @@ export const DanuniJsonMetadata = defineMetadata({
   ext: [".json"],
   check: {
     adapter: async (uchunk, body) => {
-      if (typeof body !== "object" || !body) return null;
       try {
-        return uchunk.import(DanuniJsonAdapter(body as any));
+        return uchunk.import(DanuniJsonAdapter(await fileParser(body, "json")));
       } catch {
         return null;
       }

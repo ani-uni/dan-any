@@ -6,6 +6,7 @@ import { BiliCommonBuilder, BiliCommonParser } from "./grpc.ts";
 import { PlatformVideoSource } from "@/core/platform.ts";
 import XMLBuilder from "fast-xml-builder";
 import { UniID } from "@/core/uni-id.ts";
+import { fileParser } from "@/utils/fileParser.ts";
 
 interface DM_XML_Bili {
   i: {
@@ -127,9 +128,8 @@ export const BiliXmlMetadata = defineMetadata({
   ext: [".xml"],
   check: {
     adapter: async (uchunk, body) => {
-      if (typeof body !== "string") return null;
       try {
-        return uchunk.import(BiliXmlAdapter(body));
+        return uchunk.import(BiliXmlAdapter(await fileParser(body, "string")));
       } catch {
         return null;
       }

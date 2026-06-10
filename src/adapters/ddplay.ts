@@ -4,6 +4,7 @@ import { DanUniConvertTipTemplate, defaultUniDM, type DanUniConvertTip } from "@
 import { transMode } from "@/utils/transMode.ts";
 import { PlatformDanmakuOnlySource } from "@/core/platform.ts";
 import { UniID } from "@/core/uni-id.ts";
+import { fileParser } from "@/utils/fileParser.ts";
 
 interface DM_JSON_DDPlay {
   count: number | string;
@@ -90,9 +91,8 @@ export const DdplayMetadata = defineMetadata({
   ext: [".json"],
   check: {
     adapter: async (uchunk, body) => {
-      if (typeof body !== "object" || !body) return null;
       try {
-        await uchunk.import(DdplayAdapter(body as any));
+        await uchunk.import(DdplayAdapter(await fileParser(body, "json")));
         return DdplayAdapter;
       } catch {
         return null;

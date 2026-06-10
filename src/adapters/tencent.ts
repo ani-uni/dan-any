@@ -5,6 +5,7 @@ import { UniID } from "@/core/uni-id.ts";
 import { PlatformVideoSource } from "@/core/platform.ts";
 import { transCtime } from "@/utils/transCtime.ts";
 import { z } from "zod";
+import { fileParser } from "@/utils/fileParser.ts";
 
 interface TencentBarrage {
   id: string; //bigint
@@ -122,9 +123,8 @@ export const TencentMetadata = defineMetadata({
   ext: [".json"],
   check: {
     adapter: async (uchunk, body) => {
-      if (typeof body !== "object" || !body) return null;
       try {
-        await uchunk.import(TencentAdapter(body as any));
+        await uchunk.import(TencentAdapter(await fileParser(body, "json")));
         return TencentAdapter;
       } catch {
         return null;

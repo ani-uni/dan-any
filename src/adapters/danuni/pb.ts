@@ -14,6 +14,7 @@ import { z } from "zod";
 import { JSON } from "@/utils/bigint.ts";
 import { migrateToV2Extra } from "@/utils/migrations/v2/extra.ts";
 import { defaultUniDM } from "@/core/dm.ts";
+import { fileParser } from "@/utils/fileParser.ts";
 
 const enumModeCodec = z.codec(z.enum(DanuniPbMode), z.enum(danmakus.mode.enumValues), {
   decode: (danuniPbMode) => danmakus.mode.enumValues[danuniPbMode] || "Normal",
@@ -92,19 +93,8 @@ export const DanuniPbMetadata = defineMetadata({
   ext: [".binpb", ".bin", ".pb.bin"],
   check: {
     adapter: async (uchunk, body) => {
-      if (typeof body !== "object") return null;
-      if (!(body instanceof ArrayBuffer) && !ArrayBuffer.isView(body)) return null;
       try {
-        let buf: Uint8Array;
-        if (body instanceof ArrayBuffer) {
-          buf = new Uint8Array(body);
-        } else if (ArrayBuffer.isView(body)) {
-          const view = body;
-          buf = new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
-        } else {
-          return null;
-        }
-        return uchunk.import(DanuniPbAdapter(buf));
+        return await uchunk.import(DanuniPbAdapter(await fileParser(body, "bin")));
       } catch {
         return null;
       }

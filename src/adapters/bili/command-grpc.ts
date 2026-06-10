@@ -5,6 +5,7 @@ import { PlatformVideoSource } from "@/core/platform.ts";
 import { fromBinary } from "@bufbuild/protobuf";
 import { DmWebViewReplySchema } from "@/utils/proto/gen/bilibili/community/service/dm/v1/dm_pb.ts";
 import { UniID } from "@/core/uni-id.ts";
+import { fileParser } from "@/utils/fileParser.ts";
 
 export const BiliCommandGrpcAdapter = defineAdapter((bin: Uint8Array | ArrayBuffer) => {
   return async (udb, uchunk) => {
@@ -52,19 +53,8 @@ export const BiliCommandGrpcMetadata = defineMetadata({
   ext: [".binpb", ".bin", ".pb.bin", ".so"],
   check: {
     adapter: async (uchunk, body) => {
-      if (typeof body !== "object") return null;
-      if (!(body instanceof ArrayBuffer) && !ArrayBuffer.isView(body)) return null;
       try {
-        let buf: Uint8Array;
-        if (body instanceof ArrayBuffer) {
-          buf = new Uint8Array(body);
-        } else if (ArrayBuffer.isView(body)) {
-          const view = body;
-          buf = new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
-        } else {
-          return null;
-        }
-        return uchunk.import(BiliCommandGrpcAdapter(buf));
+        return uchunk.import(BiliCommandGrpcAdapter(await fileParser(body, "bin")));
       } catch {
         return null;
       }

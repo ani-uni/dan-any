@@ -3,6 +3,7 @@ import { defineAdapter, defineMetadata, defineTransformer } from "./index.ts";
 import { z } from "zod";
 import { UniID } from "@/core/uni-id.ts";
 import { transMode } from "@/utils/transMode.ts";
+import { fileParser } from "@/utils/fileParser.ts";
 
 interface DM_JSON_Vod {
   code: number;
@@ -121,9 +122,8 @@ export const VodMetadata = defineMetadata({
       return VodZod.safeParse(body).success ? VodAdapter : null;
     },
     adapter: async (uchunk, body) => {
-      if (typeof body !== "object" || !body) return null;
       try {
-        await uchunk.import(VodAdapter(body as any));
+        await uchunk.import(VodAdapter(await fileParser(body, "json")));
         return VodAdapter;
       } catch {
         return null;
