@@ -54,17 +54,36 @@ export const WildcardFnAdapterUtil = (
   return possibleHandlers;
 };
 
-export const WildcardAdapterUtil = async (
+export async function WildcardAdapterUtil(
   u: InitedUniDB | UniChunk,
   handlerList: [Metadata, Adapter][],
   fn: string,
   body: unknown,
-) => {
+): ReturnType<typeof WildcardBodyAdapterUtil>;
+export async function WildcardAdapterUtil(
+  u: InitedUniDB | UniChunk,
+  handlerList: [Metadata, Adapter][],
+  file: File,
+): ReturnType<typeof WildcardBodyAdapterUtil>;
+export async function WildcardAdapterUtil(
+  u: InitedUniDB | UniChunk,
+  handlerList: [Metadata, Adapter][],
+  fn: string | File,
+  body?: unknown,
+): ReturnType<typeof WildcardBodyAdapterUtil> {
   const uchunk = u instanceof UniChunk ? u : await u.makeChunk({});
+  if (fn instanceof File) {
+    const possileHandlers = WildcardFnAdapterUtil(handlerList, fn.name);
+    return WildcardBodyAdapterUtil(
+      uchunk,
+      possileHandlers.map(([m]) => m),
+      fn,
+    );
+  }
   const possileHandlers = WildcardFnAdapterUtil(handlerList, fn);
   return WildcardBodyAdapterUtil(
     uchunk,
     possileHandlers.map(([m]) => m),
     body,
   );
-};
+}
