@@ -22,6 +22,11 @@ export default defineConfig({
       plugins: "./src/plugins/index.ts",
       utils: "./src/utils/index.ts",
     },
+    platform: "neutral",
+    deps: {
+      onlyBundle: ["type-fest"],
+      neverBundle: ["@electric-sql/pglite"],
+    },
     dts: {
       tsgo: true,
     },
