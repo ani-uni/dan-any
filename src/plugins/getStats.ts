@@ -21,10 +21,9 @@ export const GetStatsTransformerConfigurator = <const T extends readonly (keyof 
   defineTransformer(async function (udanmakus) {
     type StatsMap = { [K in T[number]]: Map<StatsItem[K], number> };
     const statsMap = {} as StatsMap;
-    const dans = await udanmakus;
     const buildStatMap = <K extends T[number]>(key: K) => {
       const statMap = new Map<StatsItem[K], number>();
-      for (const dan of dans) {
+      for (const dan of udanmakus) {
         const val = dan[key];
         statMap.set(val, (statMap.get(val) ?? 0) + 1);
       }
