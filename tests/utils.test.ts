@@ -5,13 +5,12 @@ import {
   BiliXmlMetadata,
   DanuniPbAdapter,
   DanuniPbMetadata,
-  DanuniPbTransformer,
   DdplayAdapter,
   DdplayMetadata,
 } from "@/adapters/index.ts";
 import { defaultUniDM } from "@/core/dm.ts";
 import { InitedUniDB, UniChunk, UniDB } from "@/core/main-drizzle.ts";
-import { compress, decompress, isSame } from "@/utils/index.ts";
+import { isSame } from "@/utils/index.ts";
 import { WildcardAdapterUtil } from "@/utils/wildcardAdapter.ts";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -149,16 +148,5 @@ describe("通配导入", () => {
       // await r(artplayerJson, "testPlayer", "testDomain");
       await udb.import(ArtplayerAdapter(artplayerJson, "testPlayer", "testDomain"));
     }
-  });
-});
-
-describe("zlib", () => {
-  it("danuni pb", async () => {
-    const r = await udb.export(DanuniPbTransformer);
-    console.info(r.byteLength, r.length);
-    const c = compress(r);
-    console.info(c.byteLength, c.length);
-    const re = await udb.import(DanuniPbAdapter(decompress(c)));
-    console.info(await re.$danmakus);
   });
 });
