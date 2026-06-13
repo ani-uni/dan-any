@@ -1,18 +1,76 @@
 import type { Plugin, Transformer, TransformerInput } from "@/adapters/index.ts";
-import { db as nullableDb } from "./db/index.ts";
-import { chunksZod, type DanmakusInsert } from "./db/schema.ts";
 import type { Asyncify, Promisable } from "type-fest";
-import type { z } from "zod";
+import { createDMID, type DMIDGenerator } from "./id.ts";
+import type { Extra } from "./dm-extra.ts";
 
 export type AdapterStore = (udb: InitedUniDB, uchunk?: UniChunk) => Promisable<UniChunk>;
 
-const db = nullableDb as NonNullable<typeof nullableDb>;
-type UChunks = Awaited<ReturnType<typeof db.query.chunks.findMany>>;
-export type UChunk = UChunks[number];
-type UDanmakus = Awaited<ReturnType<typeof db.query.danmakus.findMany>>;
-export type UDanmaku = UDanmakus[number];
-type UChunk2Danmakus = Awaited<ReturnType<typeof db.query.chunk2danmakus.findMany>>;
-export type UChunk2Danmaku = UChunk2Danmakus[number];
+export interface UChunk {
+  fromConverted: boolean;
+  id: number;
+  tmp: boolean;
+}
+export interface UDanmaku {
+  DMID: string;
+  SOID: string;
+  attr: (
+    | "Compatible"
+    | "FromLive"
+    | "HasEvent"
+    | "Hide"
+    | "HighLike"
+    | "Protect"
+    | "Reported"
+    | "Unchecked"
+  )[];
+  color: number;
+  content: string;
+  ctime: Date;
+  extra: Extra | null;
+  fontsize: number;
+  mode: "Bottom" | "Ext" | "Normal" | "Reverse" | "Top";
+  platform: string | null;
+  pool: "Adv" | "Def" | "Ix" | "Sub";
+  progress: number;
+  senderID: string;
+  weight: number;
+}
+export interface UChunk2Danmaku {
+  DMID: string;
+  chunkID: number;
+  id: bigint;
+}
+
+export interface ChunksInsert {
+  id?: number | undefined;
+  fromConverted?: boolean | undefined;
+  tmp?: boolean | undefined;
+}
+export interface DanmakusInsert {
+  SOID: string;
+  DMID: string;
+  progress: number;
+  mode: "Bottom" | "Ext" | "Normal" | "Reverse" | "Top";
+  fontsize: number;
+  color: number;
+  senderID: string;
+  content: string;
+  ctime: Date;
+  weight: number;
+  pool: "Adv" | "Def" | "Ix" | "Sub";
+  attr: (
+    | "Compatible"
+    | "FromLive"
+    | "HasEvent"
+    | "Hide"
+    | "HighLike"
+    | "Protect"
+    | "Reported"
+    | "Unchecked"
+  )[];
+  platform?: string | null | undefined;
+  extra: Extra | null;
+}
 
 export type baseClassTrans<T, ImplUniDB, ImplInitedUniDB, ImplUniChunk> = baseUniChunkTransX<
   baseInitedUniDBTransX<baseUniDBTransX<T, ImplUniDB>, ImplInitedUniDB>,
@@ -54,10 +112,10 @@ export abstract class InitedUniDB extends UniDB {
     super($db, DMIDGenerator);
   }
   abstract dump(): Promisable<any>;
-  abstract get $chunks(): Promisable<UChunks>;
-  abstract get $danmakus(): Promisable<UDanmakus>;
+  abstract get $chunks(): Promisable<UChunk[]>;
+  abstract get $danmakus(): Promisable<UDanmaku[]>;
   abstract listChunks(): Promisable<UniChunk[]>;
-  abstract makeChunk(data: Omit<z.infer<typeof chunksZod>, "id">): Promisable<UniChunk>;
+  abstract makeChunk(data: Omit<ChunksInsert, "id">): Promisable<UniChunk>;
   abstract upsertDanmakus(
     data: DanmakusInsert[] | Map<string, DanmakusInsert>,
     dedupeDMID: boolean,
@@ -90,7 +148,7 @@ export abstract class UniChunk {
   abstract get $db(): UniDB["$db"];
   static makeChunk(
     u: TransformerInput<InitedUniDB | UniChunk>,
-    data: z.infer<typeof chunksZod>,
+    data: ChunksInsert,
   ): Promisable<UniChunk> {
     return u instanceof InitedUniDB ? u.makeChunk(data) : u.$UniDB.makeChunk(data);
   }
@@ -121,9 +179,9 @@ export abstract class UniChunk {
    * 获取当前chunk的数据库记录
    * @description 虽然数组仅会包含一个值，但这里保持数据库原始返回
    */
-  abstract get $chunks(): Promisable<UChunks>;
+  abstract get $chunks(): Promisable<UChunk[]>;
   abstract $chunk(): Promisable<UChunk>;
-  abstract get $danmakus(): Promisable<UDanmakus>;
+  abstract get $danmakus(): Promisable<UDanmaku[]>;
   abstract get $count(): Promisable<number>;
   abstract get isDeleted(): Promisable<boolean>;
   abstract upsertDanmakus(
@@ -146,7 +204,3 @@ export * from "./dm.ts";
 export * from "./id.ts";
 export * from "./platform.ts";
 export * from "./uni-id.ts";
-import * as drizzle from "./main-drizzle.ts";
-import * as pure from "./main-pure.ts";
-import { createDMID, type DMIDGenerator } from "./id.ts";
-export const main = { drizzle, pure };

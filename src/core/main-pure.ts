@@ -1,5 +1,3 @@
-import type { z } from "zod";
-import type { chunksZod, DanmakusInsert } from "./db/schema.ts";
 import { createDMID, type DMIDGenerator } from "./id.ts";
 import * as base from "./index.ts";
 import type { Plugin, Transformer, TransformerInput } from "@/adapters/index.ts";
@@ -50,7 +48,7 @@ export class UniDB implements base.UniDB {
   }
 }
 
-function $Private4InitedUniDB_upsertDanmakus(that: InitedUniDB, data: DanmakusInsert[]) {
+function $Private4InitedUniDB_upsertDanmakus(that: InitedUniDB, data: base.DanmakusInsert[]) {
   data.forEach((d) => {
     const rawContent = d.content;
     // oxlint-disable-next-line no-control-regex
@@ -95,7 +93,7 @@ export class InitedUniDB extends UniDB implements base.InitedUniDB {
     const cs = this.$chunks;
     return cs.map((c) => new UniChunk(this, c.id));
   }
-  makeChunk(data: Omit<z.infer<typeof chunksZod>, "id">) {
+  makeChunk(data: Omit<base.ChunksInsert, "id">) {
     const newID = this.$db.chunks.nextSerial;
     this.$db.chunks.set(newID, {
       id: newID,
@@ -104,10 +102,13 @@ export class InitedUniDB extends UniDB implements base.InitedUniDB {
     });
     return new UniChunk(this, newID);
   }
-  upsertDanmakus(data: DanmakusInsert[] | Map<string, DanmakusInsert>, dedupeDMID = true) {
+  upsertDanmakus(
+    data: base.DanmakusInsert[] | Map<string, base.DanmakusInsert>,
+    dedupeDMID = true,
+  ) {
     if (data instanceof Map) this.upsertDanmakus([...data.values()], false);
     else if (dedupeDMID) {
-      const map = new Map<string, DanmakusInsert>();
+      const map = new Map<string, base.DanmakusInsert>();
       data.forEach((d) => {
         map.set(d.DMID, d);
       });
@@ -140,10 +141,7 @@ export class UniChunk implements base.UniChunk {
   get $db() {
     return this.$UniDB.$db;
   }
-  static makeChunk(
-    u: TransformerInput<InitedUniDB | UniChunk>,
-    data: z.infer<typeof chunksZod>,
-  ): UniChunk {
+  static makeChunk(u: TransformerInput<InitedUniDB | UniChunk>, data: base.ChunksInsert): UniChunk {
     return u instanceof InitedUniDB ? u.makeChunk(data) : u.$UniDB.makeChunk(data);
   }
   /**
@@ -210,24 +208,24 @@ export class UniChunk implements base.UniChunk {
     return !this.$db.chunks.has(this.id);
   }
   upsertDanmakus(
-    data: Map<string, DanmakusInsert & { platform: string | null }>,
+    data: Map<string, base.DanmakusInsert & { platform: string | null }>,
     autoSetDMID?: false,
     dedupeDMID?: false,
   ): void;
   upsertDanmakus(
-    data: Simplify<DanmakusInsert & { DMID: string; platform: string | null }>[],
+    data: Simplify<base.DanmakusInsert & { DMID: string; platform: string | null }>[],
     autoSetDMID?: false,
     dedupeDMID?: boolean,
   ): void;
   upsertDanmakus(
-    data: Simplify<DanmakusInsert & { DMID?: undefined }>[],
+    data: Simplify<base.DanmakusInsert & { DMID?: undefined }>[],
     autoSetDMID: true,
     dedupeDMID?: true,
   ): void;
   upsertDanmakus(
     data:
-      | (DanmakusInsert & { DMID?: string; platform: string | null })[]
-      | Map<string, DanmakusInsert & { platform: string | null }>,
+      | (base.DanmakusInsert & { DMID?: string; platform: string | null })[]
+      | Map<string, base.DanmakusInsert & { platform: string | null }>,
     autoSetDMID = false,
     dedupeDMID = true,
   ) {

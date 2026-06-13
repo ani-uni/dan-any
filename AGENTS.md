@@ -13,3 +13,8 @@ Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.de
 - [ ] Check if there are `vite.config.ts` tasks or `package.json` scripts necessary for validation, run via `vp run <script>`.
 
 <!--VITE PLUS END-->
+
+## Project Constraints
+
+- In package runtime source, do not import or reference `@electric-sql/pglite`, `@electric-sql/pglite-tools`, or `drizzle-orm/**` outside `src/core/db/**` and `src/core/main-drizzle.ts`.
+- Do not re-export drizzle/PGLite-backed code from generic entry points such as `src/core/index.ts`, `src/core/main.ts`, or package root exports. Keep those heavy dependencies isolated so pure TypeScript users can tree-shake away PGLite and drizzle.

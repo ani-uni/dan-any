@@ -1,6 +1,6 @@
 {
   "name": "@dan-uni/dan-any",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "description": "A danmaku transformer lib, supporting danmaku from different platforms.",
   "keywords": [
     "bangumi",
@@ -26,6 +26,7 @@
     "./core": "./dist/core.js",
     "./core/db/schema": "./dist/core/db/schema.js",
     "./core/db/utils": "./dist/core/db/utils.js",
+    "./core/main": "./dist/core/main.js",
     "./core/main/drizzle": "./dist/core/main/drizzle.js",
     "./core/main/pure": "./dist/core/main/pure.js",
     "./plugins": "./dist/plugins.js",

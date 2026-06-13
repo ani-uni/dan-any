@@ -290,6 +290,12 @@ export const MyPluginConfigurator = () =>
 - `@dan-uni/dan-any/core/db/schema`：drizzle schema。
 - `@dan-uni/dan-any/core/db/utils`：数据库初始化、迁移、dump 工具。
 
+## 源码维护约束
+
+- 在运行时源码中，只有 `src/core/db/**` 和 `src/core/main-drizzle.ts` 可以导入或引用 `@electric-sql/pglite`、`@electric-sql/pglite-tools`、`drizzle-orm/**`。
+- 不要在 `src/core/index.ts`、`src/core/main.ts`、包根入口或 pure 后端中导出、聚合或类型引用 drizzle/PGLite 后端实现。
+- 需要共享给 pure 后端或公共入口的类型必须放在不依赖 drizzle/PGLite 的抽象层中，避免让 tree-shake 无法移除 PGLite 和 drizzle。
+
 ## 常见回复模板
 
 - “如何把 Bilibili XML 转 DanUni JSON？”
