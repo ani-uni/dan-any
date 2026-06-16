@@ -10,6 +10,8 @@ import {
   GetStatsTransformerConfigurator,
   DowngradeAdvancedPluginConfigurator,
   GetStatsUtil4getMost,
+  HeatmapTransformerConfigurator,
+  HeatmapUtils,
 } from "@/plugins/index.ts";
 import { afterAll, beforeAll, describe, expect, it } from "vite-plus/test";
 
@@ -115,4 +117,157 @@ it("merge", async () => {
   console.info(dms);
   expect(dms.filter((d) => d.content === "喜欢").length).toBe(1);
   expect(dms.filter((d) => d.content === "不喜欢").length).toBe(1);
+});
+
+describe("弹幕热力图", () => {
+  function sumHeatmap(heatmap: { time: number; count: number }[]): number {
+    return heatmap.reduce((sum, point) => sum + point.count, 0);
+  }
+  it("空弹幕数组应返回空结果", async () => {
+    const emptyChunk = await udb.import(DanuniJsonAdapter([]));
+    const heatmap = await emptyChunk.export(HeatmapTransformerConfigurator());
+    expect(heatmap).toEqual([]);
+  });
+
+  it("默认粒度为1秒", async () => {
+    const testData = [
+      { ...defaultUniDM, ctime: now, DMID: "", content: "a", progress: 0 },
+      { ...defaultUniDM, ctime: now, DMID: "", content: "b", progress: 500 },
+      { ...defaultUniDM, ctime: now, DMID: "", content: "c", progress: 1500 },
+    ];
+    const testChunk = await udb.import(DanuniJsonAdapter(testData));
+    const heatmap = await testChunk.export(HeatmapTransformerConfigurator());
+
+    expect(heatmap.length).toBe(2);
+    expect(heatmap[0]).toEqual({ time: 0, count: 2 }); // 0ms 和 500ms
+    expect(heatmap[1]).toEqual({ time: 1000, count: 1 }); // 1500ms
+    expect(sumHeatmap(heatmap)).toBe(3);
+  });
+
+  it("自定义粒度", async () => {
+    const testData = [
+      { ...defaultUniDM, ctime: now, DMID: "", content: "a", progress: 0 },
+      { ...defaultUniDM, ctime: now, DMID: "", content: "b", progress: 500 },
+      { ...defaultUniDM, ctime: now, DMID: "", content: "c", progress: 1500 },
+    ];
+    const testChunk = await udb.import(DanuniJsonAdapter(testData));
+    const heatmap = await testChunk.export(HeatmapTransformerConfigurator({ granularity: 500 }));
+
+    expect(heatmap.length).toBe(4);
+    expect(heatmap[0]).toEqual({ time: 0, count: 1 });
+    expect(heatmap[1]).toEqual({ time: 500, count: 1 });
+    expect(heatmap[2]).toEqual({ time: 1000, count: 0 });
+    expect(heatmap[3]).toEqual({ time: 1500, count: 1 });
+    expect(sumHeatmap(heatmap)).toBe(3);
+  });
+
+  it("自动计算视频长度", async () => {
+    const testData = [
+      { ...defaultUniDM, ctime: now, DMID: "", content: "a", progress: 1000 },
+      { ...defaultUniDM, ctime: now, DMID: "", content: "b", progress: 5000 },
+    ];
+    const testChunk = await udb.import(DanuniJsonAdapter(testData));
+    const heatmap = await testChunk.export(HeatmapTransformerConfigurator());
+
+    // 最大 progress 为 5000ms，默认粒度 1000ms
+    // floor(5000/1000) + 1 = 6 个桶
+    expect(heatmap.length).toBe(6); // 0-1000, 1000-2000, ..., 5000-6000
+    expect(sumHeatmap(heatmap)).toBe(2);
+  });
+
+  it("手动指定视频长度", async () => {
+    const testData = [
+      { ...defaultUniDM, ctime: now, DMID: "", content: "a", progress: 1000 },
+      { ...defaultUniDM, ctime: now, DMID: "", content: "b", progress: 2000 },
+    ];
+    const testChunk = await udb.import(DanuniJsonAdapter(testData));
+    const heatmap = await testChunk.export(
+      HeatmapTransformerConfigurator({ videoDuration: 10000 }),
+    );
+
+    // floor(10000/1000) + 1 = 11 个桶
+    expect(heatmap.length).toBe(11);
+    expect(sumHeatmap(heatmap)).toBe(2);
+  });
+
+  it("忽略负数和超范围的progress", async () => {
+    const testData = [
+      { ...defaultUniDM, ctime: now, DMID: "", content: "valid1", progress: 1000 },
+      { ...defaultUniDM, ctime: now, DMID: "", content: "negative", progress: -100 },
+      { ...defaultUniDM, ctime: now, DMID: "", content: "valid2", progress: 2000 },
+      { ...defaultUniDM, ctime: now, DMID: "", content: "overflow", progress: 10000 },
+    ];
+    const testChunk = await udb.import(DanuniJsonAdapter(testData));
+    const heatmap = await testChunk.export(HeatmapTransformerConfigurator({ videoDuration: 5000 }));
+
+    const total = sumHeatmap(heatmap);
+    expect(total).toBe(2); // 只有 valid1 和 valid2
+  });
+
+  it("granularity参数验证", async () => {
+    const emptyChunk = await udb.import(DanuniJsonAdapter([]));
+
+    await expect(
+      async () => await emptyChunk.export(HeatmapTransformerConfigurator({ granularity: 0 })),
+    ).rejects.toThrow("Invalid granularity");
+
+    await expect(
+      async () => await emptyChunk.export(HeatmapTransformerConfigurator({ granularity: -1000 })),
+    ).rejects.toThrow("Invalid granularity");
+  });
+
+  it("videoDuration参数验证", async () => {
+    const emptyChunk = await udb.import(DanuniJsonAdapter([]));
+
+    await expect(
+      async () => await emptyChunk.export(HeatmapTransformerConfigurator({ videoDuration: 0 })),
+    ).rejects.toThrow("Invalid videoDuration");
+
+    await expect(
+      async () => await emptyChunk.export(HeatmapTransformerConfigurator({ videoDuration: -5000 })),
+    ).rejects.toThrow("Invalid videoDuration");
+  });
+
+  it("工具函数：查找峰值", async () => {
+    const testData = [
+      { ...defaultUniDM, ctime: now, DMID: "", content: "a", progress: 0 },
+      { ...defaultUniDM, ctime: now, DMID: "", content: "b", progress: 1000 },
+      { ...defaultUniDM, ctime: now, DMID: "", content: "c", progress: 1100 },
+      { ...defaultUniDM, ctime: now, DMID: "", content: "d", progress: 1200 },
+    ];
+    const testChunk = await udb.import(DanuniJsonAdapter(testData));
+    const heatmap = await testChunk.export(HeatmapTransformerConfigurator());
+
+    const peak = HeatmapUtils.findPeak(heatmap);
+    expect(peak).toEqual({ time: 1000, count: 3 });
+    expect(sumHeatmap(heatmap)).toBe(4);
+  });
+
+  it("工具函数：计算总数", async () => {
+    const testData = [
+      { ...defaultUniDM, ctime: now, DMID: "", content: "a", progress: 0 },
+      { ...defaultUniDM, ctime: now, DMID: "", content: "b", progress: 1000 },
+      { ...defaultUniDM, ctime: now, DMID: "", content: "c", progress: 2000 },
+    ];
+    const testChunk = await udb.import(DanuniJsonAdapter(testData));
+    const heatmap = await testChunk.export(HeatmapTransformerConfigurator());
+
+    expect(sumHeatmap(heatmap)).toBe(3);
+  });
+
+  it("使用Bilibili XML数据的集成测试", async () => {
+    const c = await udb.import(BiliXmlAdapter(xml));
+    const heatmap = await c.export(HeatmapTransformerConfigurator());
+
+    console.info("Heatmap:", heatmap);
+
+    // XML 中所有弹幕 progress 都在 13.213-13.499 秒范围内（13213-13499ms）
+    // 应该全部落在第 13 秒的桶中（索引 13）
+    expect(heatmap[13].count).toBe(15);
+    expect(sumHeatmap(heatmap)).toBe(15);
+
+    const peak = HeatmapUtils.findPeak(heatmap);
+    expect(peak?.time).toBe(13000);
+    expect(peak?.count).toBe(15);
+  });
 });

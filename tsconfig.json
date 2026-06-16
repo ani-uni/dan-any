@@ -1,17 +1,12 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "lib": [
-      "ESNext"
-    ],
+    "lib": ["ESNext"],
     "moduleDetection": "force",
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "resolveJsonModule": true,
-    "types": [
-      "node",
-      "bun-types"
-    ],
+    "types": ["node", "bun-types"],
     "strict": true,
     "noUnusedLocals": true,
     "declaration": true,
@@ -23,12 +18,8 @@
     "skipLibCheck": true,
     "declarationMap": true,
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@dan-uni/dan-any/*": [
-        "./dist/*"
-      ]
+      "@/*": ["./src/*"],
+      "@dan-uni/dan-any/*": ["./dist/*"]
     }
   }
 }
