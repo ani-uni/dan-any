@@ -23,6 +23,22 @@ export interface ExtraBili {
   code?: string;
   bas?: string;
   command?: DMBiliCommand;
+  up?: ExtraBiliUp;
+}
+export interface ExtraBiliUp {
+  state?: number;
+  // uname?: string;
+  // uface?: string;
+  // title?: string;
+  self_seen?: boolean;
+  like_count?: number;
+  user_like?: number;
+  // p_title?: string;
+  // cover?: string;
+  // is_charge: boolean;
+  // is_charge_plus: boolean;
+  // following: boolean;
+  extra_cps: null;
 }
 export interface ExtraDanUni {
   merge?: ExtraDanUniMerge;

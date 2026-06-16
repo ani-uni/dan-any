@@ -85,7 +85,7 @@ export const BiliUpAdapter = defineAdapter((json: DM_JSON_BiliUp) => {
               .map(Number)
               .reduce((bin, bitPosition) => bin | (1 << (bitPosition - 1)), 0)
           : 0;
-        return BiliCommonParser(chunk, {
+        const bili_dm = BiliCommonParser(chunk, {
           id: BigInt(d.id_str || d.id),
           idStr: d.id_str,
           progress: d.progress,
@@ -101,6 +101,8 @@ export const BiliUpAdapter = defineAdapter((json: DM_JSON_BiliUp) => {
           attr: attrBin,
           oid: BigInt(d.oid),
         });
+        bili_dm.extra.bili!.up = d;
+        return bili_dm;
       }),
     );
     return chunk;
