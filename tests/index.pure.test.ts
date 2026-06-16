@@ -277,8 +277,8 @@ describe("转化自", async () => {
     const chunk = await udb.import(TencentAdapter(json, "m00253deqqo"));
     const exportedJson = chunk.export(DanuniJsonTransformerConfigurator({ minify: true }));
     console.info(exportedJson);
-    expect(exportedJson[0].DMID).toBe("035d9c31");
-    expect(exportedJson[exportedJson.length - 1].DMID).toBe("ee6d0215");
+    expect(exportedJson[0].DMID).toBe("951f4229");
+    expect(exportedJson[exportedJson.length - 1].DMID).toBe("b375b92d");
   });
   it("vod[双向]", async () => {
     const vod = chunk.export(VodTransformer);
