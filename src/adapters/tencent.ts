@@ -61,12 +61,16 @@ const zContentStyle = z
     }
   })
   .transform((data) => {
-    const hexString =
-      data?.gradient_colors[0] ?? // we can't display gradient color, so use the first color
-      data?.color ??
-      "ffffff";
-    const color = Number(`#${hexString}`.replace("#", "0x"));
-    return { color, mode: mapPositionToMode(data?.position) };
+    const gradient = data?.gradient_colors
+      ? ([Number(`0x${data.gradient_colors[0]}`), Number(`0x${data.gradient_colors[1]}`)] as [
+          number,
+          number,
+        ])
+      : undefined;
+    return {
+      gradient,
+      mode: mapPositionToMode(data?.position),
+    };
   });
 
 const domain = PlatformVideoSource.Tencent;
@@ -100,11 +104,14 @@ export const TencentAdapter = defineAdapter((json: DM_JSON_Tencent, vid?: string
           content: item.content,
           progress: Number.parseInt(item.time_offset) || 0,
           mode: content_style.mode,
-          color: content_style.color,
+          color: content_style.gradient?.[0] ?? defaultUniDM.color,
           SOID,
           senderID,
           platform: domain,
-          extra: { tencent: extraTencent } satisfies Extra,
+          extra: {
+            danuni: { color: { gradient: content_style.gradient } },
+            tencent: extraTencent,
+          } satisfies Extra,
         };
 
         return {

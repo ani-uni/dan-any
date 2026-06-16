@@ -27,6 +27,7 @@ export interface ExtraBili {
 export interface ExtraDanUni {
   merge?: ExtraDanUniMerge;
   raw?: ExtraDanUniRaw; // 由于各种问题导致解析错误，使用二进制方法保存一份原始数据;内部使用base64
+  color?: ExtraDanUniColor; // 高级色彩(如渐变色、彩色)
 }
 export interface ExtraDanUniMerge {
   duration: number; //持续时间(重复内容第一次出现时间开始到合并了的弹幕中最后一次出现的时间)
@@ -38,11 +39,13 @@ export interface ExtraDanUniMerge {
 export interface ExtraDanUniRaw {
   content?: string;
 }
+export interface ExtraDanUniColor {
+  gradient?: [begin: number, end: number]; //渐变色的开始和结束颜色
+}
 export interface ExtraDdPlay {
   cid: number;
   uid: string;
 }
-
 export interface ExtraTencent {
   id: string; //bigint
   is_op: number; //0|1?
