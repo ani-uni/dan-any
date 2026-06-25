@@ -23,7 +23,8 @@ export function fileParser(
   switch (mod) {
     case "bin": {
       if (isBinary) {
-        if (file instanceof Buffer) return file.buffer;
+        if (file instanceof Buffer)
+          return new Uint8Array(file.buffer, file.byteOffset, file.byteLength);
         return file;
       } else if (file instanceof File) return file.arrayBuffer();
       else if (ArrayBuffer.isView(file))
@@ -41,8 +42,8 @@ export function fileParser(
       throw new TypeError('Expected binary data or string for mod "string"');
     }
     case "json": {
-      if (typeof file === "object" && file !== null && !isBinary) return file;
-      else if (file instanceof File) return file.json();
+      if (file instanceof File) return file.text().then((text) => JSON.parse(text));
+      else if (typeof file === "object" && file !== null && !isBinary) return file;
       if (typeof file !== "string" && !isBinary && !ArrayBuffer.isView(file)) {
         throw new TypeError('Expected object, JSON string, or binary data for mod "json"');
       }
