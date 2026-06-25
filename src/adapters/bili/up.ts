@@ -115,7 +115,7 @@ export const BiliUpMetadata = defineMetadata({
   check: {
     adapter: async (uchunk, body) => {
       try {
-        return uchunk.import(BiliUpAdapter(await fileParser(body, "json", JSON)));
+        return await uchunk.import(BiliUpAdapter(await fileParser(body, "json", JSON)));
       } catch {
         return null;
       }

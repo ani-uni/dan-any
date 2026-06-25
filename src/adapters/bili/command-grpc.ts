@@ -54,7 +54,7 @@ export const BiliCommandGrpcMetadata = defineMetadata({
   check: {
     adapter: async (uchunk, body) => {
       try {
-        return uchunk.import(BiliCommandGrpcAdapter(await fileParser(body, "bin")));
+        return await uchunk.import(BiliCommandGrpcAdapter(await fileParser(body, "bin")));
       } catch {
         return null;
       }

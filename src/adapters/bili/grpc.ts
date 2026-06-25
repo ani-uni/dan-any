@@ -231,7 +231,7 @@ export const BiliGrpcMetadata = defineMetadata({
   check: {
     adapter: async (uchunk, body) => {
       try {
-        return uchunk.import(BiliGrpcAdapter(await fileParser(body, "bin")));
+        return await uchunk.import(BiliGrpcAdapter(await fileParser(body, "bin")));
       } catch {
         return null;
       }

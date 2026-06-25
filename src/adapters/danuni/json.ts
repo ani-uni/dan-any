@@ -129,7 +129,7 @@ export const DanuniJsonMetadata = defineMetadata({
   check: {
     adapter: async (uchunk, body) => {
       try {
-        return uchunk.import(DanuniJsonAdapter(await fileParser(body, "json")));
+        return await uchunk.import(DanuniJsonAdapter(await fileParser(body, "json")));
       } catch {
         return null;
       }
