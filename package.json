@@ -1,6 +1,6 @@
 {
   "name": "@dan-uni/dan-any",
-  "version": "2.2.9",
+  "version": "2.3.0",
   "description": "A danmaku transformer lib, supporting danmaku from different platforms.",
   "keywords": [
     "bangumi",
@@ -21,16 +21,46 @@
   ],
   "type": "module",
   "exports": {
-    ".": "./dist/index.js",
-    "./adapters": "./dist/adapters.js",
-    "./core": "./dist/core.js",
-    "./core/db/schema": "./dist/core/db/schema.js",
-    "./core/db/utils": "./dist/core/db/utils.js",
-    "./core/main": "./dist/core/main.js",
-    "./core/main/drizzle": "./dist/core/main/drizzle.js",
-    "./core/main/pure": "./dist/core/main/pure.js",
-    "./plugins": "./dist/plugins.js",
-    "./utils": "./dist/utils.js",
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./adapters": {
+      "import": "./dist/adapters.mjs",
+      "require": "./dist/adapters.cjs"
+    },
+    "./core": {
+      "import": "./dist/core.mjs",
+      "require": "./dist/core.cjs"
+    },
+    "./core/db/schema": {
+      "import": "./dist/core/db/schema.mjs",
+      "require": "./dist/core/db/schema.cjs"
+    },
+    "./core/db/utils": {
+      "import": "./dist/core/db/utils.mjs",
+      "require": "./dist/core/db/utils.cjs"
+    },
+    "./core/main": {
+      "import": "./dist/core/main.mjs",
+      "require": "./dist/core/main.cjs"
+    },
+    "./core/main/drizzle": {
+      "import": "./dist/core/main/drizzle.mjs",
+      "require": "./dist/core/main/drizzle.cjs"
+    },
+    "./core/main/pure": {
+      "import": "./dist/core/main/pure.mjs",
+      "require": "./dist/core/main/pure.cjs"
+    },
+    "./plugins": {
+      "import": "./dist/plugins.mjs",
+      "require": "./dist/plugins.cjs"
+    },
+    "./utils": {
+      "import": "./dist/utils.mjs",
+      "require": "./dist/utils.cjs"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -60,6 +90,7 @@
     "@arethetypeswrong/core": "^0.18.4",
     "@bufbuild/buf": "^1.71.0",
     "@bufbuild/protoc-gen-es": "^2.12.1",
+    "@rolldown/plugin-node-polyfills": "^1.0.3",
     "@types/json-bigint": "^1.0.4",
     "@types/node": "^26.0.1",
     "@typescript/native-preview": "^7.0.0-dev.20260624.1",
@@ -82,5 +113,8 @@
   },
   "trustedDependencies": [
     "protobufjs"
-  ]
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts"
 }

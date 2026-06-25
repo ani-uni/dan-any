@@ -1,4 +1,5 @@
 import { defineConfig } from "vite-plus";
+import nodePolyfills from "@rolldown/plugin-node-polyfills";
 
 export default defineConfig({
   resolve: {
@@ -23,7 +24,15 @@ export default defineConfig({
       plugins: "./src/plugins/index.ts",
       utils: "./src/utils/index.ts",
     },
-    platform: "neutral",
+    format: {
+      esm: {
+        plugins: [nodePolyfills()],
+        platform: "browser",
+      },
+      cjs: {
+        platform: "node",
+      },
+    },
     deps: {
       onlyBundle: ["type-fest"],
       neverBundle: ["@electric-sql/pglite"],
