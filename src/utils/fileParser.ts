@@ -18,11 +18,14 @@ export function fileParser(
   mod: "bin" | "string" | "json",
   JSON: Pick<JSON, "parse"> = globalThis.JSON,
 ): Promisable<ArrayBuffer | Uint8Array | string | object> {
-  const isBinary = file instanceof ArrayBuffer || file instanceof Uint8Array;
+  const isBinary =
+    file instanceof ArrayBuffer || file instanceof Uint8Array || file instanceof Buffer;
   switch (mod) {
     case "bin": {
-      if (isBinary) return file;
-      else if (file instanceof File) return file.arrayBuffer();
+      if (isBinary) {
+        if (file instanceof Buffer) return file.buffer;
+        return file;
+      } else if (file instanceof File) return file.arrayBuffer();
       else if (ArrayBuffer.isView(file))
         return new Uint8Array(file.buffer, file.byteOffset, file.byteLength);
       throw new TypeError('Expected binary data for mod "bin"');
