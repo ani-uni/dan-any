@@ -64,25 +64,25 @@ export interface ExtraDdPlay {
 }
 export interface ExtraTencent {
   id: string; //bigint
-  is_op: number; //0|1?
-  head_url: string;
-  up_count: string; //number
-  bubble_head: string;
-  bubble_level: string;
-  bubble_id: string;
-  rick_type: number;
+  is_op?: number; //0|1?
+  head_url?: string;
+  up_count?: string; //number
+  bubble_head?: string;
+  bubble_level?: string;
+  bubble_id?: string;
+  rick_type?: number;
   content_style: string;
-  user_vip_degree: number;
-  hot_type: number;
-  gift_info: null;
-  share_item: null;
-  vuid: string;
-  nick: string;
-  data_key: string;
+  user_vip_degree?: number;
+  hot_type?: number;
+  gift_info?: null;
+  share_item?: null;
+  vuid?: string;
+  nick?: string;
+  data_key?: string;
   content_score: number; //float
-  show_weight: number; //1-10?
-  track_type: number;
-  show_like_type: number;
-  report_like_score: number;
-  relate_sku_info: unknown[];
+  show_weight?: number; //1-10?
+  track_type?: number;
+  show_like_type?: number;
+  report_like_score?: number;
+  relate_sku_info?: unknown[];
 }

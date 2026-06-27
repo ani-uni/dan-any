@@ -9,30 +9,30 @@ import { fileParser } from "@/utils/fileParser.ts";
 
 interface TencentBarrage {
   id: string; //bigint
-  is_op: number; //0|1?
-  head_url: string;
+  is_op?: number; //0|1?
+  head_url?: string;
   time_offset: string; //ms
-  up_count: string; //number
-  bubble_head: string;
-  bubble_level: string;
-  bubble_id: string;
-  rick_type: number;
+  up_count?: string; //number
+  bubble_head?: string;
+  bubble_level?: string;
+  bubble_id?: string;
+  rick_type?: number;
   content_style: string; //
-  user_vip_degree: number;
-  create_time: string; //
+  user_vip_degree?: number;
+  create_time?: string; //
   content: string; //
-  hot_type: number;
-  gift_info: null;
-  share_item: null;
-  vuid: string;
-  nick: string;
-  data_key: string;
+  hot_type?: number;
+  gift_info?: null;
+  share_item?: null;
+  vuid?: string;
+  nick?: string;
+  data_key?: string;
   content_score: number; //float
-  show_weight: number; //1-10?
-  track_type: number;
-  show_like_type: number;
-  report_like_score: number;
-  relate_sku_info: unknown[];
+  show_weight?: number; //1-10?
+  track_type?: number;
+  show_like_type?: number;
+  report_like_score?: number;
+  relate_sku_info?: unknown[];
 }
 
 interface DM_JSON_Tencent {
@@ -46,7 +46,7 @@ function mapPositionToMode(pos?: number) {
 }
 
 const zCommentStyle = z.object({
-  color: z.string(), // color in hex, without #
+  color: z.string(), // color in hex
   gradient_colors: z.tuple([z.string(), z.string()]),
   position: z.number(),
 });
@@ -62,12 +62,13 @@ const zContentStyle = z
   })
   .transform((data) => {
     const gradient = data?.gradient_colors
-      ? ([Number(`0x${data.gradient_colors[0]}`), Number(`0x${data.gradient_colors[1]}`)] as [
-          number,
-          number,
-        ])
+      ? ([
+          Number(`0x${data.gradient_colors[0].replace("#", "")}`),
+          Number(`0x${data.gradient_colors[1].replace("#", "")}`),
+        ] as [number, number])
       : undefined;
     return {
+      color: data?.color ? Number(`0x${data.color.replace("#", "")}`) : undefined,
       gradient,
       mode: mapPositionToMode(data?.position),
     };
@@ -83,6 +84,7 @@ export const TencentAdapter = defineAdapter((json: DM_JSON_Tencent, vid?: string
       : UniID.fromNull(domain).toString();
     const senderID = UniID.fromNull(domain).toString();
     const list: TencentBarrage[] = Array.isArray(json?.barrage_list) ? json.barrage_list : [];
+    const now = new Date();
     await chunk.upsertDanmakus(
       list.map((item) => {
         const content_style = zContentStyle.parse(item.content_style);
@@ -98,13 +100,13 @@ export const TencentAdapter = defineAdapter((json: DM_JSON_Tencent, vid?: string
         const mapped = {
           attr: defaultUniDM.attr,
           fontsize: defaultUniDM.fontsize,
-          ctime: transCtime(item.create_time, "s"),
+          ctime: item.create_time ? transCtime(item.create_time, "s") : now,
           weight: item.show_weight ?? defaultUniDM.weight,
           pool: "Def" as const,
           content: item.content,
           progress: Number.parseInt(item.time_offset) || 0,
           mode: content_style.mode,
-          color: content_style.gradient?.[0] ?? defaultUniDM.color,
+          color: content_style.color ?? content_style.gradient?.[0] ?? defaultUniDM.color,
           SOID,
           senderID,
           platform: domain,
