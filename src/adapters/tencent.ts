@@ -17,7 +17,7 @@ interface TencentBarrage {
   bubble_level?: string;
   bubble_id?: string;
   rick_type?: number;
-  content_style: string; //
+  content_style?: string; //
   user_vip_degree?: number;
   create_time?: string; //
   content: string; //
@@ -47,7 +47,7 @@ function mapPositionToMode(pos?: number) {
 
 const zCommentStyle = z.object({
   color: z.string(), // color in hex
-  gradient_colors: z.tuple([z.string(), z.string()]),
+  gradient_colors: z.tuple([z.string(), z.string()]).optional(),
   position: z.number(),
 });
 const zContentStyle = z
@@ -72,6 +72,11 @@ const zContentStyle = z
       gradient,
       mode: mapPositionToMode(data?.position),
     };
+  })
+  .default({
+    color: undefined,
+    gradient: undefined,
+    mode: "Normal" as const,
   });
 
 const domain = PlatformVideoSource.Tencent;

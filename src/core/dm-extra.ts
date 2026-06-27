@@ -71,7 +71,7 @@ export interface ExtraTencent {
   bubble_level?: string;
   bubble_id?: string;
   rick_type?: number;
-  content_style: string;
+  content_style?: string;
   user_vip_degree?: number;
   hot_type?: number;
   gift_info?: null;
