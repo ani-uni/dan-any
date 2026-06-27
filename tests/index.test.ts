@@ -1,6 +1,8 @@
 import {
   ArtplayerAdapter,
   ArtplayerTransformer,
+  BahaAdapter,
+  BahaTransformer,
   BiliXmlAdapter,
   BiliXmlTransformerConfigurator,
   DanuniJsonAdapter,
@@ -66,8 +68,12 @@ afterAll(async () => {
 
 describe("转化自", async () => {
   it("bili(xml)[双向]", async () => {
-    console.info(await chunk.export(BiliXmlTransformerConfigurator()));
+    const nxml = await chunk.export(BiliXmlTransformerConfigurator());
+    console.info(nxml);
     console.info(await chunk.export(BiliXmlTransformerConfigurator({ avoidSenderIDWithAt: true })));
+    const reImport = await udb.import(BiliXmlAdapter(nxml));
+    const reImportXml = await reImport.export(BiliXmlTransformerConfigurator());
+    expect(reImportXml).toEqual(nxml);
   });
   it("artplayer(json)", async () => {
     console.info(await chunk.export(ArtplayerTransformer));
@@ -90,18 +96,6 @@ describe("转化自", async () => {
     console.info(await chunk2.export(ArtplayerTransformer));
     expect(chunk2Artplayer.danmuku).toEqual(json.danmuku);
   });
-  // it("ass[双向]", () => {
-  //   const canvas = createCanvas(50, 50);
-  //   const pool = UniPool.fromBiliXML(xml);
-  //   const ass = pool.toASS(canvas.getContext("2d"));
-  //   console.info(ass);
-  //   console.info(UniPool.fromASS(ass));
-  //   const imp = UniPool.import(ass);
-  //   expect(imp.fmt).toBe("common.ass");
-  //   expect(imp.pool).toEqual(pool);
-  //   const imp2 = UniPool.import(ass, undefined, "test-common.ass");
-  //   expect(imp2).toEqual(imp);
-  // });
   it("pb[双向]", async () => {
     const pb = await chunk.export(DanuniPbTransformer);
     console.info(pb);
@@ -301,6 +295,66 @@ describe("转化自", async () => {
     );
     const reImportVod = await reImport.export(VodTransformer);
     expect(reImportVod.danmuku).toEqual(vod.danmuku);
+  });
+  it("baha[双向]", async () => {
+    const json = {
+      data: {
+        danmu: [
+          {
+            text: "1",
+            color: "#FFFFFF",
+            size: 1,
+            position: 0,
+            time: 0,
+            sn: 39929764,
+            userid: "andy475713",
+          },
+          {
+            text: "2025／8／24",
+            color: "#FF0026",
+            size: 2,
+            position: 2,
+            time: 2,
+            sn: 46251836,
+            userid: "FeiFei88",
+          },
+          {
+            text: "2025/8/12簽",
+            color: "#FDE53D",
+            size: 1,
+            position: 1,
+            time: 54,
+            sn: 46084624,
+            userid: "emu9025",
+          },
+          {
+            text: "20250802",
+            color: "#FFFFFF",
+            size: 1,
+            position: 0,
+            time: 4,
+            sn: 45952197,
+            userid: "efg130",
+          },
+          {
+            text: "20240821 我來啦",
+            color: "#FF9496",
+            size: 1,
+            position: 0,
+            time: 8,
+            sn: 41361180,
+            userid: "star112999",
+          },
+        ],
+        totalCount: 5,
+      },
+    };
+    const chunk = await udb.import(BahaAdapter(json, 38205));
+    const baha = await chunk.export(BahaTransformer);
+    console.info(baha);
+    const reImport = await udb.import(BahaAdapter(baha));
+    const reImportBaha = await reImport.export(BahaTransformer);
+    expect(reImportBaha.data.danmu).toEqual(baha.data.danmu);
   });
   it("min[双向]", async () => {
     const minJson = await chunk.export(DanuniJsonTransformerConfigurator({ minify: true }));

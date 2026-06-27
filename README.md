@@ -31,6 +31,7 @@ v2 同时提供了纯TS实现的方法（`@dan-uni/dan-any/core/main/pure`），
 - [x] 弹弹Play: `DdplayAdapter` `DdplayTransformer`
 - [x] tencent `正向`: `TencentAdapter`
 - [x] vod `双向`: `VodAdapter` `VodTransformer`
+- [x] baha `双向`: `BahaAdapter` `BahaTransformer`
 - [x] [ASS(`@dan-uni/dan-any-ext-ass`)](https://github.com/ani-uni/dan-any-ext-ass) `双向(部分支持，仅该库生成的ass文件支持还原)`
 
 ### Plugins 常用插件

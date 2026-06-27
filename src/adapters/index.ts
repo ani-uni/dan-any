@@ -49,6 +49,7 @@ export * from "./bili/grpc.ts";
 export * from "./bili/up.ts";
 export * from "./bili/xml.ts";
 export * from "./artplayer.ts";
+export * from "./baha.ts";
 export * from "./ddplay.ts";
 export * from "./dplayer.ts";
 export * from "./tencent.ts";

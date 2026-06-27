@@ -4,6 +4,7 @@ type DMBiliCommand = DM_JSON_BiliCommandGrpc;
 
 export interface Extra {
   artplayer?: ExtraArtplayer;
+  baha?: ExtraBaha;
   bili?: ExtraBili;
   danuni?: ExtraDanUni;
   ddplay?: ExtraDdPlay;
@@ -12,6 +13,10 @@ export interface Extra {
 export interface ExtraArtplayer {
   style?: object;
   border?: boolean;
+}
+export interface ExtraBaha {
+  sn?: number; // 巴哈弹幕ID
+  userid?: string; // 巴哈用户名
 }
 export interface ExtraBili {
   mode?: number; //原弹幕类型
