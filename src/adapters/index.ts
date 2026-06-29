@@ -52,5 +52,6 @@ export * from "./artplayer.ts";
 export * from "./baha.ts";
 export * from "./ddplay.ts";
 export * from "./dplayer.ts";
+export * from "./iqiyi.ts";
 export * from "./tencent.ts";
 export * from "./vod.ts";

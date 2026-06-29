@@ -8,6 +8,7 @@ export interface Extra {
   bili?: ExtraBili;
   danuni?: ExtraDanUni;
   ddplay?: ExtraDdPlay;
+  iqiyi?: ExtraIqiyi;
   tencent?: ExtraTencent;
 }
 export interface ExtraArtplayer {
@@ -66,6 +67,21 @@ export interface ExtraDanUniColor {
 export interface ExtraDdPlay {
   cid: number;
   uid: string;
+}
+export interface ExtraIqiyi {
+  contentId?: string; // 弹幕ID
+  parentId?: string; // 回复目标弹幕ID
+  font?: number; // 字体/字号/样式编码
+  opacity?: number; // 透明度
+  position?: number; // 弹幕位置
+  background?: number;
+  variableEffectId?: number; // 特效ID
+  contentType?: number;
+  subType?: number;
+  spoiler?: boolean; // 剧透弹幕
+  halfScreenShow?: number;
+  emotionType?: number;
+  imageEmotionType?: number;
 }
 export interface ExtraTencent {
   id: string; //bigint

@@ -4,11 +4,11 @@ import type { z } from "zod";
 export function transMode(oriMode: string, fmt: "vod"): z.infer<typeof enumModeCodec.out>;
 export function transMode(
   oriMode: number,
-  fmt: "bili" | "dplayer" | "artplayer" | "ddplay" | "baha",
+  fmt: "bili" | "dplayer" | "artplayer" | "ddplay" | "baha" | "iqiyi",
 ): z.infer<typeof enumModeCodec.out>;
 export function transMode(
   oriMode: number | string,
-  fmt: "bili" | "dplayer" | "artplayer" | "ddplay" | "baha" | "vod",
+  fmt: "bili" | "dplayer" | "artplayer" | "ddplay" | "baha" | "iqiyi" | "vod",
 ): z.infer<typeof enumModeCodec.out> {
   let mode: z.infer<typeof enumModeCodec.out> = "Normal";
   switch (fmt) {
@@ -56,6 +56,29 @@ export function transMode(
       // position：0-滚动 1-顶部 2-底部
       if (oriMode === 1) mode = "Top";
       else if (oriMode === 2) mode = "Bottom";
+      break;
+
+    case "iqiyi":
+      //    0    NORMAL               普通滚动弹幕，右向左滚动
+      //  100    TOP_NORMAL           顶部固定普通弹幕
+      //  200    BOTTOM_NORMAL        底部固定普通弹幕
+      //  108    TOP_ROLE             顶部角色弹幕
+      //  208    BOTTOM_ROLE          底部角色弹幕
+      //    8    ROLE                 角色弹幕
+      //    2    STAR                 明星弹幕
+      //   10    STAR_TOPIC           明星话题弹幕
+      //    9    VR                   VR 弹幕
+      //  305    SURROUND_PORTRAIT    环绕/画像类弹幕
+      switch (oriMode) {
+        case 100:
+        case 108:
+          mode = "Top";
+          break;
+        case 200:
+        case 208:
+          mode = "Bottom";
+          break;
+      }
       break;
 
     case "vod":
