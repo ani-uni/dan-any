@@ -7,24 +7,24 @@ import { fileParser } from "@/utils/fileParser.ts";
 import { z } from "zod";
 
 interface DM_JSON_Youku {
-  api: string;
+  api?: string;
   data: {
     result: string; // YoukuDataResult
   };
-  ret: string[];
-  traceId: string;
-  v: string;
+  ret?: string[];
+  traceId?: string;
+  v?: string;
 }
 
 interface YoukuDataResult {
   code: 1;
-  cost: string;
+  cost?: string;
   data: {
-    count: number;
+    count?: number;
     result: YoukuDanmaku[];
-    scm: string;
+    scm?: string;
   };
-  message: string;
+  message?: string;
 }
 
 interface YoukuDanmaku {
@@ -32,25 +32,25 @@ interface YoukuDanmaku {
   content: string;
   createtime: string; // "YYYY-MM-DD HH:mm:ss"
   ct: number;
-  extFields: {
-    grade: number;
-    aigc: number;
-    voteUp: number;
+  extFields?: {
+    grade?: number;
+    aigc?: number;
+    voteUp?: number;
   };
   id: number;
   iid: string;
-  level: number;
-  lid: number;
+  level?: number;
+  lid?: number;
   likeShow?: boolean;
   mat: number;
   ouid: string;
   playat: number;
   propertis?: string; // YoukuPropertis
-  status: number;
-  type: number;
+  status?: number;
+  type?: number;
   uid: string;
   uid2: number;
-  ver: number;
+  ver?: number;
 }
 
 interface YoukuPropertis {
@@ -78,36 +78,38 @@ const zYoukuDanmaku = z.object({
   content: z.string(),
   createtime: z.string(),
   ct: z.number(),
-  extFields: z.object({
-    grade: z.number(),
-    aigc: z.number(),
-    voteUp: z.number(),
-  }),
+  extFields: z
+    .object({
+      grade: z.number().optional(),
+      aigc: z.number().optional(),
+      voteUp: z.number().optional(),
+    })
+    .optional(),
   id: z.number(),
   iid: z.string(),
-  level: z.number(),
-  lid: z.number(),
+  level: z.number().optional(),
+  lid: z.number().optional(),
   likeShow: z.boolean().optional(),
   mat: z.number(),
   ouid: z.string(),
   playat: z.number(),
   propertis: z.string().optional(),
-  status: z.number(),
-  type: z.number(),
+  status: z.number().optional(),
+  type: z.number().optional(),
   uid: z.string(),
   uid2: z.number(),
-  ver: z.number(),
+  ver: z.number().optional(),
 }) satisfies z.ZodType<YoukuDanmaku>;
 
 const zYoukuDataResult = z.object({
   code: z.literal(1),
-  cost: z.string(),
+  cost: z.string().optional(),
   data: z.object({
-    count: z.number(),
+    count: z.number().optional(),
     result: z.array(zYoukuDanmaku),
-    scm: z.string(),
+    scm: z.string().optional(),
   }),
-  message: z.literal("success"),
+  message: z.literal("success").optional(),
 }) satisfies z.ZodType<YoukuDataResult>;
 
 const zYoukuPropertis = z
@@ -142,13 +144,13 @@ function jsonString<T>(schema: z.ZodType<T>) {
 
 const zYoukuOuter = z
   .object({
-    api: z.literal("mopen.youku.danmu.list"),
+    api: z.literal("mopen.youku.danmu.list").optional(),
     data: z.object({
       result: jsonString(zYoukuDataResult),
     }),
-    ret: z.tuple([z.literal("SUCCESS::调用成功")]),
-    traceId: z.string(),
-    v: z.literal("1.0"),
+    ret: z.tuple([z.literal("SUCCESS::调用成功")]).optional(),
+    traceId: z.string().optional(),
+    v: z.literal("1.0").optional(),
   })
   .transform((data) => data.data.result);
 
@@ -197,7 +199,6 @@ export const YoukuAdapter = defineAdapter((json: DM_JSON_Youku | YoukuDataResult
     const payload = zYoukuPayload.parse(json);
     const list: YoukuDanmaku[] = Array.isArray(payload?.data?.result) ? payload.data.result : [];
     const chunk = uchunk ?? (await udb.makeChunk({ fromConverted: false }));
-    const SOID = `def_${PlatformVideoSource.Youku}+${UniID.fromYouku(list[0].aid).toString()}`;
     await chunk.upsertDanmakus(
       list.map((item) => {
         const propertis = parseProperties(item.propertis);
@@ -224,7 +225,7 @@ export const YoukuAdapter = defineAdapter((json: DM_JSON_Youku | YoukuDataResult
           // mode: mapPositionToMode(propertis.pos),
           mode: "Normal" as const,
           color: propertis.color ?? gradient?.[0] ?? defaultUniDM.color,
-          SOID,
+          SOID: `def_${PlatformVideoSource.Youku}+${UniID.fromYouku(list[0].aid).toString()}`,
           senderID,
           platform: domain,
           extra: {

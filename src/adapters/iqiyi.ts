@@ -9,10 +9,10 @@ import { fileParser } from "@/utils/fileParser.ts";
 import type { TupleOf } from "type-fest";
 
 interface IqiyiUserInfo {
-  senderAvatar: string; //url
+  senderAvatar?: string; //url
   uid: string; //bigint
-  udid: string; //null
-  name: string;
+  udid?: string; //null
+  name?: string;
 }
 
 /**
@@ -30,18 +30,18 @@ interface IqiyiBulletInfo {
   position: string; // 0-滚动 1-顶部 2-底部
   background: string; // int?
   variableEffectId: string; // int?
-  isReply: string; // null?
+  isReply?: string; // null?
   likeCount: string; // int
   plusCount: string; // int
   dissCount: string; // int
-  isShowLike: string; // boolean?
-  isShowLikeTest: string; // boolean?
-  isShowReplyFlag: string; // boolean?
-  replyCnt: string; // int
+  isShowLike?: string; // boolean?
+  isShowLikeTest?: string; // boolean?
+  isShowReplyFlag?: string; // boolean?
+  replyCnt?: string; // int
   userInfo: IqiyiUserInfo;
   contentType: string; // 0?
   subType: string; // 0?
-  src: string; // 0?
+  src?: string; // 0?
   spoiler: string; // boolean 剧透弹幕
   halfScreenShow: string; // 0-1?
   scoreLevel: string; // int?
@@ -51,19 +51,19 @@ interface IqiyiBulletInfo {
 
 interface DM_XML_Iqiyi {
   danmu: {
-    code: string;
+    code?: string;
     data: {
       entry: {
-        int: string; //1
+        int?: string; //1
         list: {
           bulletInfo: IqiyiBulletInfo[];
         };
       };
     };
-    sum: string; //int
-    validSum: string; //int
-    duration: string; //int
-    ts: string; //Date
+    sum?: string; //int
+    validSum?: string; //int
+    duration?: string; //int
+    ts?: string; //Date
   };
 }
 

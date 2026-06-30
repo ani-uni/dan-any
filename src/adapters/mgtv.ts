@@ -16,7 +16,7 @@ interface MgtvColor {
 interface MgtvDanmaku {
   id?: bigint | number;
   ids: string;
-  type: number;
+  type?: number;
   uid: number;
   uuid: string;
   content: string;
