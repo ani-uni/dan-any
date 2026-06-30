@@ -72,6 +72,7 @@ export const VodAdapter = defineAdapter(
             color: Number((d[2] || "FFFFFF").replace("#", "0x")),
             content: d[4],
             fontsize: d[7] ? Number(d[7].replace("px", "")) : defaultUniDM.fontsize,
+            platform: domain,
           };
           return { ...map_d, DMID: chunk.$UniDB.DMIDGenerator(map_d) };
         }),
