@@ -15,6 +15,7 @@ import {
   TencentAdapter,
   VodAdapter,
   VodTransformer,
+  YoukuAdapter,
 } from "@/adapters/index.ts";
 import { initNewDb } from "@/core/db/index.ts";
 import { InitedUniDB, UniChunk, UniDB } from "@/core/main-drizzle.ts";
@@ -655,6 +656,23 @@ describe("转化自", async () => {
     const chunk = await udb.import(IqiyiAdapter(xml));
     const exportedJson = await chunk.export(DanuniJsonTransformerConfigurator({ minify: true }));
     console.info(exportedJson);
+  });
+  it("youku[单向]", async () => {
+    const json = {
+      api: "mopen.youku.danmu.list",
+      data: {
+        result:
+          '{"code":1,"cost":"8","data":{"result":[{"aid":614401,"content":"怎么没人发","createtime":"2025-09-27 00:19:47","ct":3002,"extFields":{"grade":1,"aigc":0,"voteUp":1},"id":10255646335,"iid":"XNjQ3MjQ4ODUxNg==","level":0,"lid":0,"mat":8,"ouid":"UMTc0MzA0ODk3NTY=","playat":480606,"propertis":"{\\"appVersion\\":\\"11.1.49\\",\\"size\\":1,\\"color\\":16777215,\\"pos\\":3,\\"stream\\":\\"cmfv5hd3_hbr_bit10\\",\\"effect\\":0,\\"smks\\":0,\\"dmfid\\":0}","status":99,"type":1,"uid":"UMTc0MzA0ODk3NTY=","uid2":4357622439,"ver":1},{"aid":614401,"content":"没人吗","createtime":"2025-08-06 20:01:48","ct":3002,"extFields":{"grade":1,"aigc":0,"voteUp":5},"id":10078089114,"iid":"XNjQ3MjQ4ODUxNg==","level":0,"lid":0,"likeShow":true,"mat":8,"ouid":"UNjA4MTc1Nzk4OA==","playat":485040,"propertis":"{\\"appVersion\\":\\"11.1.49\\",\\"size\\":1,\\"color\\":16777215,\\"pos\\":3,\\"stream\\":\\"mp5hd3\\",\\"effect\\":0,\\"smks\\":0,\\"dmfid\\":0}","status":99,"type":1,"uid":"UNjA4MTc1Nzk4OA==","uid2":1520439497,"ver":1},{"aid":614401,"content":"有人哦","createtime":"2025-09-27 15:50:14","ct":3002,"extFields":{"grade":1,"aigc":0,"voteUp":2},"id":10256669672,"iid":"XNjQ3MjQ4ODUxNg==","level":0,"lid":0,"mat":8,"ouid":"UMTMyODc0ODU4NTI=","playat":489390,"propertis":"{\\"appVersion\\":\\"11.1.57\\",\\"size\\":1,\\"color\\":16777215,\\"pos\\":3,\\"stream\\":\\"mp5hd3\\",\\"effect\\":0,\\"smks\\":0,\\"dmfid\\":0}","status":99,"type":1,"uid":"UMTMyODc0ODU4NTI=","uid2":3321871463,"ver":1},{"aid":614401,"content":"有人有人","createtime":"2026-01-11 16:05:35","ct":3001,"extFields":{"grade":1,"aigc":0,"voteUp":1},"id":11076174656,"iid":"XNjQ3MjQ4ODUxNg==","level":0,"lid":0,"mat":8,"ouid":"UNDMxOTUwMzE0NA==","playat":491000,"propertis":"{\\"markSource\\":44,\\"appVersion\\":\\"11.1.73\\",\\"color\\":16777215,\\"size\\":1,\\"stream\\":\\"hd3\\",\\"pos\\":3,\\"alpha\\":1,\\"refId\\":686}","status":99,"type":1,"uid":"UNDMxOTUwMzE0NA==","uid2":1079875786,"ver":1},{"aid":614401,"content":"绿毛也好帅啊","createtime":"2025-10-09 11:53:17","ct":3002,"extFields":{"grade":3,"aigc":0,"voteUp":1},"id":10285997479,"iid":"XNjQ3MjQ4ODUxNg==","level":0,"lid":0,"mat":8,"ouid":"UMTgzNDk4NDM5MTY=","playat":496890,"propertis":"{\\"markSource\\":44,\\"appVersion\\":\\"11.1.57\\",\\"size\\":1,\\"color\\":16777215,\\"pos\\":3,\\"stream\\":\\"mp5hd2\\",\\"effect\\":0,\\"smks\\":0,\\"refId\\":91,\\"dmfid\\":0}","status":99,"type":1,"uid":"UMTgzNDk4NDM5MTY=","uid2":4587460979,"ver":1},{"aid":614401,"content":"这是六美的哥哥吧","createtime":"2026-02-25 13:32:44","ct":10004,"extFields":{"grade":3,"aigc":0,"voteUp":1},"id":11284702450,"iid":"XNjQ3MjQ4ODUxNg==","level":0,"lid":0,"mat":8,"ouid":"UMzM1OTIxNTAw","playat":496000,"propertis":"{\\"size\\":2,\\"color\\":16777215,\\"pos\\":3,\\"alpha\\":1}","status":99,"type":1,"uid":"UNTQzMDYwNzY1Ng==","uid2":1357651914,"ver":1},{"aid":614401,"content":"都没人啊。","createtime":"2026-02-26 18:42:55","ct":3002,"extFields":{"grade":1,"aigc":0,"voteUp":1},"id":11289550637,"iid":"XNjQ3MjQ4ODUxNg==","level":0,"lid":0,"mat":8,"ouid":"UMTg0NDk2NTIxODg=","playat":504546,"propertis":"{\\"appVersion\\":\\"11.1.79\\",\\"size\\":1,\\"color\\":16777215,\\"pos\\":3,\\"stream\\":\\"cmfv5hd4_hbr_bit10\\",\\"effect\\":0,\\"smks\\":0,\\"dmfid\\":0}","status":99,"type":1,"uid":"UMTg0NDk2NTIxODg=","uid2":4612413047,"ver":1},{"aid":614401,"content":"我开弹幕了吗？","createtime":"2026-02-07 13:37:42","ct":3001,"extFields":{"grade":3,"aigc":0,"voteUp":1},"id":11182874238,"iid":"XNjQ3MjQ4ODUxNg==","level":0,"lid":0,"mat":8,"ouid":"UNjA3MDM3NjY1Ng==","playat":515000,"propertis":"{\\"appVersion\\":\\"11.1.77\\",\\"size\\":1,\\"color\\":16777215,\\"pos\\":3,\\"stream\\":\\"hd3\\",\\"alpha\\":1}","status":99,"type":1,"uid":"UNjA3MDM3NjY1Ng==","uid2":1517594164,"ver":1},{"aid":614401,"content":"头小身大的比例…………","createtime":"2026-01-11 16:06:29","ct":3001,"extFields":{"grade":3,"aigc":0,"voteUp":6},"id":11076210108,"iid":"XNjQ3MjQ4ODUxNg==","level":0,"lid":0,"likeShow":true,"mat":8,"ouid":"UNDMxOTUwMzE0NA==","playat":528000,"propertis":"{\\"appVersion\\":\\"11.1.73\\",\\"size\\":1,\\"color\\":16777215,\\"pos\\":3,\\"stream\\":\\"hd3\\",\\"alpha\\":1}","status":99,"type":1,"uid":"UNDMxOTUwMzE0NA==","uid2":1079875786,"ver":1},{"aid":614401,"content":"而非通过后即可","createtime":"2026-02-14 14:33:01","ct":10004,"extFields":{"grade":3,"aigc":0,"voteUp":2},"id":11238290932,"iid":"XNjQ3MjQ4ODUxNg==","level":0,"lid":0,"mat":8,"ouid":"UMzM1OTIxNTAw","playat":539895,"propertis":"{\\"size\\":4,\\"color\\":16524894,\\"pos\\":3,\\"alpha\\":1}","status":99,"type":1,"uid":"UNDczNjAwNTc0OA==","uid2":1184001437,"ver":1},{"aid":614401,"content":"不会是逆天开挂或者后宫吧","createtime":"2026-05-16 21:34:55","ct":10004,"extFields":{"grade":3,"aigc":0,"voteUp":1},"id":11604100321,"iid":"XNjQ3MjQ4ODUxNg==","level":0,"lid":0,"mat":8,"ouid":"UMzM1OTIxNTAw","playat":539306,"propertis":"{\\"size\\":2,\\"color\\":16432790,\\"pos\\":3,\\"alpha\\":1}","status":99,"type":1,"uid":"UNTgxODg4MTUwOA==","uid2":1454720377,"ver":1}],"count":11,"scm":"0.0"},"message":"success"}',
+      },
+      ret: ["SUCCESS::调用成功"],
+      traceId: "213368d817828066938622054e9103",
+      v: "1.0",
+    };
+    const chunk = await udb.import(YoukuAdapter(json));
+    const exportedJson = await chunk.export(DanuniJsonTransformerConfigurator({ minify: true }));
+    console.info(exportedJson);
+    expect(exportedJson[0].DMID).toBe("0d3aa761");
+    expect(exportedJson[exportedJson.length - 1].DMID).toBe("dd3a3efc");
   });
   it("min[双向]", async () => {
     const minJson = await chunk.export(DanuniJsonTransformerConfigurator({ minify: true }));

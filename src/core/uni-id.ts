@@ -52,6 +52,9 @@ export class UniID {
     else if (midHash) return new UniID(midHash, PlatformVideoSource.Bilibili);
     else return this.fromNull(PlatformVideoSource.Bilibili);
   }
+  static fromYouku(id: number | string) {
+    return new UniID(id.toString(), PlatformVideoSource.Youku);
+  }
   static fromUnknown(
     id: string,
     /**

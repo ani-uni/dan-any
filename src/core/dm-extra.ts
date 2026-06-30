@@ -10,6 +10,7 @@ export interface Extra {
   ddplay?: ExtraDdPlay;
   iqiyi?: ExtraIqiyi;
   tencent?: ExtraTencent;
+  youku?: ExtraYouku;
 }
 export interface ExtraArtplayer {
   style?: object;
@@ -106,4 +107,14 @@ export interface ExtraTencent {
   show_like_type?: number;
   report_like_score?: number;
   relate_sku_info?: unknown[];
+}
+export interface ExtraYouku {
+  aid: number;
+  ct: number;
+  id: number;
+  iid: string;
+  mat: number;
+  ouid: string;
+  uid: string;
+  uid2: number;
 }

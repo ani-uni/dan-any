@@ -54,4 +54,5 @@ export * from "./ddplay.ts";
 export * from "./dplayer.ts";
 export * from "./iqiyi.ts";
 export * from "./tencent.ts";
+export * from "./youku.ts";
 export * from "./vod.ts";
