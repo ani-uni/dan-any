@@ -12,6 +12,7 @@ export enum PlatformVideoSource {
   Iqiyi = "iqiyi",
   Tencent = "tencent",
   Youku = "youku",
+  Mgtv = "mgtv",
 }
 export const PlatformVideoSources = Object.values(PlatformVideoSource);
 

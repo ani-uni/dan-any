@@ -33,6 +33,8 @@ v2 同时提供了纯TS实现的方法（`@dan-uni/dan-any/core/main/pure`），
 - [x] vod `双向`: `VodAdapter` `VodTransformer`
 - [x] baha `双向`: `BahaAdapter` `BahaTransformer`
 - [x] iqiyi `正向`: `IqiyiAdapter`
+- [x] youku `正向`: `YoukuAdapter`
+- [x] mgtv `正向`: `MgtvAdapter`
 - [x] [ASS(`@dan-uni/dan-any-ext-ass`)](https://github.com/ani-uni/dan-any-ext-ass) `双向(部分支持，仅该库生成的ass文件支持还原)`
 
 ### Plugins 常用插件

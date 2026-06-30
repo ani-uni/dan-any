@@ -4,11 +4,11 @@ import type { z } from "zod";
 export function transMode(oriMode: string, fmt: "vod"): z.infer<typeof enumModeCodec.out>;
 export function transMode(
   oriMode: number,
-  fmt: "bili" | "dplayer" | "artplayer" | "ddplay" | "baha" | "iqiyi",
+  fmt: "bili" | "dplayer" | "artplayer" | "ddplay" | "baha" | "iqiyi" | "mgtv",
 ): z.infer<typeof enumModeCodec.out>;
 export function transMode(
   oriMode: number | string,
-  fmt: "bili" | "dplayer" | "artplayer" | "ddplay" | "baha" | "iqiyi" | "vod",
+  fmt: "bili" | "dplayer" | "artplayer" | "ddplay" | "baha" | "iqiyi" | "mgtv" | "vod",
 ): z.infer<typeof enumModeCodec.out> {
   let mode: z.infer<typeof enumModeCodec.out> = "Normal";
   switch (fmt) {
@@ -79,6 +79,11 @@ export function transMode(
           mode = "Bottom";
           break;
       }
+      break;
+
+    case "mgtv":
+      if (oriMode === 1) mode = "Top";
+      else if (oriMode === 2) mode = "Bottom";
       break;
 
     case "vod":

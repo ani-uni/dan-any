@@ -12,6 +12,7 @@ import {
   DdplayAdapter,
   DdplayTransformer,
   IqiyiAdapter,
+  MgtvAdapter,
   TencentAdapter,
   VodAdapter,
   VodTransformer,
@@ -668,6 +669,36 @@ describe("转化自", async () => {
     console.info(exportedJson);
     expect(exportedJson[0].DMID).toBe("0d3aa761");
     expect(exportedJson[exportedJson.length - 1].DMID).toBe("dd3a3efc");
+  });
+  it("mgtv[单向]", async () => {
+    const json = {
+      data: {
+        items: [
+          {
+            id: 7127865997559117000,
+            ids: "7127865997559116542",
+            type: 0,
+            uid: 5,
+            uuid: "086803c72e324640b3cad596bb66c672",
+            content: "first",
+            time: 1000,
+            v2_up_count: 4,
+          },
+          {
+            id: 7127968651572938000,
+            ids: "7127968651572937707",
+            type: 0,
+            uid: 5,
+            uuid: "2c25a5c4a49d4995bc3042c6b797989a",
+            content: "second",
+            time: 5000,
+          },
+        ],
+      },
+    };
+    const chunk = await udb.import(MgtvAdapter(json, 1, 1));
+    const exportedJson = chunk.export(DanuniJsonTransformerConfigurator({ minify: true }));
+    console.info(exportedJson);
   });
   it("min[双向]", async () => {
     const minJson = chunk.export(DanuniJsonTransformerConfigurator({ minify: true }));

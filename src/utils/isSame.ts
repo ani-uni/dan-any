@@ -58,6 +58,10 @@ export function isSame(that: Comp, dan: Comp, options?: { skipDanuniMerge?: bool
     if (that.extra?.youku.id !== dan.extra?.youku.id) return false;
     return true;
   }
+  if (that.extra?.mgtv && dan.extra?.mgtv) {
+    if (that.extra?.mgtv.ids !== dan.extra?.mgtv.ids) return false;
+    return true;
+  }
   // 如果是artplayer弹幕，需额外比较extra项目
   if (
     (that.extra?.artplayer && !dan.extra?.artplayer) ||

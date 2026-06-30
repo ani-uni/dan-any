@@ -8,6 +8,7 @@ export interface Extra {
   bili?: ExtraBili;
   danuni?: ExtraDanUni;
   ddplay?: ExtraDdPlay;
+  mgtv?: ExtraMgtv;
   iqiyi?: ExtraIqiyi;
   tencent?: ExtraTencent;
   youku?: ExtraYouku;
@@ -68,6 +69,13 @@ export interface ExtraDanUniColor {
 export interface ExtraDdPlay {
   cid: number;
   uid: string;
+}
+export interface ExtraMgtv {
+  id?: string;
+  ids?: string;
+  uid?: number | string;
+  uuid?: string;
+  position?: number;
 }
 export interface ExtraIqiyi {
   contentId?: string; // 弹幕ID
