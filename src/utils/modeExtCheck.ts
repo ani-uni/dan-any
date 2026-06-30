@@ -1,9 +1,8 @@
-import { ModeSchema } from "@/core/db/schema.ts";
 import type { Extra, ExtraBili } from "@/core/dm-extra.ts";
-import { z } from "zod";
+import { modeEnumArr } from "@/core/index.ts";
 
 interface ModeExtCheckDanmaku {
-  mode: z.infer<typeof ModeSchema>;
+  mode: (typeof modeEnumArr)[number];
   extra: Extra | null;
 }
 

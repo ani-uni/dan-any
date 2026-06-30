@@ -4,19 +4,11 @@ import type { Extra as UniDanExtra } from "@/core/dm-extra.ts";
 import { z } from "zod";
 import { createInsertSchema } from "drizzle-orm/zod";
 import type { Simplify } from "type-fest";
+import { dmAttrEnumArr, modeEnumArr, poolEnumArr } from "../index.ts";
 
-export const modeEnum = t.pgEnum("mode", ["Normal", "Bottom", "Top", "Reverse", "Ext"]);
-export const poolEnum = t.pgEnum("pool", ["Def", "Sub", "Adv", "Ix"]);
-export const dmAttrEnum = t.pgEnum("dm_attr", [
-  "Protect",
-  "FromLive",
-  "HighLike",
-  "Compatible",
-  "Reported",
-  "Unchecked",
-  "HasEvent",
-  "Hide",
-]);
+export const modeEnum = t.pgEnum("mode", modeEnumArr);
+export const poolEnum = t.pgEnum("pool", poolEnumArr);
+export const dmAttrEnum = t.pgEnum("dm_attr", dmAttrEnumArr);
 
 // bsnapshot的弹幕不设置默认值，尽量遵循上传组的原始数据(保证所有重要值均有确定)
 export const danmakus = t.pgTable("danmakus", {
@@ -37,7 +29,6 @@ export const danmakus = t.pgTable("danmakus", {
   extra: t.jsonb().$type<UniDanExtra>(),
 });
 export const danmakusInsertZod = createInsertSchema(danmakus);
-export const danmakusSelectZod = createInsertSchema(danmakus);
 export type DanmakusInsert = Simplify<
   Omit<z.infer<typeof danmakusInsertZod>, "extra"> & { extra: UniDanExtra | null }
 >;

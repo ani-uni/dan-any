@@ -5,6 +5,19 @@ import type { Extra } from "./dm-extra.ts";
 
 export type AdapterStore = (udb: InitedUniDB, uchunk?: UniChunk) => Promisable<UniChunk>;
 
+export const modeEnumArr = ["Normal", "Bottom", "Top", "Reverse", "Ext"] as const;
+export const poolEnumArr = ["Def", "Sub", "Adv", "Ix"] as const;
+export const dmAttrEnumArr = [
+  "Protect",
+  "FromLive",
+  "HighLike",
+  "Compatible",
+  "Reported",
+  "Unchecked",
+  "HasEvent",
+  "Hide",
+] as const;
+
 export interface UChunk {
   fromConverted: boolean;
   id: number;
@@ -13,24 +26,15 @@ export interface UChunk {
 export interface UDanmaku {
   DMID: string;
   SOID: string;
-  attr: (
-    | "Compatible"
-    | "FromLive"
-    | "HasEvent"
-    | "Hide"
-    | "HighLike"
-    | "Protect"
-    | "Reported"
-    | "Unchecked"
-  )[];
+  attr: (typeof dmAttrEnumArr)[number][];
   color: number;
   content: string;
   ctime: Date;
   extra: Extra | null;
   fontsize: number;
-  mode: "Bottom" | "Ext" | "Normal" | "Reverse" | "Top";
+  mode: (typeof modeEnumArr)[number];
   platform: string | null;
-  pool: "Adv" | "Def" | "Ix" | "Sub";
+  pool: (typeof poolEnumArr)[number];
   progress: number;
   senderID: string;
   weight: number;
@@ -50,28 +54,34 @@ export interface DanmakusInsert {
   SOID: string;
   DMID: string;
   progress: number;
-  mode: "Bottom" | "Ext" | "Normal" | "Reverse" | "Top";
+  mode: (typeof modeEnumArr)[number];
   fontsize: number;
   color: number;
   senderID: string;
   content: string;
   ctime: Date;
   weight: number;
-  pool: "Adv" | "Def" | "Ix" | "Sub";
-  attr: (
-    | "Compatible"
-    | "FromLive"
-    | "HasEvent"
-    | "Hide"
-    | "HighLike"
-    | "Protect"
-    | "Reported"
-    | "Unchecked"
-  )[];
+  pool: (typeof poolEnumArr)[number];
+  attr: (typeof dmAttrEnumArr)[number][];
   platform?: string | null | undefined;
   extra: Extra | null;
 }
-
+export interface DanmakusSelect {
+  SOID: string;
+  DMID: string;
+  progress: number;
+  mode: (typeof modeEnumArr)[number];
+  fontsize: number;
+  color: number;
+  senderID: string;
+  content: string;
+  ctime: Date;
+  weight: number;
+  pool: (typeof poolEnumArr)[number];
+  attr: (typeof dmAttrEnumArr)[number][];
+  platform?: string | null | undefined;
+  extra?: Extra | undefined;
+}
 export type baseClassTrans<T, ImplUniDB, ImplInitedUniDB, ImplUniChunk> = baseUniChunkTransX<
   baseInitedUniDBTransX<baseUniDBTransX<T, ImplUniDB>, ImplInitedUniDB>,
   ImplUniChunk

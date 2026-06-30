@@ -8,25 +8,25 @@ import { timestampDate, timestampFromDate, timestampNow } from "@bufbuild/protob
 
 import { ListDanResponseSchema } from "@/utils/proto/gen/danuni/danmaku/v1/danmaku_pb.ts";
 import { defineAdapter, defineMetadata, defineTransformer } from "../index.ts";
-import { danmakus } from "@/core/db/schema.ts";
 import { z } from "zod";
 
 import { JSON } from "@/utils/bigint.ts";
 import { migrateToV2Extra } from "@/utils/migrations/v2/extra.ts";
 import { defaultUniDM } from "@/core/dm.ts";
 import { fileParser } from "@/utils/fileParser.ts";
+import { dmAttrEnumArr, modeEnumArr, poolEnumArr } from "@/core/index.ts";
 
-const enumModeCodec = z.codec(z.enum(DanuniPbMode), z.enum(danmakus.mode.enumValues), {
-  decode: (danuniPbMode) => danmakus.mode.enumValues[danuniPbMode] || "Normal",
+const enumModeCodec = z.codec(z.enum(DanuniPbMode), z.enum(modeEnumArr), {
+  decode: (danuniPbMode) => modeEnumArr[danuniPbMode] || "Normal",
   encode: (dbMode) => {
-    const i = danmakus.mode.enumValues.indexOf(dbMode);
+    const i = modeEnumArr.indexOf(dbMode);
     return i === -1 ? DanuniPbMode.NORMAL_UNSPECIFIED : i;
   },
 });
-const enumPoolCodec = z.codec(z.enum(DanuniPbPool), z.enum(danmakus.pool.enumValues), {
-  decode: (danuniPbPool) => danmakus.pool.enumValues[danuniPbPool] || "Def",
+const enumPoolCodec = z.codec(z.enum(DanuniPbPool), z.enum(poolEnumArr), {
+  decode: (danuniPbPool) => poolEnumArr[danuniPbPool] || "Def",
   encode: (dbPool) => {
-    const i = danmakus.pool.enumValues.indexOf(dbPool);
+    const i = poolEnumArr.indexOf(dbPool);
     return i === -1 ? DanuniPbPool.DEF_UNSPECIFIED : i;
   },
 });
@@ -51,7 +51,7 @@ export const DanuniPbAdapter = defineAdapter(
           ctime: timestampDate(d.ctime || timestampNow()),
           // weight: d.weight,
           pool: enumPoolCodec.decode(d.pool),
-          attr: z.enum(danmakus.attr.enumValues).array().parse(d.attr),
+          attr: z.enum(dmAttrEnumArr).array().parse(d.attr),
           platform: d.platform ?? defaultUniDM.platform,
           extra: d.extra
             ? JSON.parse(d.extra)

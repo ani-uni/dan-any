@@ -1,19 +1,9 @@
 import { defineTransformer } from "@/adapters/index.ts";
-import { danmakusSelectZod } from "@/core/db/schema.ts";
-import type { z } from "zod";
-
-const statsItemZod = danmakusSelectZod.pick({
-  content: true,
-  SOID: true,
-  mode: true,
-  fontsize: true,
-  color: true,
-  senderID: true,
-  weight: true,
-  pool: true,
-  platform: true,
-});
-type StatsItem = z.infer<typeof statsItemZod>;
+import type { DanmakusSelect } from "@/core/index.ts";
+type StatsItem = Pick<
+  DanmakusSelect,
+  "content" | "SOID" | "mode" | "fontsize" | "color" | "senderID" | "weight" | "pool" | "platform"
+>;
 
 export const GetStatsTransformerConfigurator = <const T extends readonly (keyof StatsItem)[]>(
   items: T,

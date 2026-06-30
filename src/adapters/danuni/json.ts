@@ -1,4 +1,3 @@
-import { danmakus } from "@/core/db/schema.ts";
 import { defineTransformer, defineAdapter, type Transformer, defineMetadata } from "../index.ts";
 import { defaultUniDM, DMAttr, Modes, Pools, type UniDMObj } from "@/core/dm.ts";
 import { z } from "zod";
@@ -7,31 +6,20 @@ import { modeExtCheck } from "@/utils/modeExtCheck.ts";
 import { migrateToV2Extra } from "@/utils/migrations/v2/extra.ts";
 import { migrateToV2Progress } from "@/utils/migrations/v2/progress.ts";
 import { fileParser } from "@/utils/fileParser.ts";
+import { dmAttrEnumArr, modeEnumArr, poolEnumArr } from "@/core/index.ts";
 
-export const enumModeCodec = z.codec(
-  z.enum(Modes).default(Modes.Normal),
-  z.enum(danmakus.mode.enumValues),
-  {
-    decode: (danuniMode) => danmakus.mode.enumValues[danuniMode] || "Normal",
-    encode: (dbMode) => Modes[dbMode] || Modes.Normal,
-  },
-);
-export const enumPoolCodec = z.codec(
-  z.enum(Pools).default(Pools.Def),
-  z.enum(danmakus.pool.enumValues),
-  {
-    decode: (danuniPool) => danmakus.pool.enumValues[danuniPool] || "Def",
-    encode: (dbPool) => Pools[dbPool] || Pools.Def,
-  },
-);
-export const enumAttrsCodec = z.codec(
-  z.enum(DMAttr).array(),
-  z.enum(danmakus.attr.enumValues).array(),
-  {
-    decode: (danuniAttrs) => danuniAttrs,
-    encode: (dbAttrs) => dbAttrs.map((attr) => DMAttr[attr]),
-  },
-);
+export const enumModeCodec = z.codec(z.enum(Modes).default(Modes.Normal), z.enum(modeEnumArr), {
+  decode: (danuniMode) => modeEnumArr[danuniMode] || "Normal",
+  encode: (dbMode) => Modes[dbMode] || Modes.Normal,
+});
+export const enumPoolCodec = z.codec(z.enum(Pools).default(Pools.Def), z.enum(poolEnumArr), {
+  decode: (danuniPool) => poolEnumArr[danuniPool] || "Def",
+  encode: (dbPool) => Pools[dbPool] || Pools.Def,
+});
+export const enumAttrsCodec = z.codec(z.enum(DMAttr).array(), z.enum(dmAttrEnumArr).array(), {
+  decode: (danuniAttrs) => danuniAttrs,
+  encode: (dbAttrs) => dbAttrs.map((attr) => DMAttr[attr]),
+});
 
 function isV1UniObj(
   json: Partial<UniDMObj> & { extraStr?: string },

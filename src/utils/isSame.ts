@@ -1,13 +1,11 @@
-import { DMAttrSchema, ModeSchema, PoolSchema } from "@/core/db/schema.ts";
 import type { ExtraBili } from "@/core/dm-extra.ts";
 import { type UniDMObj } from "@/core/dm.ts";
-import type { UniChunk } from "@/core/index.ts";
-import type { z } from "zod";
+import type { UDanmaku, UniChunk } from "@/core/index.ts";
 
 interface UniDMComparable extends Omit<UniDMObj, "mode" | "pool" | "attr"> {
-  mode: z.infer<typeof ModeSchema>;
-  pool: z.infer<typeof PoolSchema>;
-  attr: z.infer<typeof DMAttrSchema>[];
+  mode: UDanmaku["mode"];
+  pool: UDanmaku["pool"];
+  attr: UDanmaku["attr"][];
 }
 
 type Comp = Pick<
