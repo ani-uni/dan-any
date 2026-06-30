@@ -13,6 +13,7 @@ import type { Asyncify, Promisable, Simplify } from "type-fest";
 import { createDMID, type DMIDGenerator } from "./id.ts";
 import type { z } from "zod";
 import { array2chunk } from "@/utils/array2chunk.ts";
+import { isSame } from "@/utils/isSame.ts";
 import * as base from "./index.ts";
 
 type baseClassTrans<T> = base.baseClassTrans<T, UniDB, InitedUniDB, UniChunk>;
@@ -98,16 +99,59 @@ export class InitedUniDB extends UniDB implements base.InitedUniDB {
       await $Private4InitedUniDB_upsertDanmakus(this, [...map.values()]);
     } else await $Private4InitedUniDB_upsertDanmakus(this, data);
   }
-  /**
-   * 清理临时chunks
-   */
-  async shrink() {
+  async purge() {
     const uchunks = await this.$db.query.chunks.findMany({
       where: {
         tmp: true,
       },
     });
     for (const c of uchunks) await new UniChunk(this, c.id).delete();
+  }
+  async shrink() {
+    const sourceDanmakus = await this.$db.select().from(danmakus);
+    const canonicalDMIDs = new Map<string, string>();
+    const canonicalDanmakus: typeof sourceDanmakus = [];
+    const updates = new Map<string, (typeof sourceDanmakus)[number]>();
+    const duplicatedDMIDs = new Set<string>();
+
+    for (const danmaku of sourceDanmakus) {
+      const same = canonicalDanmakus.find((candidate) => isSame(candidate, danmaku));
+      if (!same) {
+        canonicalDMIDs.set(danmaku.DMID, danmaku.DMID);
+        canonicalDanmakus.push(danmaku);
+        continue;
+      }
+
+      const canonicalDMID = same.DMID;
+      const nextDanmaku = { ...danmaku, DMID: canonicalDMID };
+      const index = canonicalDanmakus.findIndex((candidate) => candidate.DMID === canonicalDMID);
+      canonicalDMIDs.set(danmaku.DMID, canonicalDMID);
+      duplicatedDMIDs.add(danmaku.DMID);
+      if (index >= 0) canonicalDanmakus[index] = nextDanmaku;
+      updates.set(canonicalDMID, nextDanmaku);
+    }
+
+    if (duplicatedDMIDs.size === 0 && updates.size === 0) return;
+
+    const oldMappings = await this.$db.select().from(chunk2danmakus);
+    const nextMappings = new Map<string, { chunkID: number; DMID: string }>();
+    for (const mapping of oldMappings) {
+      const DMID = canonicalDMIDs.get(mapping.DMID) ?? mapping.DMID;
+      if (!canonicalDMIDs.has(DMID)) continue;
+      nextMappings.set(`${mapping.chunkID}:${DMID}`, { chunkID: mapping.chunkID, DMID });
+    }
+
+    await this.$db.transaction(async (tx) => {
+      for (const c of array2chunk([...updates.values()], 2340))
+        await tx.insert(danmakus).values(c).onConflictDoUpdate(onConflictDoUpdate.danmakus);
+      await tx.delete(chunk2danmakus);
+      for (const c of array2chunk([...nextMappings.values()], 2340))
+        await tx.insert(chunk2danmakus).values(c);
+      for (const DMID of duplicatedDMIDs) {
+        if (canonicalDMIDs.get(DMID) !== DMID)
+          await tx.delete(danmakus).where(eq(danmakus.DMID, DMID));
+      }
+    });
   }
   import(adapterStore: base.AdapterStore): Promisable<UniChunk> {
     return <Promisable<UniChunk>>adapterStore(this);

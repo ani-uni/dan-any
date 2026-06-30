@@ -123,6 +123,10 @@ export abstract class InitedUniDB extends UniDB {
   /**
    * 清理临时chunks
    */
+  abstract purge(): Promisable<void>;
+  /**
+   * 调用isSame检查弹幕重复度并高级去重
+   */
   abstract shrink(): Promisable<void>;
   abstract import(adapterStore: AdapterStore): Promisable<UniChunk>;
   abstract export<T extends Transformer | Asyncify<Transformer>>(

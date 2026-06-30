@@ -83,6 +83,7 @@ beforeAll(async () => {
   danuniJson = await chunk.export(DanuniJsonTransformerConfigurator());
 });
 afterAll(async () => {
+  await udb.purge();
   await udb.shrink();
   await udb.close();
 });

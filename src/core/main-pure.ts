@@ -3,6 +3,7 @@ import * as base from "./index.ts";
 import type { Plugin, Transformer, TransformerInput } from "@/adapters/index.ts";
 import type { Asyncify, Promisable, Simplify } from "type-fest";
 import { BigSerialMap, SerialMap } from "@/utils/serialMap.ts";
+import { isSame } from "@/utils/isSame.ts";
 
 type baseClassTrans<T> = base.baseClassTrans<T, UniDB, InitedUniDB, UniChunk>;
 
@@ -115,12 +116,49 @@ export class InitedUniDB extends UniDB implements base.InitedUniDB {
       $Private4InitedUniDB_upsertDanmakus(this, [...map.values()]);
     } else $Private4InitedUniDB_upsertDanmakus(this, data);
   }
-  /**
-   * 清理临时chunks
-   */
-  shrink() {
+  purge() {
     const uchunks = this.$db.chunks.values().filter((c) => c.tmp);
     for (const c of uchunks) new UniChunk(this, c.id).delete();
+  }
+  shrink() {
+    const canonicalDMIDs = new Map<string, string>();
+    const canonicalDanmakus: base.UDanmaku[] = [];
+    const duplicatedDMIDs = new Set<string>();
+
+    for (const danmaku of this.$db.danmakus.values()) {
+      const same = canonicalDanmakus.find((candidate) => isSame(candidate, danmaku));
+      if (!same) {
+        canonicalDMIDs.set(danmaku.DMID, danmaku.DMID);
+        canonicalDanmakus.push(danmaku);
+        continue;
+      }
+
+      const canonicalDMID = same.DMID;
+      const nextDanmaku = { ...danmaku, DMID: canonicalDMID };
+      const index = canonicalDanmakus.findIndex((candidate) => candidate.DMID === canonicalDMID);
+      canonicalDMIDs.set(danmaku.DMID, canonicalDMID);
+      duplicatedDMIDs.add(danmaku.DMID);
+      if (index >= 0) canonicalDanmakus[index] = nextDanmaku;
+      this.$db.danmakus.set(canonicalDMID, nextDanmaku);
+    }
+
+    for (const DMID of duplicatedDMIDs) {
+      if (canonicalDMIDs.get(DMID) !== DMID) this.$db.danmakus.delete(DMID);
+    }
+
+    const oldMappings = this.$db.chunk2danmakus.values();
+    const nextMappings = new Map<string, { chunkID: number; DMID: string }>();
+    for (const mapping of oldMappings) {
+      const DMID = canonicalDMIDs.get(mapping.DMID) ?? mapping.DMID;
+      if (!this.$db.danmakus.has(DMID)) continue;
+      nextMappings.set(`${mapping.chunkID}:${DMID}`, { chunkID: mapping.chunkID, DMID });
+    }
+
+    this.$db.chunk2danmakus.clear();
+    for (const mapping of nextMappings.values()) {
+      const id = this.$db.chunk2danmakus.nextSerial;
+      this.$db.chunk2danmakus.set(id, { id, ...mapping });
+    }
   }
   import(adapterStore: base.AdapterStore): Promisable<UniChunk> {
     return <Promisable<UniChunk>>adapterStore(this);
