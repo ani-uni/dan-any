@@ -23,17 +23,17 @@ export const danmakus = t.pgTable("danmakus", {
   SOID: t.text().notNull(),
   // .references(() => pools.SOID),
   DMID: t.text().primaryKey(), // 该值在此直接map到dan-any的DMID，为唯一值
-  progress: t.integer().notNull(), // 毫秒
-  mode: modeEnum().notNull(),
-  fontsize: t.smallint().notNull(),
-  color: t.integer().notNull(),
-  senderID: t.text().notNull(),
-  content: t.text().notNull(),
-  ctime: t.timestamp().notNull(),
-  weight: t.smallint().notNull(),
-  pool: poolEnum().notNull(),
-  attr: dmAttrEnum().array().notNull(),
-  platform: t.text(),
+  progress: t.integer().notNull(), // 弹幕进度 毫秒
+  mode: modeEnum().notNull(), // 弹幕模式(位置/类型)
+  fontsize: t.smallint().notNull(), // 弹幕字号
+  color: t.integer().notNull(), // 弹幕颜色
+  senderID: t.text().notNull(), // 发送者ID uni-id
+  content: t.text().notNull(), // 弹幕内容
+  ctime: t.timestamp().notNull(), // 弹幕发送时间
+  weight: t.smallint().notNull(), // 弹幕权重 0-11
+  pool: poolEnum().notNull(), // 弹幕池
+  attr: dmAttrEnum().array().notNull(), // 弹幕属性
+  platform: t.text(), // 弹幕平台 platform
   extra: t.jsonb().$type<UniDanExtra>(),
 });
 export const danmakusInsertZod = createInsertSchema(danmakus);
