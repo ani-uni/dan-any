@@ -42,6 +42,22 @@ export function isSame(that: Comp, dan: Comp, options?: { skipDanuniMerge?: bool
     // 不对dmid等原始值备份进行比较(若比较dmid，则必定不同，不符合比较函数使用场景)
     // 直接跳出bili特定判断，进入后续通用比较
   }
+  if (that.extra?.baha && dan.extra?.baha) {
+    if (that.extra?.baha.sn !== dan.extra?.baha.sn) return false;
+    else return true;
+  }
+  if (that.extra?.iqiyi && dan.extra?.iqiyi) {
+    if (that.extra?.iqiyi.contentId !== dan.extra?.iqiyi.contentId) return false;
+    else return true;
+  }
+  if (that.extra?.tencent && dan.extra?.tencent) {
+    if (that.extra?.tencent.id !== dan.extra?.tencent.id) return false;
+    return true;
+  }
+  if (that.extra?.youku && dan.extra?.youku) {
+    if (that.extra?.youku.id !== dan.extra?.youku.id) return false;
+    return true;
+  }
   // 如果是artplayer弹幕，需额外比较extra项目
   if (
     (that.extra?.artplayer && !dan.extra?.artplayer) ||
