@@ -12,7 +12,7 @@ import { defaultUniDM } from "@/core/dm.ts";
 import { InitedUniDB, UniChunk, UniDB } from "@/core/main-drizzle.ts";
 import { isSame } from "@/utils/index.ts";
 import { WildcardAdapterUtil } from "@/utils/wildcardAdapter.ts";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vite-plus/test";
 
 const xml = `<i>
 <chatserver>chat.bilibili.com</chatserver>
