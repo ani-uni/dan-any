@@ -150,6 +150,10 @@ vp test
 vp pack
 ```
 
+## Awesome Projects
+
+- [LogVar 弹幕 API](https://github.com/huangxd-/danmu_api) 多格式弹幕输出功能
+
 ## 许可
 
 `LGPL-3.0-or-later`
